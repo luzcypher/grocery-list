@@ -6,346 +6,276 @@
   <meta name="theme-color" content="#1b5e20">
   <title>Grocery List</title>
   <style>
-    :root {
-      --bg: #f3f6f3;
-      --card: #fff;
-      --ink: #1c1c1c;
-      --muted: #6b7280;
-      --green: #2e7d32;
-      --green-dark: #1b5e20;
-      --red: #c62828;
-      --shadow: 0 8px 24px rgba(27, 94, 32, 0.08);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: linear-gradient(180deg, #e8f5e9 0%, var(--bg) 180px);
-      color: var(--ink);
-      min-height: 100vh;
-      padding: 20px 16px 40px;
-    }
-    .wrap { max-width: 440px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 18px; }
-    h1 { font-size: 1.7rem; letter-spacing: -0.02em; }
-    p.sub { color: var(--muted); margin-top: 4px; font-size: 0.95rem; }
-    .toggle {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin: 16px 0 20px;
-    }
-    .toggle button {
-      border: 2px solid var(--green);
-      background: #fff;
-      color: var(--green-dark);
-      border-radius: 999px;
-      padding: 8px 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .toggle button.active {
-      background: var(--green);
-      color: #fff;
-    }
-    .mic-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    #mic {
-      width: 96px;
-      height: 96px;
-      border: none;
-      border-radius: 50%;
-      background: var(--green);
-      color: #fff;
-      font-size: 2.2rem;
-      cursor: pointer;
-      box-shadow: 0 10px 22px rgba(46, 125, 50, 0.35);
-    }
-    #mic.listening {
-      background: var(--red);
-      animation: pulse 1s infinite;
-    }
-    #mic:disabled { opacity: 0.5; cursor: not-allowed; }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.07); }
-    }
-    #status { min-height: 1.4em; color: var(--muted); text-align: center; }
-    form.add {
-      display: flex;
-      gap: 8px;
-      margin: 18px 0 12px;
-    }
-    form.add input {
-      flex: 1;
-      border: 1px solid #d7e3d7;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 1rem;
-    }
-    form.add button, .actions button {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 14px;
-      background: var(--green-dark);
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-    .actions button.ghost {
-      background: transparent;
-      color: var(--red);
-      padding: 6px 8px;
-    }
-    ul { list-style: none; }
-    li {
-      background: var(--card);
-      box-shadow: var(--shadow);
-      border-radius: 14px;
-      padding: 14px 14px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-    li span { font-size: 1.05rem; }
-    li button {
-      border: none;
-      background: none;
-      color: var(--red);
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 4px 8px;
-    }
-    .empty {
-      text-align: center;
-      color: var(--muted);
-      padding: 28px 8px;
-      background: transparent;
-      box-shadow: none;
-    }
-    footer {
-      margin-top: 24px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
+    :root { --bg:#eef5ee; --card:#fff; --ink:#142016; --muted:#66706a; --green:#2e7d32; --green-dark:#1b5e20; --red:#c62828; --line:#d7e4d8; --shadow:0 8px 24px rgba(20,32,22,.08); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:linear-gradient(180deg,#dcefdc 0%,var(--bg) 160px); color:var(--ink); min-height:100vh; }
+    .app { max-width:460px; margin:0 auto; padding:16px 14px 36px; }
+    header { text-align:center; padding:8px 0 4px; }
+    h1 { font-size:1.55rem; letter-spacing:-.03em; }
+    .sub { color:var(--muted); font-size:.92rem; margin-top:4px; }
+    .top-row { display:flex; justify-content:space-between; align-items:center; gap:8px; margin:14px 0 8px; }
+    .toggle { display:flex; gap:6px; }
+    .toggle button, .chip, .btn { border:0; cursor:pointer; font-weight:650; font-family:inherit; }
+    .toggle button { border:2px solid var(--green); background:#fff; color:var(--green-dark); border-radius:999px; padding:7px 13px; font-size:.85rem; }
+    .toggle button.active { background:var(--green); color:#fff; }
+    .chip { background:#fff; color:var(--green-dark); border:1px solid var(--line); border-radius:999px; padding:8px 12px; font-size:.85rem; }
+    .mic-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; margin:10px 0 6px; }
+    .mic { width:92px; height:92px; border:0; border-radius:50%; background:var(--green); color:#fff; font-size:2.1rem; cursor:pointer; box-shadow:0 10px 22px rgba(46,125,50,.32); }
+    .mic.listening { background:var(--red); animation:pulse 1s infinite; }
+    .mic:disabled { opacity:.45; cursor:not-allowed; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+    .status { min-height:1.3em; color:var(--muted); text-align:center; font-size:.92rem; }
+    form.add { display:flex; gap:8px; margin:12px 0 8px; }
+    form.add input, .field { flex:1; border:1px solid var(--line); border-radius:12px; padding:12px 13px; font-size:1rem; background:#fff; }
+    .btn.primary { background:var(--green-dark); color:#fff; border-radius:12px; padding:12px 14px; }
+    .btn.ghost { background:transparent; color:var(--green-dark); padding:8px 4px; }
+    .btn.danger { background:transparent; color:var(--red); }
+    .meta { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:.86rem; margin:4px 0 8px; }
+    .list { list-style:none; overflow:hidden; }
+    .row { background:var(--card); box-shadow:var(--shadow); border-radius:14px; margin-bottom:8px; touch-action:pan-y; overflow:hidden; }
+    .row-inner { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px; background:#fff; transition:transform .18s ease,opacity .18s ease; }
+    .row.removing .row-inner { opacity:0; }
+    .row.removing.left .row-inner { transform:translateX(-120%); }
+    .row.removing.right .row-inner { transform:translateX(120%); }
+    .row span { font-size:1.05rem; }
+    .x { border:0; background:none; color:var(--red); font-size:1.2rem; cursor:pointer; padding:4px 6px; }
+    .empty { text-align:center; color:var(--muted); padding:28px 8px; background:transparent; box-shadow:none; }
+    .saved-card { background:#fff; border-radius:16px; box-shadow:var(--shadow); padding:12px; margin-top:8px; }
+    .saved-item { display:grid; gap:8px; padding:12px 4px; border-bottom:1px solid var(--line); }
+    .saved-item:last-child { border-bottom:0; }
+    .saved-item h3 { font-size:1rem; }
+    .saved-item p { color:var(--muted); font-size:.8rem; margin-top:2px; }
+    .saved-actions { display:flex; flex-wrap:wrap; gap:6px; }
+    .saved-actions button { border:1px solid var(--line); background:#f7faf7; border-radius:999px; padding:6px 10px; font-size:.75rem; font-weight:650; cursor:pointer; }
+    .overlay { position:fixed; inset:0; background:rgba(16,28,18,.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:20; }
+    .chooser { background:#fff; border-radius:20px; padding:24px 20px; width:min(360px,100%); text-align:center; }
+    .chooser h2 { margin-bottom:8px; }
+    .chooser p { color:var(--muted); margin-bottom:18px; }
+    .chooser .big { display:flex; flex-direction:column; gap:10px; }
+    .chooser .big button { border:0; background:var(--green); color:#fff; border-radius:14px; padding:14px; font-size:1.05rem; font-weight:700; cursor:pointer; }
+    .chooser .big button.alt { background:var(--green-dark); }
+    .hidden { display:none !important; }
+    .hint { text-align:center; color:var(--muted); font-size:.78rem; margin-top:16px; }
+    .edit-bar { display:flex; gap:8px; margin-bottom:10px; }
+    .edit-bar input { flex:1; }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="app">
     <header>
-      <h1>Grocery List</h1>
-      <p class="sub" id="subtitle">Tap the mic and say what you need</p>
+      <h1 id="title">Grocery List</h1>
+      <p class="sub" id="subtitle"></p>
     </header>
-
-    <div class="toggle">
-      <button id="en" class="active" type="button">English</button>
-      <button id="es" type="button">Español</button>
+    <div class="top-row">
+      <div class="toggle">
+        <button id="en" type="button">English</button>
+        <button id="es" type="button">Español</button>
+      </div>
+      <button class="chip" id="navLists" type="button"></button>
     </div>
-
-    <div class="mic-wrap">
-      <button id="mic" type="button" aria-label="Start listening">🎤</button>
-      <div id="status"></div>
-    </div>
-
-    <form class="add" id="addForm">
-      <input id="typed" type="text" autocomplete="off" placeholder="Or type an item">
-      <button type="submit">Add</button>
-    </form>
-
-    <div class="actions">
-      <span id="count"></span>
-      <button class="ghost" id="clear" type="button">Clear list</button>
-    </div>
-
-    <ul id="list"></ul>
-    <footer id="hint">Works best in Chrome or Safari. Allow microphone access once.</footer>
+    <section id="shopView">
+      <div class="mic-wrap">
+        <button class="mic" id="mic" type="button">🎤</button>
+        <div class="status" id="status"></div>
+      </div>
+      <form class="add" id="addForm">
+        <input id="typed" type="text" autocomplete="off">
+        <button class="btn primary" type="submit" id="addBtn">Add</button>
+      </form>
+      <div class="meta">
+        <span id="count"></span>
+        <button class="btn danger" id="clear" type="button"></button>
+      </div>
+      <ul class="list" id="list"></ul>
+    </section>
+    <section id="listsView" class="hidden">
+      <form class="edit-bar" id="newListForm">
+        <input id="newListName" class="field" maxlength="40">
+        <button class="btn primary" type="submit" id="createListBtn"></button>
+      </form>
+      <button class="btn ghost" id="saveCurrentBtn" type="button"></button>
+      <div id="savedBox" class="saved-card"></div>
+    </section>
+    <section id="editView" class="hidden">
+      <form class="edit-bar" id="renameForm">
+        <input id="renameInput" class="field" maxlength="40">
+        <button class="btn primary" type="submit" id="renameBtn"></button>
+      </form>
+      <p class="sub" id="editHint" style="margin-bottom:10px"></p>
+      <div class="mic-wrap">
+        <button class="mic" id="micEdit" type="button">🎤</button>
+        <div class="status" id="statusEdit"></div>
+      </div>
+      <form class="add" id="editAddForm">
+        <input id="editTyped" type="text" autocomplete="off">
+        <button class="btn primary" type="submit" id="editAddBtn">Add</button>
+      </form>
+      <ul class="list" id="editList"></ul>
+      <button class="btn ghost" id="backShop" type="button"></button>
+    </section>
+    <p class="hint" id="hint"></p>
   </div>
-
+  <div class="overlay hidden" id="langOverlay">
+    <div class="chooser">
+      <h2 id="chooseTitle">Choose language</h2>
+      <p id="chooseSub">You can change this later.</p>
+      <div class="big">
+        <button type="button" id="pickEn">English</button>
+        <button type="button" class="alt" id="pickEs">Español</button>
+      </div>
+    </div>
+  </div>
   <script>
-    const copy = {
+    const t = {
       en: {
-        title: "Grocery List",
-        subtitle: "Tap the mic and say what you need",
-        ready: "Tap to speak",
-        listening: "Listening…",
-        unsupported: "Speech not supported in this browser",
-        empty: "No items yet",
-        count: (n) => n === 1 ? "1 item" : n + " items",
-        placeholder: "Or type an item",
-        add: "Add",
-        clear: "Clear list",
-        hint: "Works best in Chrome or Safari. Allow microphone access once.",
-        already: "Already listening",
-        confirmClear: "Clear the whole list?"
+        title:"Grocery List", subtitle:"Talk to add. Swipe an item away when you have it.",
+        ready:"Tap to speak", listening:"Listening…", unsupported:"Voice isn’t available in this browser",
+        empty:"Nothing on this trip yet", count:n=>n===1?"1 item":n+" items", placeholder:"Or type an item",
+        add:"Add", clear:"Clear trip", confirmClear:"Clear this shopping trip?", lists:"Saved lists", shop:"This trip",
+        hint:"This trip saves by itself. Swipe left or right to remove.", already:"Already listening",
+        newPlaceholder:"Name a saved list", create:"Create", saveCurrent:"Save this trip as a list",
+        noSaved:"No saved lists yet.", addTrip:"Add to trip", startTrip:"Start trip", edit:"Edit default",
+        del:"Delete", confirmDel:"Delete this saved list?",
+        editHint:"This is the reusable list. Voice or type to add. Swipe to remove.",
+        rename:"Rename", back:"Back to trip", itemsOf:n=>n===1?"1 saved item":n+" saved items",
+        named:"Untitled list", chooseTitle:"Choose language", chooseSub:"This phone will remember your choice."
       },
       es: {
-        title: "Lista del súper",
-        subtitle: "Toca el micrófono y di lo que necesitas",
-        ready: "Toca para hablar",
-        listening: "Escuchando…",
-        unsupported: "Este navegador no admite voz",
-        empty: "Aún no hay artículos",
-        count: (n) => n === 1 ? "1 artículo" : n + " artículos",
-        placeholder: "O escribe un artículo",
-        add: "Agregar",
-        clear: "Borrar lista",
-        hint: "Funciona mejor en Chrome o Safari. Permite el micrófono una vez.",
-        already: "Ya está escuchando",
-        confirmClear: "¿Borrar toda la lista?"
+        title:"Lista del súper", subtitle:"Habla para agregar. Desliza el artículo cuando ya lo tengas.",
+        ready:"Toca para hablar", listening:"Escuchando…", unsupported:"Este navegador no admite voz",
+        empty:"Este viaje aún no tiene artículos", count:n=>n===1?"1 artículo":n+" artículos", placeholder:"O escribe un artículo",
+        add:"Agregar", clear:"Borrar viaje", confirmClear:"¿Borrar este viaje de compras?", lists:"Listas guardadas", shop:"Este viaje",
+        hint:"Este viaje se guarda solo. Desliza a la izquierda o derecha para quitar.", already:"Ya está escuchando",
+        newPlaceholder:"Nombre de la lista", create:"Crear", saveCurrent:"Guardar este viaje como lista",
+        noSaved:"Aún no hay listas guardadas.", addTrip:"Sumar al viaje", startTrip:"Empezar viaje", edit:"Editar predeterminada",
+        del:"Borrar", confirmDel:"¿Borrar esta lista guardada?",
+        editHint:"Esta es la lista reutilizable. Habla o escribe para agregar. Desliza para quitar.",
+        rename:"Renombrar", back:"Volver al viaje", itemsOf:n=>n===1?"1 artículo guardado":n+" artículos guardados",
+        named:"Lista sin nombre", chooseTitle:"Elige idioma", chooseSub:"Este teléfono recordará tu elección."
       }
     };
-
-    const mic = document.getElementById("mic");
-    const status = document.getElementById("status");
-    const listEl = document.getElementById("list");
-    const enBtn = document.getElementById("en");
-    const esBtn = document.getElementById("es");
-    const typed = document.getElementById("typed");
-    const addForm = document.getElementById("addForm");
-    const countEl = document.getElementById("count");
-    const clearBtn = document.getElementById("clear");
-
-    let lang = localStorage.getItem("grocery-lang") || "en";
-    let items = JSON.parse(localStorage.getItem("grocery") || "[]");
-    let recognition = null;
-
-    function save() {
-      localStorage.setItem("grocery", JSON.stringify(items));
-      localStorage.setItem("grocery-lang", lang);
+    const $ = id => document.getElementById(id);
+    let lang = localStorage.getItem("grocery-lang") || "";
+    let trip = JSON.parse(localStorage.getItem("grocery-trip") || localStorage.getItem("grocery") || "[]");
+    let lists = JSON.parse(localStorage.getItem("grocery-lists") || "[]");
+    let view = "shop", editingId = null, recTrip = null, recEdit = null;
+    const save = () => {
+      if (lang) localStorage.setItem("grocery-lang", lang);
+      localStorage.setItem("grocery-trip", JSON.stringify(trip));
+      localStorage.setItem("grocery-lists", JSON.stringify(lists));
+    };
+    const splitUtterance = text => text.split(/\s+(?:and|y|e|plus|más)\s+|,\s*/i).map(s=>s.replace(/^[\s.]+|[\s.]+$/g,"")).filter(Boolean);
+    const mergeItems = (base, extra) => {
+      const seen = new Set(base.map(s=>s.toLowerCase())); const out = base.slice();
+      extra.forEach(item => { const k=item.toLowerCase(); if(!seen.has(k)){ seen.add(k); out.push(item); } });
+      return out;
+    };
+    const editingList = () => lists.find(l => l.id === editingId);
+    function applyCopy() {
+      if (!lang) return;
+      const c = t[lang];
+      document.documentElement.lang = lang; document.title = c.title;
+      $("title").textContent = view==="lists"?c.lists:(view==="edit"&&editingList()?editingList().name:c.title);
+      $("subtitle").textContent = view==="edit"?c.editHint:c.subtitle;
+      $("en").classList.toggle("active", lang==="en"); $("es").classList.toggle("active", lang==="es");
+      $("navLists").textContent = view==="shop"?c.lists:c.shop;
+      $("typed").placeholder=c.placeholder; $("editTyped").placeholder=c.placeholder;
+      $("addBtn").textContent=c.add; $("editAddBtn").textContent=c.add; $("clear").textContent=c.clear;
+      $("count").textContent = trip.length?c.count(trip.length):"";
+      $("newListName").placeholder=c.newPlaceholder; $("createListBtn").textContent=c.create;
+      $("saveCurrentBtn").textContent=c.saveCurrent; $("renameBtn").textContent=c.rename;
+      $("editHint").textContent=c.editHint; $("backShop").textContent=c.back; $("hint").textContent=c.hint;
+      $("chooseTitle").textContent=c.chooseTitle; $("chooseSub").textContent=c.chooseSub;
     }
-
-    function splitUtterance(text) {
-      return text
-        .split(/\s+(?:and|y|,|e)\s+|,\s*/i)
-        .map((s) => s.trim())
-        .filter(Boolean);
+    function showView(next){ view=next; $("shopView").classList.toggle("hidden", next!=="shop"); $("listsView").classList.toggle("hidden", next!=="lists"); $("editView").classList.toggle("hidden", next!=="edit"); applyCopy(); render(); }
+    function bindSwipe(row, onRemove){
+      let startX=0, dx=0, tracking=false; const inner=row.querySelector(".row-inner");
+      const start=x=>{ tracking=true; startX=x; dx=0; inner.style.transition="none"; };
+      const move=x=>{ if(!tracking) return; dx=x-startX; inner.style.transform=`translateX(${dx}px)`; };
+      const end=()=>{ if(!tracking) return; tracking=false; inner.style.transition="";
+        if(Math.abs(dx)>72){ row.classList.add("removing", dx<0?"left":"right"); setTimeout(onRemove,180); }
+        else inner.style.transform=""; };
+      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x")) return; row.setPointerCapture(e.pointerId); start(e.clientX); });
+      row.addEventListener("pointermove", e=>move(e.clientX));
+      row.addEventListener("pointerup", end);
+      row.addEventListener("pointercancel", end);
     }
-
-    function addItems(text) {
-      const parts = splitUtterance(text);
-      if (!parts.length) return;
-      items.push(...parts);
-      save();
-      render();
-    }
-
-    function render() {
-      const t = copy[lang];
-      document.title = t.title;
-      document.querySelector("h1").textContent = t.title;
-      document.getElementById("subtitle").textContent = t.subtitle;
-      typed.placeholder = t.placeholder;
-      addForm.querySelector("button").textContent = t.add;
-      clearBtn.textContent = t.clear;
-      document.getElementById("hint").textContent = t.hint;
-      countEl.textContent = items.length ? t.count(items.length) : "";
-
-      listEl.innerHTML = "";
-      if (!items.length) {
-        const li = document.createElement("li");
-        li.className = "empty";
-        li.textContent = t.empty;
-        listEl.appendChild(li);
-        return;
-      }
-      items.forEach((item, i) => {
-        const li = document.createElement("li");
-        const span = document.createElement("span");
-        span.textContent = item;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = "✕";
-        btn.setAttribute("aria-label", "Remove");
-        btn.onclick = () => {
-          items.splice(i, 1);
-          save();
-          render();
-        };
-        li.append(span, btn);
-        listEl.appendChild(li);
+    function renderItems(target, items, onRemove){
+      target.innerHTML=""; const c=t[lang]||t.en;
+      if(!items.length){ const li=document.createElement("li"); li.className="row empty"; li.textContent=c.empty; target.appendChild(li); return; }
+      items.forEach((item,i)=>{
+        const li=document.createElement("li"); li.className="row";
+        li.innerHTML=`<div class="row-inner"><span></span><button class="x" type="button">✕</button></div>`;
+        li.querySelector("span").textContent=item;
+        li.querySelector(".x").onclick=()=>onRemove(i);
+        bindSwipe(li, ()=>onRemove(i));
+        target.appendChild(li);
       });
     }
-
-    function setLang(next) {
-      lang = next;
-      enBtn.classList.toggle("active", next === "en");
-      esBtn.classList.toggle("active", next === "es");
-      status.textContent = copy[lang].ready;
-      save();
-      render();
+    function renderSaved(){
+      const c=t[lang]||t.en;
+      if(!lists.length){ $("savedBox").innerHTML=`<p class="empty">${c.noSaved}</p>`; return; }
+      $("savedBox").innerHTML="";
+      lists.forEach(list=>{
+        const div=document.createElement("div"); div.className="saved-item";
+        div.innerHTML=`<div><h3></h3><p></p></div><div class="saved-actions"><button data-act="add"></button><button data-act="start"></button><button data-act="edit"></button><button data-act="del"></button></div>`;
+        div.querySelector("h3").textContent=list.name;
+        div.querySelector("p").textContent=c.itemsOf(list.items.length);
+        div.querySelector('[data-act="add"]').textContent=c.addTrip;
+        div.querySelector('[data-act="start"]').textContent=c.startTrip;
+        div.querySelector('[data-act="edit"]').textContent=c.edit;
+        div.querySelector('[data-act="del"]').textContent=c.del;
+        div.querySelector('[data-act="add"]').onclick=()=>{ trip=mergeItems(trip,list.items); save(); showView("shop"); };
+        div.querySelector('[data-act="start"]').onclick=()=>{ trip=list.items.slice(); save(); showView("shop"); };
+        div.querySelector('[data-act="edit"]').onclick=()=>{ editingId=list.id; $("renameInput").value=list.name; showView("edit"); };
+        div.querySelector('[data-act="del"]').onclick=()=>{ if(!confirm(c.confirmDel)) return; lists=lists.filter(x=>x.id!==list.id); save(); renderSaved(); };
+        $("savedBox").appendChild(div);
+      });
     }
-
-    enBtn.onclick = () => setLang("en");
-    esBtn.onclick = () => setLang("es");
-
-    addForm.onsubmit = (e) => {
-      e.preventDefault();
-      const value = typed.value.trim();
-      if (!value) return;
-      addItems(value);
-      typed.value = "";
-      typed.focus();
-    };
-
-    clearBtn.onclick = () => {
-      if (!items.length) return;
-      if (confirm(copy[lang].confirmClear)) {
-        items = [];
-        save();
-        render();
-      }
-    };
-
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SR) {
-      recognition = new SR();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.onstart = () => {
-        mic.classList.add("listening");
-        status.textContent = copy[lang].listening;
-      };
-      recognition.onend = () => {
-        mic.classList.remove("listening");
-        status.textContent = copy[lang].ready;
-      };
-      recognition.onresult = (e) => {
-        const text = e.results[0][0].transcript.trim();
-        if (text) addItems(text);
-      };
-      recognition.onerror = (e) => {
-        mic.classList.remove("listening");
-        if (e.error !== "aborted" && e.error !== "no-speech") {
-          status.textContent = e.error;
-        } else {
-          status.textContent = copy[lang].ready;
-        }
-      };
-    } else {
-      status.textContent = copy[lang].unsupported;
-      mic.disabled = true;
+    function render(){
+      if(!lang) return; applyCopy();
+      if(view==="shop") renderItems($("list"), trip, i=>{ trip.splice(i,1); save(); render(); });
+      else if(view==="lists") renderSaved();
+      else { const list=editingList(); if(!list){ showView("lists"); return; } renderItems($("editList"), list.items, i=>{ list.items.splice(i,1); save(); render(); }); }
     }
-
-    mic.onclick = () => {
-      if (!recognition) return;
-      try {
-        recognition.lang = lang === "es" ? "es-MX" : "en-US";
-        recognition.start();
-      } catch {
-        status.textContent = copy[lang].already;
-      }
-    };
-
-    setLang(lang);
+    function addTo(arr, text){
+      const parts=splitUtterance(text); if(!parts.length) return;
+      const merged=mergeItems(arr, parts); arr.length=0; arr.push(...merged); save(); render();
+    }
+    function makeRecognizer(onText, statusEl, micBtn){
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      if(!SR){ micBtn.disabled=true; statusEl.textContent=(t[lang]||t.en).unsupported; return null; }
+      const rec=new SR(); rec.continuous=false; rec.interimResults=false;
+      rec.onstart=()=>{ micBtn.classList.add("listening"); statusEl.textContent=t[lang].listening; };
+      rec.onend=()=>{ micBtn.classList.remove("listening"); statusEl.textContent=t[lang].ready; };
+      rec.onresult=e=>{ const text=e.results[0][0].transcript.trim(); if(text) onText(text); };
+      rec.onerror=e=>{ micBtn.classList.remove("listening"); statusEl.textContent=(e.error!=="aborted"&&e.error!=="no-speech")?e.error:t[lang].ready; };
+      return rec;
+    }
+    function startRec(rec, micBtn, statusEl){
+      if(!rec) return;
+      try { rec.lang = lang==="es"?"es-MX":"en-US"; rec.start(); }
+      catch { statusEl.textContent=t[lang].already; }
+    }
+    function setLang(next){
+      lang=next; save(); $("langOverlay").classList.add("hidden");
+      recTrip=makeRecognizer(text=>addTo(trip,text), $("status"), $("mic"));
+      recEdit=makeRecognizer(text=>{ const list=editingList(); if(list) addTo(list.items,text); }, $("statusEdit"), $("micEdit"));
+      $("status").textContent=t[lang].ready; applyCopy(); render();
+    }
+    $("en").onclick=()=>setLang("en"); $("es").onclick=()=>setLang("es");
+    $("pickEn").onclick=()=>setLang("en"); $("pickEs").onclick=()=>setLang("es");
+    $("navLists").onclick=()=>showView(view==="shop"?"lists":"shop");
+    $("backShop").onclick=()=>showView("shop");
+    $("addForm").onsubmit=e=>{ e.preventDefault(); const v=$("typed").value.trim(); if(!v) return; addTo(trip,v); $("typed").value=""; };
+    $("editAddForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); const v=$("editTyped").value.trim(); if(!list||!v) return; addTo(list.items,v); $("editTyped").value=""; };
+    $("clear").onclick=()=>{ if(!trip.length) return; if(confirm(t[lang].confirmClear)){ trip=[]; save(); render(); } };
+    $("newListForm").onsubmit=e=>{ e.preventDefault(); lists.push({id:String(Date.now()), name:$("newListName").value.trim()||t[lang].named, items:[]}); $("newListName").value=""; save(); renderSaved(); };
+    $("saveCurrentBtn").onclick=()=>{ if(!trip.length) return; const name=prompt(t[lang].newPlaceholder, t[lang].named); if(name===null) return; lists.push({id:String(Date.now()), name:name.trim()||t[lang].named, items:trip.slice()}); save(); renderSaved(); };
+    $("renameForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); if(!list) return; const name=$("renameInput").value.trim(); if(name){ list.name=name; save(); applyCopy(); } };
+    $("mic").onclick=()=>startRec(recTrip,$("mic"),$("status"));
+    $("micEdit").onclick=()=>startRec(recEdit,$("micEdit"),$("statusEdit"));
+    if (lang) setLang(lang); else $("langOverlay").classList.remove("hidden");
   </script>
 </body>
 </html>

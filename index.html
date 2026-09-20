@@ -124,6 +124,7 @@
       </form>
       <button class="btn ghost" id="saveCurrentBtn" type="button"></button>
       <div id="savedBox" class="saved-card"></div>
+      <button class="btn ghost" id="backFromLists" type="button"></button>
     </section>
     <section id="editView" class="hidden">
       <form class="edit-bar" id="renameForm">
@@ -269,7 +270,7 @@
       $("count").textContent = trip.length?c.count(trip.length):"";
       $("newListName").placeholder=c.newPlaceholder; $("createListBtn").textContent=c.create;
       $("saveCurrentBtn").textContent=c.saveCurrent; $("saveTripBtn").textContent=c.saveTrip; $("copyBtn").textContent=c.copy; $("renameBtn").textContent=c.rename;
-      $("editHint").textContent=c.editHint; $("backShop").textContent=c.back; $("hint").textContent=c.hint;
+      $("editHint").textContent=c.editHint; $("backShop").textContent=c.back; $("backFromLists").textContent=c.back; $("hint").textContent=c.hint;
       $("chooseTitle").textContent=c.chooseTitle; $("chooseSub").textContent=c.chooseSub;
       $("helpBtn").textContent=c.help;
       $("helpTitle").textContent=c.helpTitle;
@@ -421,6 +422,7 @@
     $("pickEn").onclick=()=>setLang("en"); $("pickEs").onclick=()=>setLang("es");
     $("navLists").onclick=()=>showView(view==="shop"?"lists":"shop");
     $("backShop").onclick=()=>showView("shop");
+    $("backFromLists").onclick=()=>showView("shop");
     $("addForm").onsubmit=e=>{ e.preventDefault(); const v=$("typed").value.trim(); if(!v) return; addTo(trip,v); $("typed").value=""; };
     $("editAddForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); const v=$("editTyped").value.trim(); if(!list||!v) return; addTo(list.items,v); $("editTyped").value=""; };
     $("clear").onclick=()=>{ if(!trip.length) return; if(confirm(t[lang].confirmClear)){ trip=[]; save(); render(); } };

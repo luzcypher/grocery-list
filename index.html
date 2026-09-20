@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1b5e20">
+  <title>Grocery List</title>
+  <style>
+    :root {
+      --bg: #f3f6f3;
+      --card: #fff;
+      --ink: #1c1c1c;
+      --muted: #6b7280;
+      --green: #2e7d32;
+      --green-dark: #1b5e20;
+      --red: #c62828;
+      --shadow: 0 8px 24px rgba(27, 94, 32, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(180deg, #e8f5e9 0%, var(--bg) 180px);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+    }
+    .wrap { max-width: 440px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 18px; }
+    h1 { font-size: 1.7rem; letter-spacing: -0.02em; }
+    p.sub { color: var(--muted); margin-top: 4px; font-size: 0.95rem; }
+    .toggle {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 16px 0 20px;
+    }
+    .toggle button {
+      border: 2px solid var(--green);
+      background: #fff;
+      color: var(--green-dark);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .toggle button.active {
+      background: var(--green);
+      color: #fff;
+    }
+    .mic-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #mic {
+      width: 96px;
+      height: 96px;
+      border: none;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      font-size: 2.2rem;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(46, 125, 50, 0.35);
+    }
+    #mic.listening {
+      background: var(--red);
+      animation: pulse 1s infinite;
+    }
+    #mic:disabled { opacity: 0.5; cursor: not-allowed; }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.07); }
+    }
+    #status { min-height: 1.4em; color: var(--muted); text-align: center; }
+    form.add {
+      display: flex;
+      gap: 8px;
+      margin: 18px 0 12px;
+    }
+    form.add input {
+      flex: 1;
+      border: 1px solid #d7e3d7;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 1rem;
+    }
+    form.add button, .actions button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: var(--green-dark);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .actions button.ghost {
+      background: transparent;
+      color: var(--red);
+      padding: 6px 8px;
+    }
+    ul { list-style: none; }
+    li {
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border-radius: 14px;
+      padding: 14px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    li span { font-size: 1.05rem; }
+    li button {
+      border: none;
+      background: none;
+      color: var(--red);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px 8px;
+      background: transparent;
+      box-shadow: none;
+    }
+    footer {
+      margin-top: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Grocery List</h1>
+      <p class="sub" id="subtitle">Tap the mic and say what you need</p>
+    </header>
+
+    <div class="toggle">
+      <button id="en" class="active" type="button">English</button>
+      <button id="es" type="button">Español</button>
+    </div>
+
+    <div class="mic-wrap">
+      <button id="mic" type="button" aria-label="Start listening">🎤</button>
+      <div id="status"></div>
+    </div>
+
+    <form class="add" id="addForm">
+      <input id="typed" type="text" autocomplete="off" placeholder="Or type an item">
+      <button type="submit">Add</button>
+    </form>
+
+    <div class="actions">
+      <span id="count"></span>
+      <button class="ghost" id="clear" type="button">Clear list</button>
+    </div>
+
+    <ul id="list"></ul>
+    <footer id="hint">Works best in Chrome or Safari. Allow microphone access once.</footer>
+  </div>
+
+  <script>
+    const copy = {
+      en: {
+        title: "Grocery List",
+        subtitle: "Tap the mic and say what you need",
+        ready: "Tap to speak",
+        listening: "Listening…",
+        unsupported: "Speech not supported in this browser",
+        empty: "No items yet",
+        count: (n) => n === 1 ? "1 item" : n + " items",
+        placeholder: "Or type an item",
+        add: "Add",
+        clear: "Clear list",
+        hint: "Works best in Chrome or Safari. Allow microphone access once.",
+        already: "Already listening",
+        confirmClear: "Clear the whole list?"
+      },
+      es: {
+        title: "Lista del súper",
+        subtitle: "Toca el micrófono y di lo que necesitas",
+        ready: "Toca para hablar",
+        listening: "Escuchando…",
+        unsupported: "Este navegador no admite voz",
+        empty: "Aún no hay artículos",
+        count: (n) => n === 1 ? "1 artículo" : n + " artículos",
+        placeholder: "O escribe un artículo",
+        add: "Agregar",
+        clear: "Borrar lista",
+        hint: "Funciona mejor en Chrome o Safari. Permite el micrófono una vez.",
+        already: "Ya está escuchando",
+        confirmClear: "¿Borrar toda la lista?"
+      }
+    };
+
+    const mic = document.getElementById("mic");
+    const status = document.getElementById("status");
+    const listEl = document.getElementById("list");
+    const enBtn = document.getElementById("en");
+    const esBtn = document.getElementById("es");
+    const typed = document.getElementById("typed");
+    const addForm = document.getElementById("addForm");
+    const countEl = document.getElementById("count");
+    const clearBtn = document.getElementById("clear");
+
+    let lang = localStorage.getItem("grocery-lang") || "en";
+    let items = JSON.parse(localStorage.getItem("grocery") || "[]");
+    let recognition = null;
+
+    function save() {
+      localStorage.setItem("grocery", JSON.stringify(items));
+      localStorage.setItem("grocery-lang", lang);
+    }
+
+    function splitUtterance(text) {
+      return text
+        .split(/\s+(?:and|y|,|e)\s+|,\s*/i)
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+
+    function addItems(text) {
+      const parts = splitUtterance(text);
+      if (!parts.length) return;
+      items.push(...parts);
+      save();
+      render();
+    }
+
+    function render() {
+      const t = copy[lang];
+      document.title = t.title;
+      document.querySelector("h1").textContent = t.title;
+      document.getElementById("subtitle").textContent = t.subtitle;
+      typed.placeholder = t.placeholder;
+      addForm.querySelector("button").textContent = t.add;
+      clearBtn.textContent = t.clear;
+      document.getElementById("hint").textContent = t.hint;
+      countEl.textContent = items.length ? t.count(items.length) : "";
+
+      listEl.innerHTML = "";
+      if (!items.length) {
+        const li = document.createElement("li");
+        li.className = "empty";
+        li.textContent = t.empty;
+        listEl.appendChild(li);
+        return;
+      }
+      items.forEach((item, i) => {
+        const li = document.createElement("li");
+        const span = document.createElement("span");
+        span.textContent = item;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "✕";
+        btn.setAttribute("aria-label", "Remove");
+        btn.onclick = () => {
+          items.splice(i, 1);
+          save();
+          render();
+        };
+        li.append(span, btn);
+        listEl.appendChild(li);
+      });
+    }
+
+    function setLang(next) {
+      lang = next;
+      enBtn.classList.toggle("active", next === "en");
+      esBtn.classList.toggle("active", next === "es");
+      status.textContent = copy[lang].ready;
+      save();
+      render();
+    }
+
+    enBtn.onclick = () => setLang("en");
+    esBtn.onclick = () => setLang("es");
+
+    addForm.onsubmit = (e) => {
+      e.preventDefault();
+      const value = typed.value.trim();
+      if (!value) return;
+      addItems(value);
+      typed.value = "";
+      typed.focus();
+    };
+
+    clearBtn.onclick = () => {
+      if (!items.length) return;
+      if (confirm(copy[lang].confirmClear)) {
+        items = [];
+        save();
+        render();
+      }
+    };
+
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SR) {
+      recognition = new SR();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.onstart = () => {
+        mic.classList.add("listening");
+        status.textContent = copy[lang].listening;
+      };
+      recognition.onend = () => {
+        mic.classList.remove("listening");
+        status.textContent = copy[lang].ready;
+      };
+      recognition.onresult = (e) => {
+        const text = e.results[0][0].transcript.trim();
+        if (text) addItems(text);
+      };
+      recognition.onerror = (e) => {
+        mic.classList.remove("listening");
+        if (e.error !== "aborted" && e.error !== "no-speech") {
+          status.textContent = e.error;
+        } else {
+          status.textContent = copy[lang].ready;
+        }
+      };
+    } else {
+      status.textContent = copy[lang].unsupported;
+      mic.disabled = true;
+    }
+
+    mic.onclick = () => {
+      if (!recognition) return;
+      try {
+        recognition.lang = lang === "es" ? "es-MX" : "en-US";
+        recognition.start();
+      } catch {
+        status.textContent = copy[lang].already;
+      }
+    };
+
+    setLang(lang);
+  </script>
+</body>
+</html>

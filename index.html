@@ -58,6 +58,26 @@
     .hint { text-align:center; color:var(--muted); font-size:.78rem; margin-top:16px; }
     .edit-bar { display:flex; gap:8px; margin-bottom:10px; }
     .edit-bar input { flex:1; }
+    .toast {
+      position: sticky; bottom: 12px; margin-top: 12px;
+      background: #1b5e20; color: #fff; border-radius: 12px;
+      padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .toast button { border:0; background:#fff; color:#1b5e20; border-radius:8px; padding:6px 10px; font-weight:700; cursor:pointer; }
+    .item-text { flex:1; text-align:left; background:none; border:0; font: inherit; cursor:pointer; }
+    .chips { display:flex; gap:6px; align-items:center; }
+    .help-box { background:#fff; border-radius:20px; padding:22px 18px; width:min(400px,100%); max-height:86vh; overflow:auto; text-align:left; }
+    .help-box h2 { text-align:center; margin-bottom:10px; }
+    .help-box h3 { font-size:.95rem; margin:14px 0 6px; }
+    .help-box p, .help-box li { color:var(--ink); font-size:.92rem; line-height:1.4; }
+    .help-box ol { padding-left:1.2em; }
+    .help-box li { margin-bottom:6px; color:#334; }
+    .help-box .muted { color:var(--muted); text-align:center; margin-bottom:12px; }
+    .perm {
+      background:#fff3f0; border:1px solid #f3c4bc; color:#7a1f16;
+      border-radius:14px; padding:12px 14px; margin:8px 0 4px; text-align:left; font-size:.9rem; line-height:1.4;
+    }
+    .perm b { display:block; margin-bottom:6px; }
   </style>
 </head>
 <body>
@@ -71,12 +91,16 @@
         <button id="en" type="button">English</button>
         <button id="es" type="button">Español</button>
       </div>
-      <button class="chip" id="navLists" type="button"></button>
+      <div class="chips">
+        <button class="chip" id="helpBtn" type="button">?</button>
+        <button class="chip" id="navLists" type="button"></button>
+      </div>
     </div>
     <section id="shopView">
       <div class="mic-wrap">
         <button class="mic" id="mic" type="button">🎤</button>
         <div class="status" id="status"></div>
+        <div id="permBox" class="perm hidden"></div>
       </div>
       <form class="add" id="addForm">
         <input id="typed" type="text" autocomplete="off">
@@ -84,9 +108,14 @@
       </form>
       <div class="meta">
         <span id="count"></span>
-        <button class="btn danger" id="clear" type="button"></button>
+        <span>
+          <button class="btn ghost" id="copyBtn" type="button"></button>
+          <button class="btn ghost" id="saveTripBtn" type="button"></button>
+          <button class="btn danger" id="clear" type="button"></button>
+        </span>
       </div>
       <ul class="list" id="list"></ul>
+      <div id="undoBar" class="toast hidden"></div>
     </section>
     <section id="listsView" class="hidden">
       <form class="edit-bar" id="newListForm">
@@ -115,6 +144,23 @@
     </section>
     <p class="hint" id="hint"></p>
   </div>
+  <div class="overlay hidden" id="helpOverlay">
+    <div class="help-box">
+      <h2 id="helpTitle">Get it working</h2>
+      <p class="muted" id="helpIntro"></p>
+      <h3 id="helpAndTitle">Android</h3>
+      <ol id="helpAnd"></ol>
+      <h3 id="helpIosTitle">iPhone</h3>
+      <ol id="helpIos"></ol>
+      <h3 id="helpHomeTitle">Add to Home Screen</h3>
+      <ol id="helpHome"></ol>
+      <h3 id="helpMoreTitle">If the mic says “not allowed”</h3>
+      <ol id="helpMore"></ol>
+      <div class="big" style="margin-top:16px">
+        <button type="button" class="btn primary" id="helpClose" style="width:100%"></button>
+      </div>
+    </div>
+  </div>
   <div class="overlay hidden" id="langOverlay">
     <div class="chooser">
       <h2 id="chooseTitle">Choose language</h2>
@@ -133,12 +179,31 @@
         empty:"Nothing on this trip yet", count:n=>n===1?"1 item":n+" items", placeholder:"Or type an item",
         add:"Add", clear:"Clear trip", confirmClear:"Clear this shopping trip?", lists:"Saved lists", shop:"This trip",
         hint:"This trip saves by itself. Swipe left or right to remove.", already:"Already listening",
-        newPlaceholder:"Name a saved list", create:"Create", saveCurrent:"Save this trip as a list",
+        newPlaceholder:"Name this list", create:"Create", saveCurrent:"Save this trip as a list",
+        saveTrip:"Save as a list", savedOk:"Saved. Name it if you want.", needItems:"Add something first",
         noSaved:"No saved lists yet.", addTrip:"Add to trip", startTrip:"Start trip", edit:"Edit default",
         del:"Delete", confirmDel:"Delete this saved list?",
         editHint:"This is the reusable list. Voice or type to add. Swipe to remove.",
         rename:"Rename", back:"Back to trip", itemsOf:n=>n===1?"1 saved item":n+" saved items",
-        named:"Untitled list", chooseTitle:"Choose language", chooseSub:"This phone will remember your choice."
+        named:"Untitled list", chooseTitle:"Choose language", chooseSub:"This phone will remember your choice.",
+        help:"Help", helpTitle:"Get it working", helpClose:"Got it",
+        helpIntro:"Open this link in Chrome (Android) or Safari (iPhone). Don’t open it from Files, Gmail, or WhatsApp.",
+        helpAndTitle:"Android",
+        helpAnd:["Open this page in Chrome.","Tap the mic and tap Allow.","If it says not allowed: tap the lock next to the web address → Permissions → Microphone → Allow.","Or: Settings → Apps → Chrome → Permissions → Microphone → Allow."],
+        helpIosTitle:"iPhone",
+        helpIos:["Open this page in Safari.","Tap the mic and tap Allow.","If it says not allowed: tap aA (or the dots) in the address bar → Website Settings → Microphone → Allow.","Or: Settings → Safari → Microphone, and allow this site."],
+        helpMoreTitle:"If voice still fails",
+        helpMore:["Type the item instead. That still works.","Close the browser and open this same link again. The list stays on this phone."],
+        helpHomeTitle:"Add to Home Screen",
+        helpHome:["Android: Chrome menu (⋮) → Add to Home screen.","iPhone: Safari Share button → Add to Home Screen."],
+        copy:"Copy list", copied:"Copied. Paste it in a message.",
+        undo:"Undo", undid:"Item removed",
+        editItem:"Fix the name",
+        firstMic:"First time: tap the mic, then tap Allow on the popup. Don’t tap Block.",
+        notAllowedTitle:"Microphone is blocked",
+        notAllowed:"A site cannot turn it back on. Do this, then tap the mic again:",
+        notAllowedAnd:"Android / Chrome: lock icon by the web address → Permissions → Microphone → Allow.",
+        notAllowedIos:"iPhone / Safari: aA in the address bar → Website Settings → Microphone → Allow."
       },
       es: {
         title:"Lista del súper", subtitle:"Habla para agregar. Desliza el artículo cuando ya lo tengas.",
@@ -146,12 +211,31 @@
         empty:"Este viaje aún no tiene artículos", count:n=>n===1?"1 artículo":n+" artículos", placeholder:"O escribe un artículo",
         add:"Agregar", clear:"Borrar viaje", confirmClear:"¿Borrar este viaje de compras?", lists:"Listas guardadas", shop:"Este viaje",
         hint:"Este viaje se guarda solo. Desliza a la izquierda o derecha para quitar.", already:"Ya está escuchando",
-        newPlaceholder:"Nombre de la lista", create:"Crear", saveCurrent:"Guardar este viaje como lista",
+        newPlaceholder:"Nombre de esta lista", create:"Crear", saveCurrent:"Guardar este viaje como lista",
+        saveTrip:"Guardar como lista", savedOk:"Guardada. Ponle nombre si quieres.", needItems:"Agrega algo primero",
         noSaved:"Aún no hay listas guardadas.", addTrip:"Sumar al viaje", startTrip:"Empezar viaje", edit:"Editar predeterminada",
         del:"Borrar", confirmDel:"¿Borrar esta lista guardada?",
         editHint:"Esta es la lista reutilizable. Habla o escribe para agregar. Desliza para quitar.",
         rename:"Renombrar", back:"Volver al viaje", itemsOf:n=>n===1?"1 artículo guardado":n+" artículos guardados",
-        named:"Lista sin nombre", chooseTitle:"Elige idioma", chooseSub:"Este teléfono recordará tu elección."
+        named:"Lista sin nombre", chooseTitle:"Elige idioma", chooseSub:"Este teléfono recordará tu elección.",
+        help:"Ayuda", helpTitle:"Para que funcione", helpClose:"Listo",
+        helpIntro:"Abre este enlace en Chrome (Android) o Safari (iPhone). No lo abras desde Archivos, Gmail o WhatsApp.",
+        helpAndTitle:"Android",
+        helpAnd:["Abre esta página en Chrome.","Toca el micrófono y toca Permitir.","Si dice not allowed: toca el candado junto a la dirección → Permisos → Micrófono → Permitir.","O: Ajustes → Aplicaciones → Chrome → Permisos → Micrófono → Permitir."],
+        helpIosTitle:"iPhone",
+        helpIos:["Abre esta página en Safari.","Toca el micrófono y toca Permitir.","Si dice not allowed: toca aA (o los puntos) en la barra → Ajustes del sitio → Micrófono → Permitir.","O: Ajustes → Safari → Micrófono, y permite este sitio."],
+        helpMoreTitle:"Si la voz sigue fallando",
+        helpMore:["Escribe el artículo. Eso también funciona.","Cierra el navegador y abre el mismo enlace. La lista se queda en este teléfono."],
+        helpHomeTitle:"Agregar a inicio",
+        helpHome:["Android: menú de Chrome (⋮) → Agregar a pantalla de inicio.","iPhone: Safari → Compartir → Agregar a pantalla de inicio."],
+        copy:"Copiar lista", copied:"Copiada. Pégala en un mensaje.",
+        undo:"Deshacer", undid:"Artículo quitado",
+        editItem:"Corrige el nombre",
+        firstMic:"La primera vez: toca el micrófono y luego Permitir. No toques Bloquear.",
+        notAllowedTitle:"El micrófono está bloqueado",
+        notAllowed:"La página no puede activarlo. Haz esto y vuelve a tocar el micrófono:",
+        notAllowedAnd:"Android / Chrome: candado junto a la dirección → Permisos → Micrófono → Permitir.",
+        notAllowedIos:"iPhone / Safari: aA en la barra → Ajustes del sitio → Micrófono → Permitir."
       }
     };
     const $ = id => document.getElementById(id);
@@ -159,6 +243,7 @@
     let trip = JSON.parse(localStorage.getItem("grocery-trip") || localStorage.getItem("grocery") || "[]");
     let lists = JSON.parse(localStorage.getItem("grocery-lists") || "[]");
     let view = "shop", editingId = null, recTrip = null, recEdit = null;
+    let lastRemoved = null, undoTimer = null;
     const save = () => {
       if (lang) localStorage.setItem("grocery-lang", lang);
       localStorage.setItem("grocery-trip", JSON.stringify(trip));
@@ -183,9 +268,19 @@
       $("addBtn").textContent=c.add; $("editAddBtn").textContent=c.add; $("clear").textContent=c.clear;
       $("count").textContent = trip.length?c.count(trip.length):"";
       $("newListName").placeholder=c.newPlaceholder; $("createListBtn").textContent=c.create;
-      $("saveCurrentBtn").textContent=c.saveCurrent; $("renameBtn").textContent=c.rename;
+      $("saveCurrentBtn").textContent=c.saveCurrent; $("saveTripBtn").textContent=c.saveTrip; $("copyBtn").textContent=c.copy; $("renameBtn").textContent=c.rename;
       $("editHint").textContent=c.editHint; $("backShop").textContent=c.back; $("hint").textContent=c.hint;
       $("chooseTitle").textContent=c.chooseTitle; $("chooseSub").textContent=c.chooseSub;
+      $("helpBtn").textContent=c.help;
+      $("helpTitle").textContent=c.helpTitle;
+      $("helpIntro").textContent=c.helpIntro;
+      $("helpAndTitle").textContent=c.helpAndTitle;
+      $("helpIosTitle").textContent=c.helpIosTitle;
+      $("helpMoreTitle").textContent=c.helpMoreTitle;
+      $("helpHomeTitle").textContent=c.helpHomeTitle;
+      $("helpClose").textContent=c.helpClose;
+      const fillOl = (id, items) => { const ol=$(id); ol.innerHTML=""; items.forEach(s=>{ const li=document.createElement("li"); li.textContent=s; ol.appendChild(li); }); };
+      fillOl("helpAnd", c.helpAnd); fillOl("helpIos", c.helpIos); fillOl("helpMore", c.helpMore); fillOl("helpHome", c.helpHome);
     }
     function showView(next){ view=next; $("shopView").classList.toggle("hidden", next!=="shop"); $("listsView").classList.toggle("hidden", next!=="lists"); $("editView").classList.toggle("hidden", next!=="edit"); applyCopy(); render(); }
     function bindSwipe(row, onRemove){
@@ -199,14 +294,17 @@
       row.addEventListener("pointermove", e=>move(e.clientX));
       row.addEventListener("pointerup", end);
       row.addEventListener("pointercancel", end);
+      row.addEventListener("click", e=>{ if(Math.abs(dx)>12) e.preventDefault(); }, true);
     }
-    function renderItems(target, items, onRemove){
+    function renderItems(target, items, onRemove, onEdit){
       target.innerHTML=""; const c=t[lang]||t.en;
       if(!items.length){ const li=document.createElement("li"); li.className="row empty"; li.textContent=c.empty; target.appendChild(li); return; }
       items.forEach((item,i)=>{
         const li=document.createElement("li"); li.className="row";
-        li.innerHTML=`<div class="row-inner"><span></span><button class="x" type="button">✕</button></div>`;
-        li.querySelector("span").textContent=item;
+        li.innerHTML=`<div class="row-inner"><button class="item-text" type="button"></button><button class="x" type="button">✕</button></div>`;
+        const label=li.querySelector(".item-text");
+        label.textContent=item;
+        label.onclick=()=>onEdit(i, item);
         li.querySelector(".x").onclick=()=>onRemove(i);
         bindSwipe(li, ()=>onRemove(i));
         target.appendChild(li);
@@ -232,11 +330,42 @@
         $("savedBox").appendChild(div);
       });
     }
+    function hideUndo(){ $("undoBar").classList.add("hidden"); $("undoBar").innerHTML=""; lastRemoved=null; if(undoTimer) clearTimeout(undoTimer); }
+    function showUndo(item){
+      const bar=$("undoBar");
+      bar.classList.remove("hidden");
+      bar.innerHTML="";
+      const msg=document.createElement("span"); msg.textContent=t[lang].undid+": "+item;
+      const btn=document.createElement("button"); btn.type="button"; btn.textContent=t[lang].undo;
+      btn.onclick=()=>{
+        if(!lastRemoved) return;
+        lastRemoved.arr.splice(lastRemoved.index, 0, lastRemoved.item);
+        save(); hideUndo(); render();
+      };
+      bar.append(msg, btn);
+      if(undoTimer) clearTimeout(undoTimer);
+      undoTimer=setTimeout(hideUndo, 5000);
+    }
+    function removeAt(arr, i){
+      lastRemoved={ arr, index:i, item:arr[i] };
+      arr.splice(i,1); save(); render();
+      if(view==="shop") showUndo(lastRemoved.item);
+    }
+    function editAt(arr, i, item){
+      const next=prompt(t[lang].editItem, item);
+      if(next===null) return;
+      const name=next.trim();
+      if(!name){ removeAt(arr,i); return; }
+      arr[i]=name; save(); render();
+    }
     function render(){
       if(!lang) return; applyCopy();
-      if(view==="shop") renderItems($("list"), trip, i=>{ trip.splice(i,1); save(); render(); });
+      if(view==="shop") renderItems($("list"), trip, i=>removeAt(trip,i), (i,item)=>editAt(trip,i,item));
       else if(view==="lists") renderSaved();
-      else { const list=editingList(); if(!list){ showView("lists"); return; } renderItems($("editList"), list.items, i=>{ list.items.splice(i,1); save(); render(); }); }
+      else {
+        const list=editingList(); if(!list){ showView("lists"); return; }
+        renderItems($("editList"), list.items, i=>removeAt(list.items,i), (i,item)=>editAt(list.items,i,item));
+      }
     }
     function addTo(arr, text){
       const parts=splitUtterance(text); if(!parts.length) return;
@@ -247,9 +376,22 @@
       if(!SR){ micBtn.disabled=true; statusEl.textContent=(t[lang]||t.en).unsupported; return null; }
       const rec=new SR(); rec.continuous=false; rec.interimResults=false;
       rec.onstart=()=>{ micBtn.classList.add("listening"); statusEl.textContent=t[lang].listening; };
-      rec.onend=()=>{ micBtn.classList.remove("listening"); statusEl.textContent=t[lang].ready; };
+      rec.onend=()=>{
+        micBtn.classList.remove("listening");
+        if ($("permBox").classList.contains("hidden")) statusEl.textContent=t[lang].ready;
+      };
       rec.onresult=e=>{ const text=e.results[0][0].transcript.trim(); if(text) onText(text); };
-      rec.onerror=e=>{ micBtn.classList.remove("listening"); statusEl.textContent=(e.error!=="aborted"&&e.error!=="no-speech")?e.error:t[lang].ready; };
+      rec.onerror=e=>{
+        micBtn.classList.remove("listening");
+        if (e.error==="not-allowed") {
+          statusEl.textContent="";
+          showPermBlocked();
+        } else if (e.error!=="aborted" && e.error!=="no-speech") {
+          hidePerm(); statusEl.textContent=e.error;
+        } else {
+          hidePerm(); statusEl.textContent=t[lang].ready;
+        }
+      };
       return rec;
     }
     function startRec(rec, micBtn, statusEl){
@@ -261,8 +403,20 @@
       lang=next; save(); $("langOverlay").classList.add("hidden");
       recTrip=makeRecognizer(text=>addTo(trip,text), $("status"), $("mic"));
       recEdit=makeRecognizer(text=>{ const list=editingList(); if(list) addTo(list.items,text); }, $("statusEdit"), $("micEdit"));
-      $("status").textContent=t[lang].ready; applyCopy(); render();
+      $("status").textContent=t[lang].firstMic; applyCopy(); render();
+      if (!localStorage.getItem("grocery-help-seen")) openHelp();
     }
+    function hidePerm(){ $("permBox").classList.add("hidden"); $("permBox").innerHTML=""; }
+    function showPermBlocked(){
+      const c=t[lang]; const box=$("permBox");
+      box.classList.remove("hidden");
+      box.innerHTML=`<b>${c.notAllowedTitle}</b>${c.notAllowed}<br><br>${c.notAllowedAnd}<br><br>${c.notAllowedIos}`;
+    }
+    function openHelp(){ $("helpOverlay").classList.remove("hidden"); localStorage.setItem("grocery-help-seen","1"); }
+    function closeHelp(){ $("helpOverlay").classList.add("hidden"); }
+    $("helpBtn").onclick=openHelp;
+    $("helpClose").onclick=closeHelp;
+    $("helpOverlay").addEventListener("click", e=>{ if(e.target.id==="helpOverlay") closeHelp(); });
     $("en").onclick=()=>setLang("en"); $("es").onclick=()=>setLang("es");
     $("pickEn").onclick=()=>setLang("en"); $("pickEs").onclick=()=>setLang("es");
     $("navLists").onclick=()=>showView(view==="shop"?"lists":"shop");
@@ -271,7 +425,29 @@
     $("editAddForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); const v=$("editTyped").value.trim(); if(!list||!v) return; addTo(list.items,v); $("editTyped").value=""; };
     $("clear").onclick=()=>{ if(!trip.length) return; if(confirm(t[lang].confirmClear)){ trip=[]; save(); render(); } };
     $("newListForm").onsubmit=e=>{ e.preventDefault(); lists.push({id:String(Date.now()), name:$("newListName").value.trim()||t[lang].named, items:[]}); $("newListName").value=""; save(); renderSaved(); };
-    $("saveCurrentBtn").onclick=()=>{ if(!trip.length) return; const name=prompt(t[lang].newPlaceholder, t[lang].named); if(name===null) return; lists.push({id:String(Date.now()), name:name.trim()||t[lang].named, items:trip.slice()}); save(); renderSaved(); };
+    function saveTripAsList(){
+      if(!trip.length){ $("status").textContent=t[lang].needItems; return; }
+      const id=String(Date.now());
+      lists.push({id, name:t[lang].named, items:trip.slice()});
+      editingId=id; save();
+      $("renameInput").value="";
+      $("renameInput").placeholder=t[lang].newPlaceholder;
+      showView("edit");
+      $("statusEdit").textContent=t[lang].savedOk;
+      $("renameInput").focus();
+    }
+    $("copyBtn").onclick=async ()=>{
+      if(!trip.length){ $("status").textContent=t[lang].needItems; return; }
+      const text=trip.map((item,i)=>`${i+1}. ${item}`).join("\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        $("status").textContent=t[lang].copied;
+      } catch {
+        prompt(t[lang].copy, text);
+      }
+    };
+    $("saveTripBtn").onclick=saveTripAsList;
+    $("saveCurrentBtn").onclick=saveTripAsList;
     $("renameForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); if(!list) return; const name=$("renameInput").value.trim(); if(name){ list.name=name; save(); applyCopy(); } };
     $("mic").onclick=()=>startRec(recTrip,$("mic"),$("status"));
     $("micEdit").onclick=()=>startRec(recEdit,$("micEdit"),$("statusEdit"));

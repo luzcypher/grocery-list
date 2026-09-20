@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1b5e20">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <title>Grocery List</title>
   <style>
     :root { --bg:#eef5ee; --card:#fff; --ink:#142016; --muted:#66706a; --green:#2e7d32; --green-dark:#1b5e20; --red:#c62828; --line:#d7e4d8; --shadow:0 8px 24px rgba(20,32,22,.08); }
@@ -38,6 +41,8 @@
     .row.removing.left .row-inner { transform:translateX(-120%); }
     .row.removing.right .row-inner { transform:translateX(120%); }
     .row span { font-size:1.05rem; }
+    .row.done .item-text { text-decoration:line-through; color:var(--muted); }
+    .row.done { opacity:.7; }
     .x { border:0; background:none; color:var(--red); font-size:1.2rem; cursor:pointer; padding:4px 6px; }
     .empty { text-align:center; color:var(--muted); padding:28px 8px; background:transparent; box-shadow:none; }
     .saved-card { background:#fff; border-radius:16px; box-shadow:var(--shadow); padding:12px; margin-top:8px; }
@@ -111,6 +116,7 @@
         <span>
           <button class="btn ghost" id="copyBtn" type="button"></button>
           <button class="btn ghost" id="saveTripBtn" type="button"></button>
+          <button class="btn ghost hidden" id="clearChecked" type="button"></button>
           <button class="btn danger" id="clear" type="button"></button>
         </span>
       </div>
@@ -175,11 +181,11 @@
   <script>
     const t = {
       en: {
-        title:"Grocery List", subtitle:"Talk to add. Swipe an item away when you have it.",
+        title:"Grocery List", subtitle:"Talk to add. Swipe an item when you have it.",
         ready:"Tap to speak", listening:"Listening…", unsupported:"Voice isn’t available in this browser",
-        empty:"Nothing on this trip yet", count:n=>n===1?"1 item":n+" items", placeholder:"Or type an item",
-        add:"Add", clear:"Clear trip", confirmClear:"Clear this shopping trip?", lists:"Saved lists", shop:"This trip",
-        hint:"This trip saves by itself. Swipe left or right to remove.", already:"Already listening",
+        empty:"Nothing on this trip yet", count:n=>n===1?"1 item":n+" items", gotCount:n=>n+" got", placeholder:"Or type an item",
+        add:"Add", clear:"Clear trip", confirmClear:"Clear this shopping trip?", clearChecked:"Remove checked", lists:"Saved lists", shop:"This trip",
+        hint:"This trip saves by itself. Swipe an item when you have it. Tap ✕ to remove it for good.", already:"Already listening",
         newPlaceholder:"Name this list", create:"Create", saveCurrent:"Save this trip as a list",
         saveTrip:"Save as a list", savedOk:"Saved. Name it if you want.", needItems:"Add something first",
         noSaved:"No saved lists yet.", addTrip:"Add to trip", startTrip:"Start trip", edit:"Edit default",
@@ -209,9 +215,9 @@
       es: {
         title:"Lista del súper", subtitle:"Habla para agregar. Desliza el artículo cuando ya lo tengas.",
         ready:"Toca para hablar", listening:"Escuchando…", unsupported:"Este navegador no admite voz",
-        empty:"Este viaje aún no tiene artículos", count:n=>n===1?"1 artículo":n+" artículos", placeholder:"O escribe un artículo",
-        add:"Agregar", clear:"Borrar viaje", confirmClear:"¿Borrar este viaje de compras?", lists:"Listas guardadas", shop:"Este viaje",
-        hint:"Este viaje se guarda solo. Desliza a la izquierda o derecha para quitar.", already:"Ya está escuchando",
+        empty:"Este viaje aún no tiene artículos", count:n=>n===1?"1 artículo":n+" artículos", gotCount:n=>n+" en el carrito", placeholder:"O escribe un artículo",
+        add:"Agregar", clear:"Borrar viaje", confirmClear:"¿Borrar este viaje de compras?", clearChecked:"Quitar marcados", lists:"Listas guardadas", shop:"Este viaje",
+        hint:"Este viaje se guarda solo. Desliza un artículo cuando ya lo tengas. Toca ✕ para quitarlo del todo.", already:"Ya está escuchando",
         newPlaceholder:"Nombre de esta lista", create:"Crear", saveCurrent:"Guardar este viaje como lista",
         saveTrip:"Guardar como lista", savedOk:"Guardada. Ponle nombre si quieres.", needItems:"Agrega algo primero",
         noSaved:"Aún no hay listas guardadas.", addTrip:"Sumar al viaje", startTrip:"Empezar viaje", edit:"Editar predeterminada",
@@ -240,9 +246,10 @@
       }
     };
     const $ = id => document.getElementById(id);
+    const migrateItems = arr => arr.map(x => typeof x === "string" ? { text: x, checked: false } : x);
     let lang = localStorage.getItem("grocery-lang") || "";
-    let trip = JSON.parse(localStorage.getItem("grocery-trip") || localStorage.getItem("grocery") || "[]");
-    let lists = JSON.parse(localStorage.getItem("grocery-lists") || "[]");
+    let trip = migrateItems(JSON.parse(localStorage.getItem("grocery-trip") || localStorage.getItem("grocery") || "[]"));
+    let lists = JSON.parse(localStorage.getItem("grocery-lists") || "[]").map(l => ({ ...l, items: migrateItems(l.items) }));
     let view = "shop", editingId = null, recTrip = null, recEdit = null;
     let lastRemoved = null, undoTimer = null;
     const save = () => {
@@ -251,9 +258,9 @@
       localStorage.setItem("grocery-lists", JSON.stringify(lists));
     };
     const splitUtterance = text => text.split(/\s+(?:and|y|e|plus|más)\s+|,\s*/i).map(s=>s.replace(/^[\s.]+|[\s.]+$/g,"")).filter(Boolean);
-    const mergeItems = (base, extra) => {
-      const seen = new Set(base.map(s=>s.toLowerCase())); const out = base.slice();
-      extra.forEach(item => { const k=item.toLowerCase(); if(!seen.has(k)){ seen.add(k); out.push(item); } });
+    const mergeItems = (base, extraTexts) => {
+      const seen = new Set(base.map(o=>o.text.toLowerCase())); const out = base.slice();
+      extraTexts.forEach(text => { const k=text.toLowerCase(); if(!seen.has(k)){ seen.add(k); out.push({text, checked:false}); } });
       return out;
     };
     const editingList = () => lists.find(l => l.id === editingId);
@@ -267,7 +274,10 @@
       $("navLists").textContent = view==="shop"?c.lists:c.shop;
       $("typed").placeholder=c.placeholder; $("editTyped").placeholder=c.placeholder;
       $("addBtn").textContent=c.add; $("editAddBtn").textContent=c.add; $("clear").textContent=c.clear;
-      $("count").textContent = trip.length?c.count(trip.length):"";
+      const checkedN = trip.filter(x=>x.checked).length;
+      $("count").textContent = trip.length?c.count(trip.length)+(checkedN?" · "+c.gotCount(checkedN):""):"";
+      $("clearChecked").textContent = c.clearChecked;
+      $("clearChecked").classList.toggle("hidden", checkedN===0);
       $("newListName").placeholder=c.newPlaceholder; $("createListBtn").textContent=c.create;
       $("saveCurrentBtn").textContent=c.saveCurrent; $("saveTripBtn").textContent=c.saveTrip; $("copyBtn").textContent=c.copy; $("renameBtn").textContent=c.rename;
       $("editHint").textContent=c.editHint; $("backShop").textContent=c.back; $("backFromLists").textContent=c.back; $("hint").textContent=c.hint;
@@ -297,17 +307,18 @@
       row.addEventListener("pointercancel", end);
       row.addEventListener("click", e=>{ if(Math.abs(dx)>12) e.preventDefault(); }, true);
     }
-    function renderItems(target, items, onRemove, onEdit){
+    function renderItems(target, items, onSwipe, onEdit, onRemove){
       target.innerHTML=""; const c=t[lang]||t.en;
       if(!items.length){ const li=document.createElement("li"); li.className="row empty"; li.textContent=c.empty; target.appendChild(li); return; }
-      items.forEach((item,i)=>{
-        const li=document.createElement("li"); li.className="row";
+      const ordered = items.map((item,i)=>({item,i})).sort((a,b)=>(a.item.checked===b.item.checked)?0:(a.item.checked?1:-1));
+      ordered.forEach(({item,i})=>{
+        const li=document.createElement("li"); li.className="row"+(item.checked?" done":"");
         li.innerHTML=`<div class="row-inner"><button class="item-text" type="button"></button><button class="x" type="button">✕</button></div>`;
         const label=li.querySelector(".item-text");
-        label.textContent=item;
+        label.textContent=item.text;
         label.onclick=()=>onEdit(i, item);
         li.querySelector(".x").onclick=()=>onRemove(i);
-        bindSwipe(li, ()=>onRemove(i));
+        bindSwipe(li, ()=>onSwipe(i));
         target.appendChild(li);
       });
     }
@@ -324,8 +335,8 @@
         div.querySelector('[data-act="start"]').textContent=c.startTrip;
         div.querySelector('[data-act="edit"]').textContent=c.edit;
         div.querySelector('[data-act="del"]').textContent=c.del;
-        div.querySelector('[data-act="add"]').onclick=()=>{ trip=mergeItems(trip,list.items); save(); showView("shop"); };
-        div.querySelector('[data-act="start"]').onclick=()=>{ trip=list.items.slice(); save(); showView("shop"); };
+        div.querySelector('[data-act="add"]').onclick=()=>{ trip=mergeItems(trip,list.items.map(i=>i.text)); save(); showView("shop"); };
+        div.querySelector('[data-act="start"]').onclick=()=>{ trip=list.items.map(i=>({...i, checked:false})); save(); showView("shop"); };
         div.querySelector('[data-act="edit"]').onclick=()=>{ editingId=list.id; $("renameInput").value=list.name; showView("edit"); };
         div.querySelector('[data-act="del"]').onclick=()=>{ if(!confirm(c.confirmDel)) return; lists=lists.filter(x=>x.id!==list.id); save(); renderSaved(); };
         $("savedBox").appendChild(div);
@@ -336,7 +347,7 @@
       const bar=$("undoBar");
       bar.classList.remove("hidden");
       bar.innerHTML="";
-      const msg=document.createElement("span"); msg.textContent=t[lang].undid+": "+item;
+      const msg=document.createElement("span"); msg.textContent=t[lang].undid+": "+item.text;
       const btn=document.createElement("button"); btn.type="button"; btn.textContent=t[lang].undo;
       btn.onclick=()=>{
         if(!lastRemoved) return;
@@ -353,19 +364,22 @@
       if(view==="shop") showUndo(lastRemoved.item);
     }
     function editAt(arr, i, item){
-      const next=prompt(t[lang].editItem, item);
+      const next=prompt(t[lang].editItem, item.text);
       if(next===null) return;
       const name=next.trim();
       if(!name){ removeAt(arr,i); return; }
-      arr[i]=name; save(); render();
+      arr[i]={...arr[i], text:name}; save(); render();
+    }
+    function toggleAt(arr, i){
+      arr[i]={...arr[i], checked:!arr[i].checked}; save(); render();
     }
     function render(){
       if(!lang) return; applyCopy();
-      if(view==="shop") renderItems($("list"), trip, i=>removeAt(trip,i), (i,item)=>editAt(trip,i,item));
+      if(view==="shop") renderItems($("list"), trip, i=>toggleAt(trip,i), (i,item)=>editAt(trip,i,item), i=>removeAt(trip,i));
       else if(view==="lists") renderSaved();
       else {
         const list=editingList(); if(!list){ showView("lists"); return; }
-        renderItems($("editList"), list.items, i=>removeAt(list.items,i), (i,item)=>editAt(list.items,i,item));
+        renderItems($("editList"), list.items, i=>removeAt(list.items,i), (i,item)=>editAt(list.items,i,item), i=>removeAt(list.items,i));
       }
     }
     function addTo(arr, text){
@@ -426,11 +440,12 @@
     $("addForm").onsubmit=e=>{ e.preventDefault(); const v=$("typed").value.trim(); if(!v) return; addTo(trip,v); $("typed").value=""; };
     $("editAddForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); const v=$("editTyped").value.trim(); if(!list||!v) return; addTo(list.items,v); $("editTyped").value=""; };
     $("clear").onclick=()=>{ if(!trip.length) return; if(confirm(t[lang].confirmClear)){ trip=[]; save(); render(); } };
+    $("clearChecked").onclick=()=>{ if(!trip.some(x=>x.checked)) return; trip=trip.filter(x=>!x.checked); save(); render(); };
     $("newListForm").onsubmit=e=>{ e.preventDefault(); lists.push({id:String(Date.now()), name:$("newListName").value.trim()||t[lang].named, items:[]}); $("newListName").value=""; save(); renderSaved(); };
     function saveTripAsList(){
       if(!trip.length){ $("status").textContent=t[lang].needItems; return; }
       const id=String(Date.now());
-      lists.push({id, name:t[lang].named, items:trip.slice()});
+      lists.push({id, name:t[lang].named, items:trip.map(i=>({...i, checked:false}))});
       editingId=id; save();
       $("renameInput").value="";
       $("renameInput").placeholder=t[lang].newPlaceholder;
@@ -440,7 +455,7 @@
     }
     $("copyBtn").onclick=async ()=>{
       if(!trip.length){ $("status").textContent=t[lang].needItems; return; }
-      const text=trip.map((item,i)=>`${i+1}. ${item}`).join("\n");
+      const text=trip.map((item,i)=>`${i+1}. ${item.checked?"[x] ":""}${item.text}`).join("\n");
       try {
         await navigator.clipboard.writeText(text);
         $("status").textContent=t[lang].copied;
@@ -454,6 +469,9 @@
     $("mic").onclick=()=>startRec(recTrip,$("mic"),$("status"));
     $("micEdit").onclick=()=>startRec(recEdit,$("micEdit"),$("statusEdit"));
     if (lang) setLang(lang); else $("langOverlay").classList.remove("hidden");
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    }
   </script>
 </body>
 </html>

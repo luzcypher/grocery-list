@@ -35,7 +35,8 @@
     .btn.danger { background:transparent; color:var(--red); }
     .meta { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:.86rem; margin:4px 0 8px; }
     .list { list-style:none; overflow:hidden; }
-    .row { background:var(--card); box-shadow:var(--shadow); border-radius:14px; margin-bottom:8px; touch-action:pan-y; overflow:hidden; }
+    .row { background:var(--card); border-top:1px solid var(--line); touch-action:pan-y; overflow:hidden; }
+    .row:first-child { border-top:0; }
     .row-inner { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px; background:#fff; transition:transform .18s ease,opacity .18s ease; }
     .row.removing .row-inner { opacity:0; }
     .row.removing.left .row-inner { transform:translateX(-120%); }
@@ -85,9 +86,14 @@
     .store-row { display:flex; align-items:center; gap:8px; margin:4px 0 10px; }
     .store-row label { color:var(--muted); font-size:.86rem; font-weight:650; }
     .store-row select { min-width:0; padding:10px 12px; font-family:inherit; color:var(--ink); }
-    .cat-head { display:flex; justify-content:space-between; align-items:baseline; padding:12px 4px 6px; color:var(--green-dark); font-size:.85rem; font-weight:750; letter-spacing:.08em; text-transform:uppercase; }
-    .cat-head:first-child { padding-top:2px; }
-    .cat-head span:last-child { color:var(--muted); letter-spacing:0; }
+    .cat-card { background:var(--card); border-radius:16px; box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden; }
+    .cat-head { display:flex; align-items:center; gap:10px; padding:10px 14px; text-align:left; background:#f3f8f3; border-bottom:1px solid var(--line); }
+    .cat-emoji { font-size:1.4rem; line-height:1; }
+    .cat-head h3 { flex:1; font-size:1.02rem; font-weight:750; color:var(--green-dark); }
+    .cat-count { min-width:2em; text-align:center; background:#fff; border:1px solid var(--line); border-radius:999px; padding:2px 8px; color:var(--muted); font-size:.85rem; font-weight:700; font-variant-numeric:tabular-nums; }
+    .cat-items { list-style:none; }
+    .cat-card.uncat .cat-head { background:#fff8e6; }
+    .cat-fix { flex:none; max-width:42%; border:1px solid #e8c77a; background:#fff8e6; color:#6b4a00; border-radius:999px; padding:6px 8px; font:inherit; font-size:.85rem; font-weight:650; cursor:pointer; }
     .help-box .route-list { list-style:none; margin:12px 0 4px; padding:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; counter-reset:aisle; }
     .help-box .route-list li { margin:0; color:var(--ink); display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--line); counter-increment:aisle; }
     .route-list li:last-child { border-bottom:0; }
@@ -144,7 +150,7 @@
           <button class="btn danger" id="clear" type="button"></button>
         </span>
       </div>
-      <ul class="list" id="list"></ul>
+      <div class="list" id="list"></div>
       <div id="undoBar" class="toast hidden"></div>
     </section>
     <section id="listsView" class="hidden">
@@ -170,7 +176,7 @@
         <input id="editTyped" type="text" autocomplete="off">
         <button class="btn primary" type="submit" id="editAddBtn">Add</button>
       </form>
-      <ul class="list" id="editList"></ul>
+      <div class="list" id="editList"></div>
       <button class="btn ghost" id="backShop" type="button"></button>
     </section>
     <p class="hint" id="hint"></p>
@@ -260,7 +266,8 @@
         notAllowed:"A site cannot turn it back on. Do this, then tap the mic again:",
         notAllowedAnd:"Android / Chrome: lock icon by the web address → Permissions → Microphone → Allow.",
         notAllowedIos:"iPhone / Safari: aA in the address bar → Website Settings → Microphone → Allow.",
-        cats:{ produce:"Produce", bakery:"Bakery", meat:"Meat & seafood", dairy:"Dairy & eggs", pantry:"Pantry", frozen:"Frozen", uncategorized:"Other" },
+        cats:{ produce:"Produce", bakery:"Bakery", meat:"Meat & seafood", dairy:"Dairy & eggs", pantry:"Pantry", frozen:"Frozen", household:"Household", uncategorized:"Uncategorized" },
+        pickSection:"Pick section",
         store:"Store", standardStore:"Standard", addStore:"+ Add a store…", editRoute:"Edit route",
         routeTitle:"Store route", routeHint:"Put the sections in the order you walk them. Anything else shows up last.",
         storeName:"Store name, like Trader Joe’s", needName:"Give the store a name first.",
@@ -298,7 +305,8 @@
         notAllowed:"La página no puede activarlo. Haz esto y vuelve a tocar el micrófono:",
         notAllowedAnd:"Android / Chrome: candado junto a la dirección → Permisos → Micrófono → Permitir.",
         notAllowedIos:"iPhone / Safari: aA en la barra → Ajustes del sitio → Micrófono → Permitir.",
-        cats:{ produce:"Frutas y verduras", bakery:"Panadería", meat:"Carnes y mariscos", dairy:"Lácteos y huevos", pantry:"Despensa", frozen:"Congelados", uncategorized:"Otros" },
+        cats:{ produce:"Frutas y verduras", bakery:"Panadería", meat:"Carnes y mariscos", dairy:"Lácteos y huevos", pantry:"Despensa", frozen:"Congelados", household:"Hogar", uncategorized:"Sin categoría" },
+        pickSection:"Elegir sección",
         store:"Tienda", standardStore:"Estándar", addStore:"+ Agregar tienda…", editRoute:"Editar ruta",
         routeTitle:"Ruta de la tienda", routeHint:"Pon las secciones en el orden en que las recorres. Lo demás aparece al final.",
         storeName:"Nombre de la tienda, como Trader Joe’s", needName:"Primero ponle nombre a la tienda.",
@@ -308,10 +316,11 @@
       }
     };
     // ---- Categories: keyword dictionary (English + Spanish, accents ignored) ----
-    const CATEGORIES = ["produce","bakery","meat","dairy","pantry","frozen"]; // standard walking order
+    const CATEGORIES = ["produce","bakery","meat","dairy","pantry","frozen","household"]; // standard walking order
     const UNCAT = "uncategorized";
+    const CAT_EMOJI = { produce:"🍎", bakery:"🥖", meat:"🥩", dairy:"🥛", pantry:"📦", frozen:"❄️", household:"🛒", uncategorized:"❔" };
     const CATEGORY_DICT = {
-      produce:["apple","banana","orange","lemon","lime","grape","strawberry","strawberries","blueberries","raspberries","berries","cherry","cherries","peach","pear","plum","mango","pineapple","watermelon","melon","cantaloupe","kiwi","avocado","tomato","potato","sweet potato","onion","green onion","scallion","garlic","ginger","carrot","celery","broccoli","cauliflower","spinach","kale","lettuce","cabbage","cucumber","zucchini","squash","pepper","bell pepper","jalapeno","mushroom","corn","green beans","asparagus","cilantro","parsley","basil","herbs","salad","fruit","vegetable","veggies",
+      produce:["apple","banana","berry","orange","lemon","lime","grape","strawberry","strawberries","blueberries","raspberries","berries","cherry","cherries","peach","pear","plum","mango","pineapple","watermelon","melon","cantaloupe","kiwi","avocado","tomato","potato","sweet potato","onion","green onion","scallion","garlic","ginger","carrot","celery","broccoli","cauliflower","spinach","kale","lettuce","cabbage","cucumber","zucchini","squash","peppers","bell pepper","jalapeno","mushroom","corn","green beans","asparagus","cilantro","parsley","basil","herbs","salad","fruit","vegetable","veggies",
         "manzana","platano","banano","naranja","limon","uva","fresa","pina","sandia","aguacate","tomate","jitomate","tomatillo","papa","cebolla","cebollin","ajo","zanahoria","apio","brocoli","espinaca","lechuga","repollo","col","pepino","calabaza","calabacita","chile","pimiento","champinon","hongo","elote","perejil","nopal","fruta","verdura"],
       bakery:["bread","bagel","bun","hot dog buns","hamburger buns","dinner rolls","croissant","muffin","english muffin","tortilla","pita","baguette","sourdough","brioche","garlic bread","cake","cupcake","cheesecake","cheese cake","coffee cake","donut","doughnut","pie","pastry","pastries","danish","scone","brownie","cinnamon rolls",
         "pan","bolillo","concha","pastel","pan dulce","pay de queso","pastel de queso","dona"],
@@ -319,10 +328,12 @@
         "pollo","carne","carne molida","res","cerdo","puerco","tocino","jamon","salchicha","pavo","pescado","camaron","chuleta","bistec","costilla"],
       dairy:["milk","cheese","butter","yogurt","cream","sour cream","cream cheese","whipped cream","half and half","egg","cottage cheese","mozzarella","cheddar","parmesan","oat milk","almond milk","kefir","margarine",
         "leche","queso","queso fresco","mantequilla","yogur","crema","huevo","requeson"],
-      pantry:["rice","beans","pasta","spaghetti","noodles","flour","sugar","salt","black pepper","oil","olive oil","vinegar","cereal","oats","oatmeal","peanut butter","jelly","jam","honey","coffee","tea","soup","broth","chicken broth","tomato sauce","tomato paste","salsa","ketchup","mustard","mayo","mayonnaise","soy sauce","spices","chips","crackers","cookies","snacks","nuts","almonds","popcorn","granola","juice","apple juice","orange juice","soda","water","sparkling water","tuna","baking soda","baking powder","pancake mix","cake mix","rice cakes","vanilla","syrup","maple syrup",
+      pantry:["rice","beans","pasta","spaghetti","noodles","flour","sugar","salt","pepper","black pepper","sauce","oil","olive oil","vinegar","cereal","oats","oatmeal","peanut butter","jelly","jam","honey","coffee","tea","soup","broth","chicken broth","tomato sauce","tomato paste","salsa","ketchup","mustard","mayo","mayonnaise","soy sauce","spices","chips","crackers","cookies","snack","nuts","almonds","popcorn","granola","juice","apple juice","orange juice","soda","water","sparkling water","tuna","baking soda","baking powder","pancake mix","cake mix","rice cakes","vanilla","syrup","maple syrup",
         "arroz","frijol","fideo","harina","azucar","sal","aceite","vinagre","avena","cafe","te","sopa","caldo","catsup","mostaza","mayonesa","miel","galleta","jugo","refresco","agua","atun","consome"],
-      frozen:["ice cream","ice","popsicle","pizza","frozen pizza","waffles","fries","french fries","tater tots","ice pops",
-        "helado","paleta","hielo"]
+      frozen:["ice cream","ice","popsicle","pizza","frozen pizza","waffle","fries","french fries","tater tots","ice pops","nuggets","chicken nuggets","frozen veggies",
+        "helado","paleta","hielo"],
+      household:["paper towel","toilet paper","soap","dish soap","hand soap","detergent","laundry","bleach","trash bag","garbage bag","wipe","napkin","tissue","paper plates","foil","aluminum foil","plastic wrap","ziploc","sponge","shampoo","conditioner","toothpaste","toothbrush","deodorant","diaper","batteries","light bulb",
+        "papel higienico","papel de bano","toalla de papel","servilleta","jabon","detergente","cloro","bolsa de basura","toallita","panal","pasta de dientes","pila"]
     };
     const normalize = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim();
     // These also match at the end of a longer word: cheesecake, cupcake, cornbread, shortbread.
@@ -351,9 +362,9 @@
     const ITEM_CATS_KEY = "grocery-item-cats";
     let itemCats = {};
     try { itemCats = JSON.parse(localStorage.getItem(ITEM_CATS_KEY)) || {}; } catch {}
-    const categorize = text => {
-      const picked = itemCats[normalize(text)];
-      return picked === UNCAT || CATEGORIES.includes(picked) ? picked : autoCategory(text);
+    const categorizeItem = itemName => {
+      const picked = itemCats[normalize(itemName)];
+      return picked === UNCAT || CATEGORIES.includes(picked) ? picked : autoCategory(itemName);
     };
 
     // ---- Store routes: localStorage "grocery-routes" = { active, stores: { name: [category, ...] } } ----
@@ -380,7 +391,7 @@
     // Group items by category in route order. Keeps original indexes; checked items sink within their group.
     function sortByRoute(items, seq){
       const groups = new Map(seq.map(c => [c, []]));
-      items.forEach((item, i) => groups.get(categorize(item.text)).push({ item, i }));
+      items.forEach((item, i) => groups.get(categorizeItem(item.text)).push({ item, i }));
       return seq
         .map(cat => ({ cat, entries: groups.get(cat).sort((a, b) => a.item.checked - b.item.checked) }))
         .filter(g => g.entries.length);
@@ -451,7 +462,7 @@
       const end=()=>{ if(!tracking) return; tracking=false; inner.style.transition="";
         if(Math.abs(dx)>72){ row.classList.add("removing", dx<0?"left":"right"); setTimeout(onRemove,180); }
         else inner.style.transform=""; };
-      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x")) return; pointerId=e.pointerId; start(e.clientX); });
+      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x, .cat-fix")) return; pointerId=e.pointerId; start(e.clientX); });
       row.addEventListener("pointermove", e=>move(e.clientX));
       const stop=()=>{ pointerId=null; end(); };
       row.addEventListener("pointerup", stop);
@@ -461,23 +472,42 @@
     }
     function renderItems(target, items, onSwipe, onEdit, onRemove){
       target.innerHTML=""; const c=t[lang]||t.en;
-      if(!items.length){ const li=document.createElement("li"); li.className="row empty"; li.textContent=c.empty; target.appendChild(li); return; }
+      if(!items.length){ const p=document.createElement("p"); p.className="empty"; p.textContent=c.empty; target.appendChild(p); return; }
+      // One card per section that has items, in the active store's route order.
       sortByRoute(items, routeSequence(storeRoutes.active)).forEach(({cat, entries})=>{
-        const head=document.createElement("li"); head.className="cat-head";
-        const name=document.createElement("span"); name.textContent=c.cats[cat];
-        const left=document.createElement("span"); left.textContent=entries.filter(e=>!e.item.checked).length||"✓";
-        head.append(name, left); target.appendChild(head);
+        const card=document.createElement("section"); card.className="cat-card"+(cat===UNCAT?" uncat":"");
+        card.innerHTML=`<header class="cat-head"><span class="cat-emoji" aria-hidden="true"></span><h3></h3><span class="cat-count"></span></header><ul class="cat-items"></ul>`;
+        card.querySelector(".cat-emoji").textContent=CAT_EMOJI[cat];
+        card.querySelector("h3").textContent=c.cats[cat];
+        card.querySelector(".cat-count").textContent=entries.filter(e=>!e.item.checked).length||"✓";
+        const ul=card.querySelector(".cat-items");
         entries.forEach(({item,i})=>{
           const li=document.createElement("li"); li.className="row"+(item.checked?" done":"");
           li.innerHTML=`<div class="row-inner"><button class="item-text" type="button"></button><button class="x" type="button">✕</button></div>`;
           const label=li.querySelector(".item-text");
           label.textContent=item.text;
           label.onclick=()=>onEdit(i, item);
+          if(cat===UNCAT) label.after(sectionDropdown(item.text));
           li.querySelector(".x").onclick=()=>onRemove(i);
           bindSwipe(li, ()=>onSwipe(i));
-          target.appendChild(li);
+          ul.appendChild(li);
         });
+        target.appendChild(card);
       });
+    }
+    const catLabel = cat => `${CAT_EMOJI[cat]} ${(t[lang]||t.en).cats[cat]}`;
+    // Remember a hand-picked section for this item name; the dictionary guess is used when none is saved.
+    function rememberSection(itemName, cat){
+      const key=normalize(itemName);
+      if(cat===autoCategory(itemName)) delete itemCats[key]; else itemCats[key]=cat;
+    }
+    function sectionDropdown(itemName){
+      const sel=document.createElement("select"); sel.className="cat-fix";
+      sel.setAttribute("aria-label", (t[lang]||t.en).pickSection+": "+itemName);
+      const ph=document.createElement("option"); ph.value=""; ph.textContent=(t[lang]||t.en).pickSection; ph.disabled=true; ph.selected=true; sel.appendChild(ph);
+      CATEGORIES.forEach(cat=>{ const o=document.createElement("option"); o.value=cat; o.textContent=catLabel(cat); sel.appendChild(o); });
+      sel.onchange=()=>{ rememberSection(itemName, sel.value); save(); render(); };
+      return sel;
     }
     function renderStoreSelect(){
       const c=t[lang]||t.en, sel=$("storeSelect");
@@ -504,7 +534,7 @@
       ol.innerHTML="";
       order.forEach((cat,k)=>{
         const li=document.createElement("li");
-        const name=document.createElement("span"); name.textContent=c.cats[cat];
+        const name=document.createElement("span"); name.textContent=catLabel(cat);
         const btn=(sym,label,to)=>{ const b=document.createElement("button"); b.type="button"; b.textContent=sym; b.setAttribute("aria-label",label+": "+c.cats[cat]);
           b.disabled = to<0 || to>=order.length;
           b.onclick=()=>{ [order[k],order[to]]=[order[to],order[k]]; renderRouteList(); ol.children[to].querySelectorAll("button")[to<k?0:1]?.focus(); };
@@ -556,7 +586,7 @@
     }
     function editAt(arr, i, item){
       const c=t[lang];
-      itemDraft={ arr, i, cat:categorize(item.text), touched:false };
+      itemDraft={ arr, i, cat:categorizeItem(item.text), touched:false };
       $("itemName").value=item.text;
       $("itemTitle").textContent=c.editItemTitle; $("itemSectionLabel").textContent=c.section;
       $("itemHint").textContent=c.sectionHint; $("itemSave").textContent=c.saveRoute; $("itemCancel").textContent=c.cancel;
@@ -567,7 +597,7 @@
       const c=t[lang], box=$("catPicks");
       box.innerHTML="";
       [...CATEGORIES, UNCAT].forEach(cat=>{
-        const b=document.createElement("button"); b.type="button"; b.textContent=c.cats[cat];
+        const b=document.createElement("button"); b.type="button"; b.textContent=catLabel(cat);
         b.setAttribute("aria-pressed", String(cat===itemDraft.cat));
         b.onclick=()=>{ itemDraft.cat=cat; itemDraft.touched=true; renderCatPicks(); box.children[[...CATEGORIES, UNCAT].indexOf(cat)].focus(); };
         box.appendChild(b);
@@ -580,10 +610,7 @@
       closeItemSheet();
       if(!name){ removeAt(arr,i); return; }
       arr[i]={...arr[i], text:name};
-      if(touched){
-        const key=normalize(name);
-        if(cat===autoCategory(name)) delete itemCats[key]; else itemCats[key]=cat;
-      }
+      if(touched) rememberSection(name, cat);
       save(); render();
     }
     function toggleAt(arr, i){
@@ -671,9 +698,8 @@
     }
     $("copyBtn").onclick=async ()=>{
       if(!trip.length){ $("status").textContent=t[lang].needItems; return; }
-      const c=t[lang];
       const text=sortByRoute(trip, routeSequence(storeRoutes.active))
-        .map(g=>c.cats[g.cat]+"\n"+g.entries.map(({item})=>`${item.checked?"[x]":"-"} ${item.text}`).join("\n"))
+        .map(g=>catLabel(g.cat)+"\n"+g.entries.map(({item})=>`${item.checked?"[x]":"-"} ${item.text}`).join("\n"))
         .join("\n\n");
       try {
         await navigator.clipboard.writeText(text);

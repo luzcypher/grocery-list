@@ -108,7 +108,13 @@
     .route-list button:disabled { opacity:.35; cursor:default; }
     .route-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px; }
     .route-actions .btn.danger { margin-left:auto; }
-    #routeName, #itemName { width:100%; }
+    #routeName, #itemName, #routeGeoInput { width:100%; }
+    .geo-row { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:-2px 0 10px; }
+    .geo-row .chip[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:#fff; }
+    .geo-status { flex:1; min-width:12em; color:var(--muted); font-size:.85rem; }
+    .geo-box { margin-top:14px; padding-top:4px; border-top:1px solid var(--line); }
+    .geo-text { color:var(--muted); font-size:.88rem; }
+    .geo-box .route-actions { margin:8px 0; }
     .cat-picks { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
     .cat-picks button { border:1px solid var(--line); background:#f7faf7; color:var(--green-dark); border-radius:999px; padding:8px 12px; font-family:inherit; font-size:.85rem; font-weight:650; cursor:pointer; }
     .cat-picks button[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:#fff; }
@@ -144,7 +150,11 @@
       <div class="store-row">
         <label for="storeSelect" id="storeLabel">Store</label>
         <select id="storeSelect" class="field"></select>
-        <button class="chip" id="editRouteBtn" type="button">Edit route</button>
+        <button class="chip" id="editRouteBtn" type="button">Edit store</button>
+      </div>
+      <div class="geo-row">
+        <button class="chip" id="geoToggle" type="button" aria-pressed="false">📍 Detect my store: off</button>
+        <span class="geo-status" id="geoStatus" aria-live="polite"></span>
       </div>
       <div class="meta">
         <span id="count"></span>
@@ -209,6 +219,15 @@
       <p class="muted" id="routeHint"></p>
       <input id="routeName" class="field" maxlength="40" autocomplete="off">
       <ol class="route-list" id="routeList"></ol>
+      <div class="geo-box" id="routeGeo">
+        <h3 id="routeGeoTitle">Store location</h3>
+        <p class="geo-text" id="routeGeoText"></p>
+        <div class="route-actions">
+          <button type="button" class="btn ghost" id="routeGeoUse">📍 Use my current location</button>
+          <button type="button" class="btn danger" id="routeGeoClear">Remove location</button>
+        </div>
+        <input id="routeGeoInput" class="field" inputmode="decimal" autocomplete="off">
+      </div>
       <div class="route-actions">
         <button type="submit" class="btn primary" id="routeSave">Save</button>
         <button type="button" class="btn ghost" id="routeCancel">Cancel</button>
@@ -273,11 +292,24 @@
         notAllowedIos:"iPhone / Safari: aA in the address bar → Website Settings → Microphone → Allow.",
         cats:{ produce:"Produce", bakery:"Bakery", meat:"Meat & seafood", dairy:"Dairy & eggs", pantry:"Pantry", frozen:"Frozen", household:"Household", uncategorized:"Uncategorized" },
         pickSection:"Pick section",
-        store:"Store", standardStore:"Standard", addStore:"+ Add a store…", editRoute:"Edit route",
+        store:"Store", standardStore:"Standard", addStore:"+ Add a store…", editRoute:"Edit store",
         routeTitle:"Store route", routeHint:"Put the sections in the order you walk them. Anything else shows up last.",
         storeName:"Store name, like HEB", needName:"Give the store a name first.",
         saveRoute:"Save", cancel:"Cancel", delStore:"Delete store", confirmDelStore:"Delete this store route?",
         moveUp:"Move up", moveDown:"Move down",
+        geoOff:"📍 Detect my store: off", geoOn:"📍 Detect my store: on",
+        geoUnsupported:"This browser can’t share your location.",
+        geoDenied:"Location is blocked for this site. Allow it in your browser settings, then turn this on again.",
+        geoNoPlaces:"Save a store’s location first: Edit store → Use my current location.",
+        geoWatching:"Looking for your saved stores while this app is open.",
+        geoNearest:(name,dist)=>`Nearest saved store: ${name}, ${dist} away.`,
+        geoHere:name=>`📍 You’re at ${name}.`,
+        placeNone:"No location saved. Stand inside the store and tap the button, or paste coordinates below.",
+        placeSaved:(lat,lng,acc)=>`Saved: ${lat}, ${lng}${acc?` (accurate to about ${acc} m)`:""}`,
+        placeFinding:"Finding you…", placeFail:"Couldn’t get your location. Try again near a window or outside.",
+        placeTitle:"Store location", placeUse:"📍 Use my current location", placeClear:"Remove location",
+        placePaste:"Or paste coordinates, like 19.4326, -99.1332",
+        placeBad:"Couldn’t read those coordinates. Use the form 19.4326, -99.1332.",
         editItemTitle:"Edit item", section:"Section", sectionHint:"Pick a section and it will be remembered for this item. Clear the name to remove it."
       },
       es: {
@@ -312,11 +344,24 @@
         notAllowedIos:"iPhone / Safari: aA en la barra → Ajustes del sitio → Micrófono → Permitir.",
         cats:{ produce:"Frutas y verduras", bakery:"Panadería", meat:"Carnes y mariscos", dairy:"Lácteos y huevos", pantry:"Despensa", frozen:"Congelados", household:"Hogar", uncategorized:"Sin categoría" },
         pickSection:"Elegir sección",
-        store:"Tienda", standardStore:"Estándar", addStore:"+ Agregar tienda…", editRoute:"Editar ruta",
+        store:"Tienda", standardStore:"Estándar", addStore:"+ Agregar tienda…", editRoute:"Editar tienda",
         routeTitle:"Ruta de la tienda", routeHint:"Pon las secciones en el orden en que las recorres. Lo demás aparece al final.",
         storeName:"Nombre de la tienda, como HEB", needName:"Primero ponle nombre a la tienda.",
         saveRoute:"Guardar", cancel:"Cancelar", delStore:"Borrar tienda", confirmDelStore:"¿Borrar la ruta de esta tienda?",
         moveUp:"Subir", moveDown:"Bajar",
+        geoOff:"📍 Detectar mi tienda: no", geoOn:"📍 Detectar mi tienda: sí",
+        geoUnsupported:"Este navegador no puede compartir tu ubicación.",
+        geoDenied:"La ubicación está bloqueada para este sitio. Permítela en los ajustes del navegador y vuelve a activar esto.",
+        geoNoPlaces:"Primero guarda la ubicación de una tienda: Editar tienda → Usar mi ubicación actual.",
+        geoWatching:"Buscando tus tiendas guardadas mientras la app está abierta.",
+        geoNearest:(name,dist)=>`Tienda guardada más cercana: ${name}, a ${dist}.`,
+        geoHere:name=>`📍 Estás en ${name}.`,
+        placeNone:"Sin ubicación guardada. Párate dentro de la tienda y toca el botón, o pega coordenadas abajo.",
+        placeSaved:(lat,lng,acc)=>`Guardada: ${lat}, ${lng}${acc?` (precisión de unos ${acc} m)`:""}`,
+        placeFinding:"Buscando tu ubicación…", placeFail:"No se pudo obtener tu ubicación. Intenta cerca de una ventana o afuera.",
+        placeTitle:"Ubicación de la tienda", placeUse:"📍 Usar mi ubicación actual", placeClear:"Quitar ubicación",
+        placePaste:"O pega coordenadas, como 19.4326, -99.1332",
+        placeBad:"No se pudieron leer esas coordenadas. Usa la forma 19.4326, -99.1332.",
         editItemTitle:"Editar artículo", section:"Sección", sectionHint:"Elige una sección y se recordará para este artículo. Borra el nombre para quitarlo."
       }
     };
@@ -470,6 +515,7 @@
         r.presets = PRESETS_VERSION;
       }
       if (!r.stores[r.active]) r.active = STANDARD;
+      if (typeof r.places !== "object" || !r.places) r.places = {}; // store name -> { lat, lng, acc }
       return r;
     }
     // Full aisle order for a store: its custom order, then any categories it left out, then "Other".
@@ -496,6 +542,10 @@
     let trip = migrateItems(JSON.parse(localStorage.getItem("grocery-trip") || localStorage.getItem("grocery") || "[]"));
     let lists = JSON.parse(localStorage.getItem("grocery-lists") || "[]").map(l => ({ ...l, items: migrateItems(l.items) }));
     let storeRoutes = loadRoutes();
+    // Store detection: { on } — when on, the app selects a saved store you're standing in.
+    const GEO_KEY = "grocery-geo";
+    let geo = { on:false };
+    try { geo = { on: !!JSON.parse(localStorage.getItem(GEO_KEY)).on }; } catch {}
     let view = "shop", editingId = null, recTrip = null, recEdit = null;
     let lastRemoved = null, undoTimer = null, routeDraft = null, itemDraft = null;
     const save = () => {
@@ -504,6 +554,7 @@
       localStorage.setItem("grocery-lists", JSON.stringify(lists));
       localStorage.setItem(ROUTES_KEY, JSON.stringify(storeRoutes));
       localStorage.setItem(ITEM_CATS_KEY, JSON.stringify(itemCats));
+      localStorage.setItem(GEO_KEY, JSON.stringify(geo));
     };
     const splitUtterance = text => text.split(/\s+(?:and|y|e|plus|más)\s+|,\s*/i).map(s=>s.replace(/^[\s.]+|[\s.]+$/g,"")).filter(Boolean);
     const mergeItems = (base, extraTexts) => {
@@ -542,6 +593,10 @@
       $("routeTitle").textContent=c.routeTitle; $("routeName").placeholder=c.storeName;
       $("routeSave").textContent=c.saveRoute; $("routeCancel").textContent=c.cancel; $("routeDelete").textContent=c.delStore;
       renderStoreSelect();
+      $("geoToggle").textContent = geo.on ? c.geoOn : c.geoOff; $("geoToggle").setAttribute("aria-pressed", String(geo.on));
+      $("routeGeoTitle").textContent=c.placeTitle; $("routeGeoUse").textContent=c.placeUse; $("routeGeoClear").textContent=c.placeClear;
+      $("routeGeoInput").placeholder=c.placePaste;
+      showGeoStatus();
       const fillOl = (id, items) => { const ol=$(id); ol.innerHTML=""; items.forEach(s=>{ const li=document.createElement("li"); li.textContent=s; ol.appendChild(li); }); };
       fillOl("helpAnd", c.helpAnd); fillOl("helpIos", c.helpIos); fillOl("helpMore", c.helpMore); fillOl("helpHome", c.helpHome);
     }
@@ -655,6 +710,54 @@
         }
       });
     }
+    // ---- Store detection: watch position while the app is open; within 200 m of a saved store, select it ----
+    const NEAR_M = 200, LEAVE_M = 300, MAX_ACCURACY_M = 250;
+    let geoWatchId = null, geoNearest = null; const geoInside = new Set();
+    // Great-circle distance in meters (haversine).
+    function distanceMeters(lat1, lng1, lat2, lng2){
+      const R=6371000, rad=Math.PI/180;
+      const dLat=(lat2-lat1)*rad, dLng=(lng2-lng1)*rad;
+      const a=Math.sin(dLat/2)**2 + Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLng/2)**2;
+      return 2*R*Math.asin(Math.sqrt(a));
+    }
+    const fmtDist = m => m<1000 ? `${Math.round(m/10)*10} m` : `${(m/1000).toFixed(1)} km`;
+    const setGeoStatus = text => { $("geoStatus").textContent=text; };
+    function checkPosition(lat, lng, accuracy){
+      let nearest=null;
+      Object.entries(storeRoutes.places).forEach(([name, pl])=>{
+        if(!storeRoutes.stores[name]) return;
+        const d=distanceMeters(lat, lng, pl.lat, pl.lng);
+        if(!nearest || d<nearest.d) nearest={ name, d };
+        // Rough Wi-Fi/cell fixes can be off by a kilometer; only a GPS-quality fix counts as arriving.
+        // Select the store once on arrival, so picking another store by hand while inside sticks.
+        if(d<=NEAR_M && accuracy<=MAX_ACCURACY_M && !geoInside.has(name)){ geoInside.add(name); if(storeRoutes.active!==name){ storeRoutes.active=name; save(); render(); } }
+        else if(d>LEAVE_M) geoInside.delete(name); // a gap so GPS jitter at the edge doesn't re-trigger
+      });
+      geoNearest=nearest; showGeoStatus();
+    }
+    function showGeoStatus(){
+      if(!geo.on || geoWatchId===null) return;
+      const c=t[lang]||t.en, n=geoNearest;
+      if(!n) setGeoStatus(Object.keys(storeRoutes.places).length ? c.geoWatching : c.geoNoPlaces);
+      else setGeoStatus(geoInside.has(n.name) ? c.geoHere(n.name) : c.geoNearest(n.name, fmtDist(n.d)));
+    }
+    function startGeo(){
+      if(geoWatchId!==null || !("geolocation" in navigator)) return;
+      geoWatchId=navigator.geolocation.watchPosition(
+        pos=>checkPosition(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
+        err=>{ if(err.code===1){ geo.on=false; save(); stopGeo(); applyCopy(); setGeoStatus((t[lang]||t.en).geoDenied); } },
+        { enableHighAccuracy:true, maximumAge:10000, timeout:30000 });
+    }
+    function stopGeo(){ if(geoWatchId!==null) navigator.geolocation.clearWatch(geoWatchId); geoWatchId=null; geoNearest=null; geoInside.clear(); }
+    function toggleGeo(){
+      const c=t[lang];
+      if(geo.on){ geo.on=false; save(); stopGeo(); setGeoStatus(""); applyCopy(); return; }
+      if(!("geolocation" in navigator)){ setGeoStatus(c.geoUnsupported); return; }
+      if(!Object.keys(storeRoutes.places).some(n=>storeRoutes.stores[n])){ setGeoStatus(c.geoNoPlaces); return; }
+      geo.on=true; save(); applyCopy();
+      setGeoStatus(c.geoWatching);
+      startGeo();
+    }
     // Save a dragged order of the visible sections into the active store; hidden sections keep their places.
     function saveVisibleOrder(keys){
       const visible=keys.filter(k=>k!==UNCAT);
@@ -677,9 +780,25 @@
       $("routeName").disabled = key===STANDARD;
       $("routeHint").textContent=c.routeHint;
       $("routeDelete").classList.toggle("hidden", !key || key===STANDARD);
+      routeDraft.place = key && key!==STANDARD ? storeRoutes.places[key] || null : null;
+      $("routeGeo").classList.toggle("hidden", key===STANDARD);
+      $("routeGeoInput").value="";
+      renderPlace();
       renderRouteList();
       $("routeOverlay").classList.remove("hidden");
       if(!key) $("routeName").focus();
+    }
+    function renderPlace(msg){
+      const c=t[lang], pl=routeDraft.place;
+      $("routeGeoText").textContent = msg || (pl ? c.placeSaved(pl.lat.toFixed(5), pl.lng.toFixed(5), pl.acc) : c.placeNone);
+      $("routeGeoClear").classList.toggle("hidden", !pl);
+    }
+    // Accepts "19.4326, -99.1332" (what Google Maps copies on a long press).
+    function parseCoords(text){
+      const m=text.match(/(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)/);
+      if(!m) return null;
+      const lat=+m[1], lng=+m[2];
+      return Math.abs(lat)<=90 && Math.abs(lng)<=180 ? { lat, lng } : null;
     }
     function closeRouteEditor(){ routeDraft=null; $("routeOverlay").classList.add("hidden"); renderStoreSelect(); }
     function renderRouteList(){
@@ -882,7 +1001,10 @@
       if(key!==STANDARD){
         name=$("routeName").value.trim();
         if(!name || name==="__new"){ $("routeHint").textContent=t[lang].needName; $("routeName").focus(); return; }
-        if(key && key!==name) delete storeRoutes.stores[key];
+        const pasted=$("routeGeoInput").value.trim();
+        if(pasted){ const pl=parseCoords(pasted); if(!pl){ renderPlace(t[lang].placeBad); $("routeGeoInput").focus(); return; } routeDraft.place=pl; }
+        if(key && key!==name){ delete storeRoutes.stores[key]; delete storeRoutes.places[key]; }
+        if(routeDraft.place) storeRoutes.places[name]=routeDraft.place; else delete storeRoutes.places[name];
       }
       storeRoutes.stores[name]=order.slice(); storeRoutes.active=name;
       save(); closeRouteEditor(); render();
@@ -890,15 +1012,29 @@
     $("routeDelete").onclick=()=>{
       const { key } = routeDraft;
       if(!key || key===STANDARD || !confirm(t[lang].confirmDelStore)) return;
-      delete storeRoutes.stores[key]; storeRoutes.active=STANDARD;
+      delete storeRoutes.stores[key]; delete storeRoutes.places[key]; storeRoutes.active=STANDARD;
       save(); closeRouteEditor(); render();
     };
+    $("routeGeoUse").onclick=()=>{
+      const c=t[lang];
+      if(!("geolocation" in navigator)){ renderPlace(c.geoUnsupported); return; }
+      renderPlace(c.placeFinding);
+      navigator.geolocation.getCurrentPosition(pos=>{
+        if(!routeDraft) return;
+        const { latitude:lat, longitude:lng, accuracy } = pos.coords;
+        routeDraft.place={ lat, lng, acc:Math.round(accuracy) }; $("routeGeoInput").value=""; renderPlace();
+      }, err=>{ if(routeDraft) renderPlace(err.code===1 ? c.geoDenied : c.placeFail); },
+      { enableHighAccuracy:true, timeout:20000, maximumAge:0 });
+    };
+    $("routeGeoClear").onclick=()=>{ routeDraft.place=null; $("routeGeoInput").value=""; renderPlace(); };
+    $("geoToggle").onclick=toggleGeo;
     $("itemForm").onsubmit=e=>{ e.preventDefault(); saveItemSheet(); };
     $("itemCancel").onclick=closeItemSheet;
     $("itemOverlay").addEventListener("click", e=>{ if(e.target.id==="itemOverlay") closeItemSheet(); });
     $("mic").onclick=()=>startRec(recTrip,$("mic"),$("status"));
     $("micEdit").onclick=()=>startRec(recEdit,$("micEdit"),$("statusEdit"));
     if (lang) setLang(lang); else $("langOverlay").classList.remove("hidden");
+    if (geo.on) startGeo();
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
     }

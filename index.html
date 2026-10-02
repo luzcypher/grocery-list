@@ -314,19 +314,21 @@
     const CATEGORY_DICT = {
       produce:["apple","banana","orange","lemon","lime","grape","strawberry","strawberries","blueberries","raspberries","berries","cherry","cherries","peach","pear","plum","mango","pineapple","watermelon","melon","cantaloupe","kiwi","avocado","tomato","potato","sweet potato","onion","green onion","scallion","garlic","ginger","carrot","celery","broccoli","cauliflower","spinach","kale","lettuce","cabbage","cucumber","zucchini","squash","pepper","bell pepper","jalapeno","mushroom","corn","green beans","asparagus","cilantro","parsley","basil","herbs","salad","fruit","vegetable","veggies",
         "manzana","platano","banano","naranja","limon","uva","fresa","pina","sandia","aguacate","tomate","jitomate","tomatillo","papa","cebolla","cebollin","ajo","zanahoria","apio","brocoli","espinaca","lechuga","repollo","col","pepino","calabaza","calabacita","chile","pimiento","champinon","hongo","elote","perejil","nopal","fruta","verdura"],
-      bakery:["bread","bagel","bun","hot dog buns","hamburger buns","dinner rolls","croissant","muffin","english muffin","tortilla","pita","baguette","sourdough","brioche","garlic bread","cake","cupcake","donut","doughnut","pie",
-        "pan","bolillo","concha","pastel","pan dulce"],
+      bakery:["bread","bagel","bun","hot dog buns","hamburger buns","dinner rolls","croissant","muffin","english muffin","tortilla","pita","baguette","sourdough","brioche","garlic bread","cake","cupcake","cheesecake","cheese cake","coffee cake","donut","doughnut","pie","pastry","pastries","danish","scone","brownie","cinnamon rolls",
+        "pan","bolillo","concha","pastel","pan dulce","pay de queso","pastel de queso","dona"],
       meat:["chicken","beef","ground beef","steak","pork","pork chops","bacon","ham","sausage","turkey","lamb","ribs","brisket","hot dog","salami","pepperoni","deli meat","meatballs","chorizo","salmon","shrimp","fish","tilapia","cod",
         "pollo","carne","carne molida","res","cerdo","puerco","tocino","jamon","salchicha","pavo","pescado","camaron","chuleta","bistec","costilla"],
       dairy:["milk","cheese","butter","yogurt","cream","sour cream","cream cheese","whipped cream","half and half","egg","cottage cheese","mozzarella","cheddar","parmesan","oat milk","almond milk","kefir","margarine",
         "leche","queso","queso fresco","mantequilla","yogur","crema","huevo","requeson"],
-      pantry:["rice","beans","pasta","spaghetti","noodles","flour","sugar","salt","black pepper","oil","olive oil","vinegar","cereal","oats","oatmeal","peanut butter","jelly","jam","honey","coffee","tea","soup","broth","chicken broth","tomato sauce","tomato paste","salsa","ketchup","mustard","mayo","mayonnaise","soy sauce","spices","chips","crackers","cookies","snacks","nuts","almonds","popcorn","granola","juice","apple juice","orange juice","soda","water","sparkling water","tuna","baking soda","baking powder","vanilla","syrup","maple syrup",
+      pantry:["rice","beans","pasta","spaghetti","noodles","flour","sugar","salt","black pepper","oil","olive oil","vinegar","cereal","oats","oatmeal","peanut butter","jelly","jam","honey","coffee","tea","soup","broth","chicken broth","tomato sauce","tomato paste","salsa","ketchup","mustard","mayo","mayonnaise","soy sauce","spices","chips","crackers","cookies","snacks","nuts","almonds","popcorn","granola","juice","apple juice","orange juice","soda","water","sparkling water","tuna","baking soda","baking powder","pancake mix","cake mix","rice cakes","vanilla","syrup","maple syrup",
         "arroz","frijol","fideo","harina","azucar","sal","aceite","vinagre","avena","cafe","te","sopa","caldo","catsup","mostaza","mayonesa","miel","galleta","jugo","refresco","agua","atun","consome"],
       frozen:["ice cream","ice","popsicle","pizza","frozen pizza","waffles","fries","french fries","tater tots","ice pops",
         "helado","paleta","hielo"]
     };
     const normalize = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim();
-    const wordRe = w => new RegExp(`(^|[^a-z])${w}(e?s)?(?![a-z])`);
+    // These also match at the end of a longer word: cheesecake, cupcake, cornbread, shortbread.
+    const SUFFIX_WORDS = new Set(["cake","bread"]);
+    const wordRe = w => new RegExp(`${SUFFIX_WORDS.has(w) ? "" : "(^|[^a-z])"}${w}(e?s)?(?![a-z])`);
     // Longest keyword wins, so "peanut butter" beats "butter" and "ice cream" beats "cream".
     const CAT_MATCHERS = Object.entries(CATEGORY_DICT)
       .flatMap(([cat, words]) => words.map(w => ({ w: normalize(w), cat })))

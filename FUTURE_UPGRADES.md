@@ -85,3 +85,14 @@ Still to do once the other upgrades exist:
 - Shared family lists: learn from the whole household's purchases.
 - Store tags: suggest the item at the store where it is usually bought.
 - Supabase: keep the habit profile in the shopper's own account so it survives a new phone.
+
+## iPhone and Android apps in the stores
+Wrap the web app as a real app for both the Apple App Store and Google Play using Capacitor
+(same web code inside a native app).
+- Unlocks native features from this list: push notifications (family list alerts, near-store alerts
+  with the app closed), background location, camera (receipt scanning), haptics, home-screen widgets.
+- Needs: Google Play developer account (~$25 USD once), Apple developer account (~$99 USD/year),
+  a Mac with Xcode or a cloud build service for iPhone builds, store listings in English and Spanish,
+  app icons and splash screens.
+- Apple can reject "a website in a box"; shipping it with native features (push, location, camera)
+  makes approval much more likely.

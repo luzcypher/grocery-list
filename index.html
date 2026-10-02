@@ -112,6 +112,20 @@
     .geo-row { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:-2px 0 10px; }
     .geo-row .chip[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:#fff; }
     .geo-status { flex:1; min-width:12em; color:var(--muted); font-size:.85rem; }
+    .low-bar { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(14px + env(safe-area-inset-bottom, 0px)); z-index:15;
+      width:min(432px, calc(100% - 28px)); display:flex; align-items:center; gap:6px; padding:6px 6px 6px 16px;
+      background:#fff; border:1px solid var(--line); border-radius:999px; box-shadow:var(--shadow); opacity:.7; transition:opacity .2s; }
+    .low-bar:hover, .low-bar:focus-within { opacity:1; }
+    .low-bar span { flex:1; min-width:0; font-weight:600; font-size:.95rem; }
+    .low-bar .btn.primary { border-radius:999px; padding:9px 14px; }
+    .low-bar .btn.ghost { padding:9px 8px; }
+    body.has-low .app { padding-bottom:96px; }
+    .habits { margin-top:12px; }
+    .habits h3 { font-size:1rem; }
+    .habits-note { color:var(--muted); font-size:.82rem; margin:4px 0 6px; }
+    .habits ul { list-style:none; }
+    .habits li { display:flex; justify-content:space-between; gap:8px; padding:8px 2px; border-bottom:1px solid var(--line); font-size:.95rem; }
+    .habits li span:last-child { color:var(--muted); white-space:nowrap; }
     .idea-row { display:flex; justify-content:flex-end; margin:-2px 0 8px; }
     .idea-card { background:#fffaf0; border:1px solid #f0d9a8; border-radius:16px; padding:14px; margin-bottom:12px; box-shadow:var(--shadow); }
     .idea-card p { font-size:1.02rem; line-height:1.45; }
@@ -189,6 +203,12 @@
       </form>
       <button class="btn ghost" id="saveCurrentBtn" type="button"></button>
       <div id="savedBox" class="saved-card"></div>
+      <div class="saved-card habits">
+        <h3 id="habitsTitle">Your buying habits</h3>
+        <p class="habits-note" id="habitsNote"></p>
+        <ul id="habitsList"></ul>
+        <button class="btn danger" id="habitsClear" type="button"></button>
+      </div>
       <button class="btn ghost" id="backFromLists" type="button"></button>
     </section>
     <section id="editView" class="hidden">
@@ -226,6 +246,11 @@
         <button type="button" class="btn primary" id="helpClose" style="width:100%"></button>
       </div>
     </div>
+  </div>
+  <div class="low-bar hidden" id="lowBar" aria-live="polite">
+    <span id="lowText"></span>
+    <button class="btn primary" id="lowAdd" type="button">Add</button>
+    <button class="btn ghost" id="lowLater" type="button">Not now</button>
   </div>
   <div class="overlay hidden" id="routeOverlay">
     <form class="help-box" id="routeForm">
@@ -324,6 +349,11 @@
         placeTitle:"Store location", placeUse:"📍 Use my current location", placeClear:"Remove location",
         placePaste:"Or paste coordinates, like 19.4326, -99.1332",
         placeBad:"Couldn’t read those coordinates. Use the form 19.4326, -99.1332.",
+        low:names=>`Running low on ${names}?`, lowAdd:"Add", lowLater:"Not now",
+        habitsTitle:"Your buying habits", habitsNote:"Private: stays on this phone and is only used for “Running low?” suggestions.",
+        habitsNone:"Nothing learned yet. Check items off as you shop and the app learns how often you buy them.",
+        habitsEvery:d=>d===1?"about every day":`about every ${d} days`, habitsClear:"Clear habits",
+        confirmClearHabits:"Forget all buying habits on this phone?", more:n=>`${n} more`,
         ideaBtn:"🍳 Meal idea", ideaNext:"Another idea", ideaClose:"Close",
         ideaMsg:(have,add,meal)=>`You have ${have} on your list. Add <b>${add}</b> to make <b>${meal}</b> tonight!`,
         ideaAdd:add=>`Add ${add}`, ideaAdded:(add,meal)=>`Added ${add}. Enjoy the ${meal}!`,
@@ -381,6 +411,11 @@
         placeTitle:"Ubicación de la tienda", placeUse:"📍 Usar mi ubicación actual", placeClear:"Quitar ubicación",
         placePaste:"O pega coordenadas, como 19.4326, -99.1332",
         placeBad:"No se pudieron leer esas coordenadas. Usa la forma 19.4326, -99.1332.",
+        low:names=>`¿Te falta ${names}?`, lowAdd:"Agregar", lowLater:"Ahora no",
+        habitsTitle:"Tus hábitos de compra", habitsNote:"Privado: se queda en este teléfono y solo se usa para las sugerencias “¿Te falta…?”.",
+        habitsNone:"Aún no hay datos. Marca artículos al comprar y la app aprende cada cuánto los compras.",
+        habitsEvery:d=>d===1?"casi diario":`cada ${d} días aprox.`, habitsClear:"Borrar hábitos",
+        confirmClearHabits:"¿Olvidar todos los hábitos de compra en este teléfono?", more:n=>`${n} más`,
         ideaBtn:"🍳 Idea de comida", ideaNext:"Otra idea", ideaClose:"Cerrar",
         ideaMsg:(have,add,meal)=>`Tienes ${have} en tu lista. ¡Agrega <b>${add}</b> y prepara <b>${meal}</b> hoy!`,
         ideaAdd:add=>`Agregar ${add}`, ideaAdded:(add,meal)=>`Agregaste ${add}. ¡Buen provecho con ${meal}!`,
@@ -579,6 +614,7 @@
       localStorage.setItem(ROUTES_KEY, JSON.stringify(storeRoutes));
       localStorage.setItem(ITEM_CATS_KEY, JSON.stringify(itemCats));
       localStorage.setItem(GEO_KEY, JSON.stringify(geo));
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     };
     const splitUtterance = text => text.split(/\s+(?:and|y|e|plus|más)\s+|,\s*/i).map(s=>s.replace(/^[\s.]+|[\s.]+$/g,"")).filter(Boolean);
     const mergeItems = (base, extraTexts) => {
@@ -668,6 +704,58 @@
         });
         target.appendChild(card);
       });
+    }
+    // ---- "Running low?": learn how often each item is bought (checked off) and suggest it when it's due ----
+    // localStorage "grocery-history" = { key: { name, buys:[timestamps], snoozeUntil, dismissals } }. Stays on the phone.
+    const HISTORY_KEY="grocery-history", DAY=864e5;
+    const MIN_BUYS=3, MAX_SPREAD=0.5, MUTE_AFTER=3, KEEP_BUYS=12;
+    let history={};
+    try { history=JSON.parse(localStorage.getItem(HISTORY_KEY)) || {}; } catch {}
+    const habitKey = text => normalize(text).replace(/s$/, ""); // "Eggs" and "egg" are the same habit
+    function recordBuy(item, bought){
+      const k=habitKey(item.text), now=Date.now(), h=history[k] || (history[k]={ name:item.text, buys:[], dismissals:0 });
+      const last=h.buys[h.buys.length-1];
+      if(bought){
+        if(last && now-last < DAY/2) h.buys[h.buys.length-1]=now; // same shopping trip: count once
+        else h.buys.push(now);
+        h.buys=h.buys.slice(-KEEP_BUYS); h.name=item.text; h.dismissals=0; delete h.snoozeUntil;
+      } else if(last && now-last < DAY/2) h.buys.pop(); // un-checked by mistake
+    }
+    // Typical gap between purchases in days, or null when there isn't a steady pattern yet.
+    function habitInterval(h){
+      if(h.buys.length < MIN_BUYS) return null;
+      const gaps=h.buys.slice(1).map((b,i)=>(b-h.buys[i])/DAY).sort((a,b)=>a-b);
+      const median=gaps[Math.floor(gaps.length/2)];
+      if(median < 1 || median > 60) return null;
+      const spread=gaps.reduce((sum,g)=>sum+Math.abs(g-median),0)/gaps.length/median;
+      return spread <= MAX_SPREAD ? median : null; // skip irregular buys
+    }
+    function dueItems(){
+      const now=Date.now(), onList=new Set(trip.filter(i=>!i.checked).map(i=>habitKey(i.text)));
+      return Object.entries(history).filter(([k,h])=>{
+        const every=habitInterval(h); if(!every || onList.has(k)) return false;
+        if(h.dismissals>=MUTE_AFTER || (h.snoozeUntil && now<h.snoozeUntil)) return false;
+        const since=(now-h.buys[h.buys.length-1])/DAY;
+        return since >= every*0.9 && since <= every*3; // due around the usual day; stop if they quit buying it
+      }).map(([k,h])=>({ k, h }));
+    }
+    function updateLowBar(){
+      const c=t[lang]||t.en, due=view==="shop" && $("undoBar").classList.contains("hidden") ? dueItems() : [];
+      $("lowBar").classList.toggle("hidden", !due.length); document.body.classList.toggle("has-low", !!due.length);
+      if(!due.length) return;
+      const names=due.map(d=>d.h.name.toLowerCase()), shown=names.length>3 ? [...names.slice(0,2), c.more(names.length-2)] : names;
+      $("lowText").textContent=c.low(joinWords(shown, c.and));
+      $("lowAdd").textContent=c.lowAdd; $("lowLater").textContent=c.lowLater;
+    }
+    function renderHabits(){
+      const c=t[lang]||t.en, ul=$("habitsList");
+      $("habitsTitle").textContent=c.habitsTitle; $("habitsNote").textContent=c.habitsNote; $("habitsClear").textContent=c.habitsClear;
+      const learned=Object.values(history).map(h=>({ h, every:habitInterval(h) })).filter(x=>x.every).sort((a,b)=>a.every-b.every);
+      ul.innerHTML="";
+      if(!learned.length){ const li=document.createElement("li"); li.textContent=c.habitsNone; ul.appendChild(li); }
+      learned.forEach(({h,every})=>{ const li=document.createElement("li"); const a=document.createElement("span"), b=document.createElement("span");
+        a.textContent=h.name; b.textContent=c.habitsEvery(Math.max(1, Math.round(every))); li.append(a,b); ul.appendChild(li); });
+      $("habitsClear").classList.toggle("hidden", !Object.keys(history).length);
     }
     // ---- Meal ideas: find a meal that is exactly one ingredient away from the unchecked items ----
     // Ingredient: [English name, Spanish name, keywords that mean it on a list]
@@ -973,7 +1061,7 @@
         $("savedBox").appendChild(div);
       });
     }
-    function hideUndo(){ $("undoBar").classList.add("hidden"); $("undoBar").innerHTML=""; lastRemoved=null; if(undoTimer) clearTimeout(undoTimer); }
+    function hideUndo(){ $("undoBar").classList.add("hidden"); $("undoBar").innerHTML=""; lastRemoved=null; if(undoTimer) clearTimeout(undoTimer); updateLowBar(); }
     function showUndo(item){
       const bar=$("undoBar");
       bar.classList.remove("hidden");
@@ -988,6 +1076,7 @@
       bar.append(msg, btn);
       if(undoTimer) clearTimeout(undoTimer);
       undoTimer=setTimeout(hideUndo, 5000);
+      updateLowBar();
     }
     function removeAt(arr, i){
       lastRemoved={ arr, index:i, item:arr[i] };
@@ -1024,16 +1113,19 @@
       save(); render();
     }
     function toggleAt(arr, i){
-      arr[i]={...arr[i], checked:!arr[i].checked}; save(); render();
+      arr[i]={...arr[i], checked:!arr[i].checked};
+      if(arr===trip) recordBuy(arr[i], arr[i].checked);
+      save(); render();
     }
     function render(){
       if(!lang) return; applyCopy();
       if(view==="shop") renderItems($("list"), trip, i=>toggleAt(trip,i), (i,item)=>editAt(trip,i,item), i=>removeAt(trip,i));
-      else if(view==="lists") renderSaved();
+      else if(view==="lists"){ renderSaved(); renderHabits(); }
       else {
         const list=editingList(); if(!list){ showView("lists"); return; }
         renderItems($("editList"), list.items, i=>removeAt(list.items,i), (i,item)=>editAt(list.items,i,item), i=>removeAt(list.items,i));
       }
+      updateLowBar();
     }
     function addTo(arr, text){
       const parts=splitUtterance(text); if(!parts.length) return;
@@ -1165,6 +1257,15 @@
     };
     $("routeGeoClear").onclick=()=>{ routeDraft.place=null; $("routeGeoInput").value=""; renderPlace(); };
     $("geoToggle").onclick=toggleGeo;
+    $("lowAdd").onclick=()=>{
+      const due=dueItems(); if(!due.length) return;
+      const merged=mergeItems(trip, due.map(d=>d.h.name)); trip.length=0; trip.push(...merged); save(); render();
+    };
+    $("lowLater").onclick=()=>{
+      dueItems().forEach(({h})=>{ h.dismissals=(h.dismissals||0)+1; h.snoozeUntil=Date.now()+Math.max(DAY, habitInterval(h)*DAY/2); });
+      save(); updateLowBar();
+    };
+    $("habitsClear").onclick=()=>{ if(!confirm(t[lang].confirmClearHabits)) return; history={}; save(); renderHabits(); updateLowBar(); };
     $("ideaBtn").onclick=()=>{ ideaList=mealIdeas(trip); ideaIndex=0; showIdea(); };
     $("ideaNext").onclick=()=>{ ideaIndex++; showIdea(); };
     $("ideaClose").onclick=()=>$("ideaCard").classList.add("hidden");

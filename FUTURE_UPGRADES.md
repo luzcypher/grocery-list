@@ -78,15 +78,10 @@ ingredient away from the unchecked items and offers to add it.
   using everything on the list, with a short recipe.
 - Could respect preferences (vegetarian, budget, kid-friendly) and suggest a full week of meals.
 
-## "Running low?" restock suggestions
-The app quietly records when each item is added and checked off (timestamps only), learns how often
-it is bought (e.g. milk about every 6 days), and on the expected day shows a faint suggestion button
-at the bottom of the screen: "Running low on milk?" One tap adds it back to the list.
-- Private habit profile: stays on the phone (or in the shopper's own account once on Supabase);
-  never shared or used for ads. Let shoppers see and clear it.
-- Can be built on the phone with no server. Store per item: normalized name + recent purchase dates.
-- Only suggest once there are enough repeats (e.g. 3+ purchases) and the interval is fairly regular;
-  use the median gap so one late trip doesn't throw it off.
-- Skip items already on the list; group several due items into one suggestion; "Not now" snoozes it
-  and learns from repeated dismissals.
-- Pairs with shared family lists (learn from the whole household) and the store split (suggest at the right store).
+## "Running low?" restock suggestions: next steps
+The phone-only version is built: it learns from checked-off items, shows a faint "Running low on milk?"
+bar on the usual day, adds with one tap, snoozes with "Not now", and has a private habits screen.
+Still to do once the other upgrades exist:
+- Shared family lists: learn from the whole household's purchases.
+- Store tags: suggest the item at the store where it is usually bought.
+- Supabase: keep the habit profile in the shopper's own account so it survives a new phone.

@@ -104,6 +104,17 @@ add box and mic in a bottom bar.
 - Still to do before the stores: check "Lista Mandado" in both stores and the IMPI trademark register,
   reserve the name in App Store Connect, store screenshots and listing text in English and Spanish.
 
+## Smartwatch app (Apple Watch and Wear OS)
+Use Lista Mandado from the wrist, including on its own without the phone nearby.
+- On the watch: the trip list in the store's aisle order, tap to check off, add by voice (watch mic /
+  dictation), "You're at Soriana" with the watch's location, and a tile/complication showing items left.
+- Works standalone on watches with Wi-Fi or LTE; keeps a copy of the list on the watch so it also works
+  with no signal and syncs later.
+- Needs native watch apps (web apps can't run on watches): SwiftUI for Apple Watch (ships with the
+  iPhone app) and Kotlin/Compose for Wear OS (Samsung Galaxy Watch, Pixel Watch).
+- Depends on: the store apps, and the Supabase backend so the watch and phone share the same list
+  (and family members' adds show up on the watch).
+
 ## Barcode scanning
 Scan an empty package at home to add it to the list. Needs the camera, so it fits the store apps.
 Look up the product name from the barcode (an open product database or the shopper's own past scans).

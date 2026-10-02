@@ -1,10 +1,17 @@
-const CACHE = "grocery-list-v15";
+const CACHE = "grocery-list-v16";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./icons/icon.svg",
+  "./icons/favicon.png",
+  "./icons/apple-touch-icon.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./icons/icon-maskable-192.png",
+  "./icons/icon-maskable-512.png",
+  "./fonts/nunito.woff2",
+  "./fonts/bricolage-800.woff2",
 ];
 
 self.addEventListener("install", e => {

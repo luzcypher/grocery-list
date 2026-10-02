@@ -26,3 +26,13 @@ Photo of a receipt, then a review screen with checkboxes, then add to the list o
 - Skip non-item lines (prices, IVA, totals, address); expand receipt abbreviations
   (JIT → jitomate, DET → detergente); sort with the existing dictionary.
 - Receipts also carry prices, store and date, which can feed price comparison (with consent).
+
+## Recipe link to shopping list
+Shopper pastes a recipe URL; the backend reads the ingredients; a review screen with checkboxes adds them to the list.
+- Needs the server: browsers can't read other websites from the app.
+- Most recipe sites (Kiwilimón, Cocina Fácil, blogs) include the standard schema.org Recipe data
+  (`recipeIngredient`): free and reliable. Use AI on the page text only as a fallback.
+- Clean each line into a list item: drop quantities, units and prep words
+  ("2 cups all-purpose flour, sifted" → flour; keep the amount as a note), combine duplicates,
+  leave staples (salt, pepper, oil, water) unchecked, sort with the existing dictionary.
+- Option that works without a backend: paste the ingredient text itself and parse it on the phone.

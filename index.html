@@ -34,7 +34,7 @@
     .btn.ghost { background:transparent; color:var(--green-dark); padding:8px 4px; }
     .btn.danger { background:transparent; color:var(--red); }
     .meta { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:.86rem; margin:4px 0 8px; }
-    .list { list-style:none; overflow:hidden; }
+    .list { list-style:none; position:relative; }
     .row { background:var(--card); border-top:1px solid var(--line); touch-action:pan-y; overflow:hidden; }
     .row:first-child { border-top:0; }
     .row-inner { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px; background:#fff; transition:transform .18s ease,opacity .18s ease; }
@@ -92,10 +92,15 @@
     .cat-head h3 { flex:1; font-size:1.02rem; font-weight:750; color:var(--green-dark); }
     .cat-count { min-width:2em; text-align:center; background:#fff; border:1px solid var(--line); border-radius:999px; padding:2px 8px; color:var(--muted); font-size:.85rem; font-weight:700; font-variant-numeric:tabular-nums; }
     .cat-items { list-style:none; }
+    .cat-head, .route-list li { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; cursor:grab; }
+    .grip { display:flex; padding:6px 2px 6px 8px; color:var(--muted); fill:currentColor; touch-action:none; }
+    .route-list li .grip { flex:none; padding:6px 4px; }
+    .dragging { position:relative; z-index:5; cursor:grabbing; box-shadow:0 18px 40px rgba(20,32,22,.25); outline:2px solid var(--green); }
+    .cat-card.dragging .cat-head { background:#e3f1e3; }
     .cat-card.uncat .cat-head { background:#fff8e6; }
     .cat-fix { flex:none; max-width:42%; border:1px solid #e8c77a; background:#fff8e6; color:#6b4a00; border-radius:999px; padding:6px 8px; font:inherit; font-size:.85rem; font-weight:650; cursor:pointer; }
-    .help-box .route-list { list-style:none; margin:12px 0 4px; padding:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; counter-reset:aisle; }
-    .help-box .route-list li { margin:0; color:var(--ink); display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--line); counter-increment:aisle; }
+    .help-box .route-list { position:relative; list-style:none; margin:12px 0 4px; padding:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; counter-reset:aisle; }
+    .help-box .route-list li { margin:0; background:#fff; color:var(--ink); display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--line); counter-increment:aisle; }
     .route-list li:last-child { border-bottom:0; }
     .route-list li::before { content:counter(aisle); width:1.4em; color:var(--muted); font-weight:700; font-variant-numeric:tabular-nums; }
     .route-list li span { flex:1; font-weight:600; }
@@ -241,7 +246,7 @@
         ready:"Tap to speak", listening:"Listening…", unsupported:"Voice isn’t available in this browser",
         empty:"Nothing on this trip yet", count:n=>n===1?"1 item":n+" items", gotCount:n=>n+" got", placeholder:"Or type an item",
         add:"Add", clear:"Clear trip", confirmClear:"Clear this shopping trip?", clearChecked:"Remove checked", lists:"Saved lists", shop:"This trip",
-        hint:"This trip saves by itself. Swipe an item when you have it. Tap ✕ to remove it for good.", already:"Already listening",
+        hint:"This trip saves by itself. Swipe an item when you have it. Tap ✕ to remove it for good. Press and hold a section to move it.", already:"Already listening",
         newPlaceholder:"Name this list", create:"Create", saveCurrent:"Save this trip as a list",
         saveTrip:"Save as a list", savedOk:"Saved. Name it if you want.", needItems:"Add something first",
         noSaved:"No saved lists yet.", addTrip:"Add to trip", startTrip:"Start trip", edit:"Edit default",
@@ -270,7 +275,7 @@
         pickSection:"Pick section",
         store:"Store", standardStore:"Standard", addStore:"+ Add a store…", editRoute:"Edit route",
         routeTitle:"Store route", routeHint:"Put the sections in the order you walk them. Anything else shows up last.",
-        storeName:"Store name, like Bodega Aurrerá", needName:"Give the store a name first.",
+        storeName:"Store name, like HEB", needName:"Give the store a name first.",
         saveRoute:"Save", cancel:"Cancel", delStore:"Delete store", confirmDelStore:"Delete this store route?",
         moveUp:"Move up", moveDown:"Move down",
         editItemTitle:"Edit item", section:"Section", sectionHint:"Pick a section and it will be remembered for this item. Clear the name to remove it."
@@ -280,7 +285,7 @@
         ready:"Toca para hablar", listening:"Escuchando…", unsupported:"Este navegador no admite voz",
         empty:"Este viaje aún no tiene artículos", count:n=>n===1?"1 artículo":n+" artículos", gotCount:n=>n+" en el carrito", placeholder:"O escribe un artículo",
         add:"Agregar", clear:"Borrar viaje", confirmClear:"¿Borrar este viaje de compras?", clearChecked:"Quitar marcados", lists:"Listas guardadas", shop:"Este viaje",
-        hint:"Este viaje se guarda solo. Desliza un artículo cuando ya lo tengas. Toca ✕ para quitarlo del todo.", already:"Ya está escuchando",
+        hint:"Este viaje se guarda solo. Desliza un artículo cuando ya lo tengas. Toca ✕ para quitarlo del todo. Mantén presionada una sección para moverla.", already:"Ya está escuchando",
         newPlaceholder:"Nombre de esta lista", create:"Crear", saveCurrent:"Guardar este viaje como lista",
         saveTrip:"Guardar como lista", savedOk:"Guardada. Ponle nombre si quieres.", needItems:"Agrega algo primero",
         noSaved:"Aún no hay listas guardadas.", addTrip:"Sumar al viaje", startTrip:"Empezar viaje", edit:"Editar predeterminada",
@@ -309,7 +314,7 @@
         pickSection:"Elegir sección",
         store:"Tienda", standardStore:"Estándar", addStore:"+ Agregar tienda…", editRoute:"Editar ruta",
         routeTitle:"Ruta de la tienda", routeHint:"Pon las secciones en el orden en que las recorres. Lo demás aparece al final.",
-        storeName:"Nombre de la tienda, como Bodega Aurrerá", needName:"Primero ponle nombre a la tienda.",
+        storeName:"Nombre de la tienda, como HEB", needName:"Primero ponle nombre a la tienda.",
         saveRoute:"Guardar", cancel:"Cancelar", delStore:"Borrar tienda", confirmDelStore:"¿Borrar la ruta de esta tienda?",
         moveUp:"Subir", moveDown:"Bajar",
         editItemTitle:"Editar artículo", section:"Sección", sectionHint:"Elige una sección y se recordará para este artículo. Borra el nombre para quitarlo."
@@ -369,7 +374,7 @@
 
     // ---- Store routes: localStorage "grocery-routes" = { active, stores: { name: [category, ...] } } ----
     const ROUTES_KEY = "grocery-routes", STANDARD = "standard";
-    const PRESET_STORES = ["Soriana", "Chedraui", "Walmart", "La Comer"], PRESETS_VERSION = 3;
+    const PRESET_STORES = ["Soriana", "Chedraui", "Walmart", "La Comer", "Costco", "Sam's Club", "Bodega Aurrerá"], PRESETS_VERSION = 4;
     function loadRoutes(){
       let r = null;
       try { r = JSON.parse(localStorage.getItem(ROUTES_KEY)); } catch {}
@@ -481,8 +486,8 @@
       if(!items.length){ const p=document.createElement("p"); p.className="empty"; p.textContent=c.empty; target.appendChild(p); return; }
       // One card per section that has items, in the active store's route order.
       sortByRoute(items, routeSequence(storeRoutes.active)).forEach(({cat, entries})=>{
-        const card=document.createElement("section"); card.className="cat-card"+(cat===UNCAT?" uncat":"");
-        card.innerHTML=`<header class="cat-head"><span class="cat-emoji" aria-hidden="true"></span><h3></h3><span class="cat-count"></span></header><ul class="cat-items"></ul>`;
+        const card=document.createElement("section"); card.className="cat-card"+(cat===UNCAT?" uncat no-drag":""); card.dataset.key=cat;
+        card.innerHTML=`<header class="cat-head"><span class="cat-emoji" aria-hidden="true"></span><h3></h3><span class="cat-count"></span>${cat===UNCAT?"":`<span class="grip" aria-hidden="true"><svg viewBox="0 0 10 16" width="10" height="16"><circle cx="2" cy="2" r="1.6"/><circle cx="8" cy="2" r="1.6"/><circle cx="2" cy="8" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="2" cy="14" r="1.6"/><circle cx="8" cy="14" r="1.6"/></svg></span>`}</header><ul class="cat-items"></ul>`;
         card.querySelector(".cat-emoji").textContent=CAT_EMOJI[cat];
         card.querySelector("h3").textContent=c.cats[cat];
         card.querySelector(".cat-count").textContent=entries.filter(e=>!e.item.checked).length||"✓";
@@ -515,6 +520,66 @@
       sel.onchange=()=>{ rememberSection(itemName, sel.value); save(); render(); };
       return sel;
     }
+    // Press and hold (or grab the dotted grip) to drag a block up or down. onDrop gets the new key order.
+    let sortDrag=null;
+    document.addEventListener("touchmove", e=>{ if(sortDrag) e.preventDefault(); }, { passive:false });
+    function makeSortable(container, itemSel, handleSel, scroller, onDrop){
+      container.addEventListener("contextmenu", e=>{ if(e.target.closest(handleSel)) e.preventDefault(); });
+      container.addEventListener("pointerdown", e=>{
+        if(e.button>0 || sortDrag || e.target.closest("button, select, input")) return;
+        const handle=e.target.closest(handleSel), item=handle && handle.closest(itemSel);
+        if(!item || !container.contains(item) || item.classList.contains("no-drag")) return;
+        const pid=e.pointerId, x0=e.clientX, y0=e.clientY;
+        let lastY=y0, timer=setTimeout(begin, e.target.closest(".grip") ? 0 : 350);
+        const layoutTop = el => container.getBoundingClientRect().top + el.offsetTop; // ignores transforms
+        function begin(){
+          timer=null;
+          sortDrag={ item, grab:lastY-layoutTop(item), raf:0 };
+          item.classList.add("dragging");
+          if(navigator.vibrate) navigator.vibrate(12);
+          tick();
+        }
+        function tick(){
+          const edge=70, h=scroller===window ? innerHeight : scroller.getBoundingClientRect().bottom;
+          const top=scroller===window ? 0 : scroller.getBoundingClientRect().top;
+          if(lastY<top+edge) scroller.scrollBy(0, -Math.ceil((top+edge-lastY)/6));
+          else if(lastY>h-edge) scroller.scrollBy(0, Math.ceil((lastY-(h-edge))/6));
+          const others=[...container.querySelectorAll(itemSel)].filter(el=>el!==item);
+          const fixed=others.find(el=>el.classList.contains("no-drag")) || null;
+          const before=others.find(el=>!el.classList.contains("no-drag") && lastY < layoutTop(el)+el.offsetHeight/2) || fixed;
+          if(before!==item.nextElementSibling){
+            const tops=new Map(others.map(el=>[el, el.offsetTop]));
+            container.insertBefore(item, before);
+            others.forEach(el=>{ const dy=tops.get(el)-el.offsetTop; if(!dy) return;
+              el.style.transition="none"; el.style.transform=`translateY(${dy}px)`; el.offsetHeight;
+              el.style.transition="transform .15s ease"; el.style.transform=""; });
+          }
+          item.style.transform=`translateY(${lastY-sortDrag.grab-layoutTop(item)}px)`;
+          sortDrag.raf=requestAnimationFrame(tick);
+        }
+        const move=ev=>{ if(ev.pointerId!==pid) return; lastY=ev.clientY;
+          if(timer && (Math.abs(ev.clientX-x0)>10 || Math.abs(ev.clientY-y0)>10)) cleanup(); }; // it's a scroll, not a hold
+        const up=ev=>{ if(ev.pointerId===pid) finish(); };
+        // Listen on window: moving the card in the DOM drops pointer capture, so events stop reaching it.
+        addEventListener("pointermove", move); addEventListener("pointerup", up); addEventListener("pointercancel", up);
+        function cleanup(){ clearTimeout(timer); timer=null;
+          removeEventListener("pointermove", move); removeEventListener("pointerup", up); removeEventListener("pointercancel", up); }
+        function finish(){
+          cleanup();
+          if(!sortDrag || sortDrag.item!==item) return;
+          cancelAnimationFrame(sortDrag.raf); sortDrag=null;
+          item.classList.remove("dragging"); item.style.transform="";
+          onDrop([...container.querySelectorAll(itemSel)].map(el=>el.dataset.key));
+        }
+      });
+    }
+    // Save a dragged order of the visible sections into the active store; hidden sections keep their places.
+    function saveVisibleOrder(keys){
+      const visible=keys.filter(k=>k!==UNCAT);
+      const full=routeSequence(storeRoutes.active).filter(k=>k!==UNCAT);
+      let n=0; const merged=full.map(k=>visible.includes(k) ? visible[n++] : k);
+      storeRoutes.stores[storeRoutes.active]=merged; save(); render();
+    }
     function renderStoreSelect(){
       const c=t[lang]||t.en, sel=$("storeSelect");
       const names=Object.keys(storeRoutes.stores).filter(k=>k!==STANDARD).sort((a,b)=>a.localeCompare(b));
@@ -539,13 +604,14 @@
       const c=t[lang], ol=$("routeList"), order=routeDraft.order;
       ol.innerHTML="";
       order.forEach((cat,k)=>{
-        const li=document.createElement("li");
+        const li=document.createElement("li"); li.dataset.key=cat;
         const name=document.createElement("span"); name.textContent=catLabel(cat);
+        const grip=document.createElement("span"); grip.className="grip"; grip.setAttribute("aria-hidden","true"); grip.innerHTML=`<svg viewBox="0 0 10 16" width="10" height="16"><circle cx="2" cy="2" r="1.6"/><circle cx="8" cy="2" r="1.6"/><circle cx="2" cy="8" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="2" cy="14" r="1.6"/><circle cx="8" cy="14" r="1.6"/></svg>`;
         const btn=(sym,label,to)=>{ const b=document.createElement("button"); b.type="button"; b.textContent=sym; b.setAttribute("aria-label",label+": "+c.cats[cat]);
           b.disabled = to<0 || to>=order.length;
           b.onclick=()=>{ [order[k],order[to]]=[order[to],order[k]]; renderRouteList(); ol.children[to].querySelectorAll("button")[to<k?0:1]?.focus(); };
           return b; };
-        li.append(name, btn("↑",c.moveUp,k-1), btn("↓",c.moveDown,k+1));
+        li.append(grip, name, btn("↑",c.moveUp,k-1), btn("↓",c.moveDown,k+1));
         ol.appendChild(li);
       });
     }
@@ -717,6 +783,9 @@
     $("saveTripBtn").onclick=saveTripAsList;
     $("saveCurrentBtn").onclick=saveTripAsList;
     $("renameForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); if(!list) return; const name=$("renameInput").value.trim(); if(name){ list.name=name; save(); applyCopy(); } };
+    makeSortable($("list"), ".cat-card", ".cat-head", window, saveVisibleOrder);
+    makeSortable($("editList"), ".cat-card", ".cat-head", window, saveVisibleOrder);
+    makeSortable($("routeList"), "li", "li", $("routeForm"), keys=>{ routeDraft.order=keys; renderRouteList(); });
     $("storeSelect").onchange=e=>{
       if(e.target.value==="__new"){ e.target.value=storeRoutes.active; openRouteEditor(null); return; }
       storeRoutes.active=e.target.value; save(); render();

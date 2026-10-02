@@ -97,8 +97,9 @@ Wrap the web app as a real app for both the Apple App Store and Google Play usin
 - Apple can reject "a website in a box"; shipping it with native features (push, location, camera)
   makes approval much more likely.
 
-## New look ("Mandado" brand idea), waiting on mockup choice
-- Name idea: "Mandado" (from "hacer el mandado"); works in both languages.
+## New look: "Lista Mandado"
+- Name chosen: **Lista Mandado** ("Mandado" alone is taken in both stores). Before publishing, search both stores
+  directly and check the trademark register at IMPI (Mexico).
 - Mercado palette: chile red (actions), lime green (done), corn yellow (highlights), Talavera blue (headers),
   on paper white; plus a dark mode for night shopping.
 - App icon / logo: a mandado bag with a checkmark, clear at small sizes.
@@ -110,7 +111,7 @@ Scan an empty package at home to add it to the list. Needs the camera, so it fit
 Look up the product name from the barcode (an open product database or the shopper's own past scans).
 
 ## Voice assistant shortcuts
-"Hey Google, add milk to Mandado" / Siri Shortcuts. Needs the store apps (Android App Actions, iOS Shortcuts).
+"Hey Google, add milk to Lista Mandado" / Siri Shortcuts. Needs the store apps (Android App Actions, iOS Shortcuts).
 
 ## Built from the suggestions list (for reference)
 WhatsApp sharing, quantities and notes (also by voice: "dos kilos de tortillas"), spending tracker

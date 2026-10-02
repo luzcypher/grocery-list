@@ -58,3 +58,15 @@ His phone gets a push right away ("Ana added milk to Family list"), even if the 
 - Sent by the server when an item is added to a shared list (not to the person who added it).
 - Group several quick adds into one push so it doesn't buzz five times.
 - Let each person turn these off, or only get them while "at the store" (pairs with Detect my store).
+
+## Split one list across several stores
+People buy meat where it's cheap and snacks where they're on sale, so one list spans several stores.
+- **Store tags:** while adding an item, quickly tag a store (Milk → Costco, Rib eyes → Sam's Club).
+  Untagged items mean "any store". Tag from the item edit screen too.
+- **Filter by where you're standing:** with "Detect my store" (already built), opening the app at Costco
+  shows only Costco items plus untagged ones, with a "Show all" switch. Picking a store in the
+  dropdown filters the same way. This part needs no server and can be built any time.
+- **AI trip split (premium):** Claude looks at the whole list and suggests the cheapest way to split
+  the trip between two nearby stores ("Buy meat and cleaning at Sam's, the rest at Soriana, save about $180").
+  Needs real prices per store (see price comparison) and the server to hold the AI key.
+  Should weigh savings against the extra trip, and let the shopper apply the split as store tags in one tap.

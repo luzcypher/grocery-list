@@ -1363,9 +1363,210 @@ vitamins|vitaminas
 pain reliever|analgésico
 cough syrup|jarabe para la tos
 cat litter|arena para gato
+kitty litter|arena para gato
+berries|frutos rojos
+cranberries|arándanos rojos
+nectarines|nectarinas
+apricots|chabacanos
+figs|higos
+clementines|clementinas
+mandarins|mandarinas
+honeydew|melón valenciano
+scallions|cebollín
+shallots|chalotes
+leeks|poros
+turnips|nabos
+parsnips|chirivías
+brussels sprouts|coles de Bruselas
+romaine|lechuga romana
+arugula|arúgula
+chard|acelgas
+spring mix|mezcla de lechugas
+peppers|pimientos
+sprouts|germinados
+dill|eneldo
+sage|salvia
+chives|cebollín
+herbs|hierbas de olor
+veggies|verduras
+bananas|banano
+sweet limes|limas
+soursop|guanábana
+lychee|lichis
+tomatoes|tomates
+cassava|yuca
+green onions|cebollitas
+cabbage|col
+purslane|verdolagas
+bell peppers|pimiento
+mushrooms|hongos
+mushrooms|setas
+mint|menta
+bakery|panadería
+flatbread|pan plano
+sourdough bread|pan de masa madre
+biscuits|bísquets
+doughnuts|donas
+pastries|pan dulce
+fillet|filete
+wings|alitas
+drumsticks|piernas de pollo
+tenderloin|filete de res
+brisket|pecho de res
+veal|ternera
+duck|pato
+bologna|mortadela
+meatballs|albóndigas
+hamburgers|hamburguesas
+hamburger meat|carne para hamburguesa
+cod|bacalao
+trout|trucha
+catfish|bagre
+mahi mahi|dorado
+scallops|callo de hacha
+mussels|mejillones
+calamari|calamares
+crawfish|langostinos
+beef|res
+breaded steak|milanesa
+flank steak|falda de res
+pork shank|chamorro
+beef tongue|lengua de res
+liver|hígado
+tripe|tripa
+breast|pechuga
+thighs|muslos
+leg|pierna
+pork|puerco
+loin|lomo
+chops|chuletas
+red snapper|huachinango
+sea bass|robalo
+dairy|lácteos
+buttermilk|suero de leche
+creamer|sustituto de crema
+parmesan|queso parmesano
+swiss cheese|queso suizo
+eggnog|rompope
+panela cheese|panela
+fresh cheese|queso fresco
+oaxaca cheese|queso oaxaca
+eggs|blanquillos
+custard|natilla
+lasagna|lasaña
+ramen|sopa instantánea
+cornmeal|harina de maíz
+sweetener|endulzante
+seasoning|sazonador
+taco seasoning|sazonador para tacos
+paprika|pimentón
+brownie mix|harina para brownies
+pancake mix|harina para hot cakes
+frosting|betún
+sprinkles|chochitos
+chocolate chips|chispas de chocolate
+cooking spray|aceite en aerosol
+sauce|salsa
+pasta sauce|salsa para pasta
+worcestershire sauce|salsa inglesa
+ranch dressing|aderezo ranch
+bbq sauce|salsa barbecue
+capers|alcaparras
+sardines|sardinas
+anchovies|anchoas
+granola bars|barras de granola
+protein bars|barras de proteína
+trail mix|mezcla de nueces y frutos secos
+pecans|nuez
+cashews|nuez de la India
+sunflower seeds|semillas de girasol
+seeds|semillas
+pumpkin seeds|pepitas
+dried cranberries|arándanos deshidratados
+dates|dátiles
+prunes|ciruelas pasas
+applesauce|puré de manzana
+jello|gelatina
+pudding|pudín
+marshmallows|bombones
+jerky|carne seca
+pork rinds|chicharrón
+lemonade|limonada
+champagne|champaña
+liquor|licor
+formula|fórmula
+pet food|alimento para mascotas
+dog treats|premios para perro
+dog kibble|croquetas
+pantry|despensa
+groceries|abarrotes
+fava beans|habas
+white beans|alubias
+cornstarch|maizena
+bay leaf|laurel
+cloves|clavo
+lard|manteca
+caramel sauce|cajeta
+tamarind|tamarindo
+hibiscus|jamaica
+cereal flakes|hojuelas
+sorbet|nieve
+whipped topping|crema batida
+tv dinner|comida congelada
+frozen veggies|verduras congeladas
+mozzarella sticks|dedos de queso
+popsicle|paleta
+paper cups|vasos de papel
+plastic forks|tenedores desechables
+dishwasher pods|pastillas para lavavajillas
+dryer sheets|toallitas para secadora
+stain remover|quitamanchas
+disinfectant|desinfectante
+air freshener|aromatizante
+garbage bags|bolsas de basura
+foil|papel aluminio
+parchment paper|papel para hornear
+wax paper|papel encerado
+steel wool|fibra metálica
+lighter|encendedor
+q-tips|hisopos
+ibuprofen|ibuprofeno
+aspirin|aspirina
+acetaminophen|paracetamol
+hand sanitizer|gel antibacterial
+baby powder|talco
+cleaning supplies|limpieza
+toilet paper|papel de baño
+paper towels|servitoallas
+dish soap|lavatrastes
+bags|bolsas
+foil|aluminio
+scrub sponge|fibra
+mop cloth|jerga
+sunscreen|bloqueador
+cotton|algodón
+pads|toallas sanitarias
+wet wipes|toallas húmedas
+bug spray|insecticida
+french fries|papas a la francesa
+fries|papas a la francesa
+tongue|lengua
+flank|falda
+roast|carne para asar
+stock|caldo
+dressing|aderezo
+gelatin|grenetina
+seltzer|agua mineral
+rum|ron
+yoghurt|yogur
+yam|camote
+produce|frutas y verduras
+household|hogar
+cleaning|limpieza
 `.trim().split("\n").map(l=>l.split("|"));
-    // "eggs" also matches "egg", "limones" also matches "limón", "tomatoes" also matches "tomato".
-    const wordForms = w => [w, ...(w.endsWith("es")?[w.slice(0,-2)]:[]), ...(w.endsWith("s")?[w.slice(0,-1)]:[])];
+    // "eggs" also matches "egg", "limones" "limón", "tomatoes" "tomato", "berries" "berry", "nueces" "nuez".
+    const wordForms = w => [w, ...(w.endsWith("es")?[w.slice(0,-2)]:[]), ...(w.endsWith("s")?[w.slice(0,-1)]:[]),
+      ...(w.endsWith("ies")?[w.slice(0,-3)+"y"]:[]), ...(w.endsWith("ces")?[w.slice(0,-3)+"z"]:[])]; // berries→berry, nueces→nuez
     const phraseForms = phrase => phrase.split(" ").reduce((acc,w)=>acc.flatMap(a=>wordForms(w).map(f=>a?a+" "+f:f)), [""]);
     const TR_INDEX = { en:new Map(), es:new Map() }; // key in one language -> name in the other
     ITEM_PAIRS.forEach(([en, es])=>{

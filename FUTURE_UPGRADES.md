@@ -97,14 +97,12 @@ Wrap the web app as a real app for both the Apple App Store and Google Play usin
 - Apple can reject "a website in a box"; shipping it with native features (push, location, camera)
   makes approval much more likely.
 
-## New look: "Lista Mandado"
-- Name chosen: **Lista Mandado** ("Mandado" alone is taken in both stores). Before publishing, search both stores
-  directly and check the trademark register at IMPI (Mexico).
-- Mercado palette: chile red (actions), lime green (done), corn yellow (highlights), Talavera blue (headers),
-  on paper white; plus a dark mode for night shopping.
-- App icon / logo: a mandado bag with a checkmark, clear at small sizes.
-- One-handed layout: add box and mic at the bottom, in thumb reach; the list scrolls above.
-- A friendlier font stored with the app so it works offline. (Large text mode is already built.)
+## Lista Mandado look: built
+Name Lista Mandado, mercado colors with automatic dark mode, Bricolage Grotesque title and Nunito text
+(stored in the app, both SIL Open Font License), papel picado icon in all sizes, color bars per section,
+add box and mic in a bottom bar.
+- Still to do before the stores: check "Lista Mandado" in both stores and the IMPI trademark register,
+  reserve the name in App Store Connect, store screenshots and listing text in English and Spanish.
 
 ## Barcode scanning
 Scan an empty package at home to add it to the list. Needs the camera, so it fits the store apps.

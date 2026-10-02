@@ -1,8 +1,8 @@
-const CACHE = "grocery-list-v16";
+const CACHE = "grocery-list-v17";
 const ASSETS = [
   "./",
   "./index.html",
-  "./manifest.json",
+  "./manifest.json?v=2",
   "./icons/icon.svg",
   "./icons/favicon.png",
   "./icons/apple-touch-icon.png",

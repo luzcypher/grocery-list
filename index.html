@@ -34,16 +34,16 @@
     .btn.ghost { background:transparent; color:var(--green-dark); padding:8px 4px; }
     .btn.danger { background:transparent; color:var(--red); }
     .meta { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:.86rem; margin:4px 0 8px; }
-    .list { list-style:none; overflow:hidden; }
-    .row { background:var(--card); box-shadow:var(--shadow); border-radius:14px; margin-bottom:8px; touch-action:pan-y; overflow:hidden; }
+    .list { list-style:none; position:relative; }
+    .row { background:var(--card); border-top:1px solid var(--line); touch-action:pan-y; overflow:hidden; }
+    .row:first-child { border-top:0; }
     .row-inner { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px; background:#fff; transition:transform .18s ease,opacity .18s ease; }
     .row.removing .row-inner { opacity:0; }
     .row.removing.left .row-inner { transform:translateX(-120%); }
     .row.removing.right .row-inner { transform:translateX(120%); }
-    .row span { font-size:1.05rem; }
     .row.done .item-text { text-decoration:line-through; color:var(--muted); }
     .row.done { opacity:.7; }
-    .x { border:0; background:none; color:var(--red); font-size:1.2rem; cursor:pointer; padding:4px 6px; }
+    .x { border:0; background:none; color:var(--red); font-size:1.35rem; cursor:pointer; padding:4px 6px; }
     .empty { text-align:center; color:var(--muted); padding:28px 8px; background:transparent; box-shadow:none; }
     .saved-card { background:#fff; border-radius:16px; box-shadow:var(--shadow); padding:12px; margin-top:8px; }
     .saved-item { display:grid; gap:8px; padding:12px 4px; border-bottom:1px solid var(--line); }
@@ -69,7 +69,7 @@
       padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
     }
     .toast button { border:0; background:#fff; color:#1b5e20; border-radius:8px; padding:6px 10px; font-weight:700; cursor:pointer; }
-    .item-text { flex:1; text-align:left; background:none; border:0; font: inherit; cursor:pointer; }
+    .item-text { flex:1; min-width:0; text-align:left; background:none; border:0; font: inherit; font-size:1.3rem; font-weight:550; line-height:1.3; color:var(--ink); overflow-wrap:anywhere; cursor:pointer; }
     .chips { display:flex; gap:6px; align-items:center; }
     .help-box { background:#fff; border-radius:20px; padding:22px 18px; width:min(400px,100%); max-height:86vh; overflow:auto; text-align:left; }
     .help-box h2 { text-align:center; margin-bottom:10px; }
@@ -83,6 +83,61 @@
       border-radius:14px; padding:12px 14px; margin:8px 0 4px; text-align:left; font-size:.9rem; line-height:1.4;
     }
     .perm b { display:block; margin-bottom:6px; }
+    .store-row { display:flex; align-items:center; gap:8px; margin:4px 0 10px; }
+    .store-row label { color:var(--muted); font-size:.86rem; font-weight:650; }
+    .store-row select { min-width:0; padding:10px 12px; font-family:inherit; color:var(--ink); }
+    .cat-card { background:var(--card); border-radius:16px; box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden; }
+    .cat-head { display:flex; align-items:center; gap:10px; padding:10px 14px; text-align:left; background:#f3f8f3; border-bottom:1px solid var(--line); }
+    .cat-emoji { font-size:1.4rem; line-height:1; }
+    .cat-head h3 { flex:1; font-size:1.02rem; font-weight:750; color:var(--green-dark); }
+    .cat-count { min-width:2em; text-align:center; background:#fff; border:1px solid var(--line); border-radius:999px; padding:2px 8px; color:var(--muted); font-size:.85rem; font-weight:700; font-variant-numeric:tabular-nums; }
+    .cat-items { list-style:none; }
+    .cat-head, .route-list li { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; cursor:grab; }
+    .grip { display:flex; padding:6px 2px 6px 8px; color:var(--muted); fill:currentColor; touch-action:none; }
+    .route-list li .grip { flex:none; padding:6px 4px; }
+    .dragging { position:relative; z-index:5; cursor:grabbing; box-shadow:0 18px 40px rgba(20,32,22,.25); outline:2px solid var(--green); }
+    .cat-card.dragging .cat-head { background:#e3f1e3; }
+    .cat-card.uncat .cat-head { background:#fff8e6; }
+    .cat-fix { flex:none; max-width:42%; border:1px solid #e8c77a; background:#fff8e6; color:#6b4a00; border-radius:999px; padding:6px 8px; font:inherit; font-size:.85rem; font-weight:650; cursor:pointer; }
+    .help-box .route-list { position:relative; list-style:none; margin:12px 0 4px; padding:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; counter-reset:aisle; }
+    .help-box .route-list li { margin:0; background:#fff; color:var(--ink); display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--line); counter-increment:aisle; }
+    .route-list li:last-child { border-bottom:0; }
+    .route-list li::before { content:counter(aisle); width:1.4em; color:var(--muted); font-weight:700; font-variant-numeric:tabular-nums; }
+    .route-list li span { flex:1; font-weight:600; }
+    .route-list button { border:1px solid var(--line); background:#f7faf7; border-radius:8px; width:34px; height:34px; font-size:1rem; cursor:pointer; color:var(--green-dark); }
+    .route-list button:disabled { opacity:.35; cursor:default; }
+    .route-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px; }
+    .route-actions .btn.danger { margin-left:auto; }
+    #routeName, #itemName, #routeGeoInput { width:100%; }
+    .geo-row { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:-2px 0 10px; }
+    .geo-row .chip[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:#fff; }
+    .geo-status { flex:1; min-width:12em; color:var(--muted); font-size:.85rem; }
+    .low-bar { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(14px + env(safe-area-inset-bottom, 0px)); z-index:15;
+      width:min(432px, calc(100% - 28px)); display:flex; align-items:center; gap:6px; padding:6px 6px 6px 16px;
+      background:#fff; border:1px solid var(--line); border-radius:999px; box-shadow:var(--shadow); opacity:.7; transition:opacity .2s; }
+    .low-bar:hover, .low-bar:focus-within { opacity:1; }
+    .low-bar span { flex:1; min-width:0; font-weight:600; font-size:.95rem; }
+    .low-bar .btn.primary { border-radius:999px; padding:9px 14px; }
+    .low-bar .btn.ghost { padding:9px 8px; }
+    body.has-low .app { padding-bottom:96px; }
+    .habits { margin-top:12px; }
+    .habits h3 { font-size:1rem; }
+    .habits-note { color:var(--muted); font-size:.82rem; margin:4px 0 6px; }
+    .habits ul { list-style:none; }
+    .habits li { display:flex; justify-content:space-between; gap:8px; padding:8px 2px; border-bottom:1px solid var(--line); font-size:.95rem; }
+    .habits li span:last-child { color:var(--muted); white-space:nowrap; }
+    .idea-row { display:flex; justify-content:flex-end; margin:-2px 0 8px; }
+    .idea-card { background:#fffaf0; border:1px solid #f0d9a8; border-radius:16px; padding:14px; margin-bottom:12px; box-shadow:var(--shadow); }
+    .idea-card p { font-size:1.02rem; line-height:1.45; }
+    .idea-card b { color:var(--green-dark); }
+    .idea-actions { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:10px; }
+    .geo-box { margin-top:14px; padding-top:4px; border-top:1px solid var(--line); }
+    .geo-text { color:var(--muted); font-size:.88rem; }
+    .geo-box .route-actions { margin:8px 0; }
+    .cat-picks { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+    .cat-picks button { border:1px solid var(--line); background:#f7faf7; color:var(--green-dark); border-radius:999px; padding:8px 12px; font-family:inherit; font-size:.85rem; font-weight:650; cursor:pointer; }
+    .cat-picks button[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:#fff; }
+    #itemHint { text-align:left; font-size:.82rem; margin:0; }
   </style>
 </head>
 <body>
@@ -111,6 +166,15 @@
         <input id="typed" type="text" autocomplete="off">
         <button class="btn primary" type="submit" id="addBtn">Add</button>
       </form>
+      <div class="store-row">
+        <label for="storeSelect" id="storeLabel">Store</label>
+        <select id="storeSelect" class="field"></select>
+        <button class="chip" id="editRouteBtn" type="button">Edit store</button>
+      </div>
+      <div class="geo-row">
+        <button class="chip" id="geoToggle" type="button" aria-pressed="false">📍 Detect my store: off</button>
+        <span class="geo-status" id="geoStatus" aria-live="polite"></span>
+      </div>
       <div class="meta">
         <span id="count"></span>
         <span>
@@ -120,7 +184,16 @@
           <button class="btn danger" id="clear" type="button"></button>
         </span>
       </div>
-      <ul class="list" id="list"></ul>
+      <div class="idea-row"><button class="chip" id="ideaBtn" type="button">🍳 Meal idea</button></div>
+      <div class="idea-card hidden" id="ideaCard" aria-live="polite">
+        <p id="ideaText"></p>
+        <div class="idea-actions">
+          <button class="btn primary" id="ideaAdd" type="button"></button>
+          <button class="btn ghost" id="ideaNext" type="button"></button>
+          <button class="btn ghost" id="ideaClose" type="button"></button>
+        </div>
+      </div>
+      <div class="list" id="list"></div>
       <div id="undoBar" class="toast hidden"></div>
     </section>
     <section id="listsView" class="hidden">
@@ -130,6 +203,12 @@
       </form>
       <button class="btn ghost" id="saveCurrentBtn" type="button"></button>
       <div id="savedBox" class="saved-card"></div>
+      <div class="saved-card habits">
+        <h3 id="habitsTitle">Your buying habits</h3>
+        <p class="habits-note" id="habitsNote"></p>
+        <ul id="habitsList"></ul>
+        <button class="btn danger" id="habitsClear" type="button"></button>
+      </div>
       <button class="btn ghost" id="backFromLists" type="button"></button>
     </section>
     <section id="editView" class="hidden">
@@ -146,7 +225,7 @@
         <input id="editTyped" type="text" autocomplete="off">
         <button class="btn primary" type="submit" id="editAddBtn">Add</button>
       </form>
-      <ul class="list" id="editList"></ul>
+      <div class="list" id="editList"></div>
       <button class="btn ghost" id="backShop" type="button"></button>
     </section>
     <p class="hint" id="hint"></p>
@@ -168,6 +247,46 @@
       </div>
     </div>
   </div>
+  <div class="low-bar hidden" id="lowBar" aria-live="polite">
+    <span id="lowText"></span>
+    <button class="btn primary" id="lowAdd" type="button">Add</button>
+    <button class="btn ghost" id="lowLater" type="button">Not now</button>
+  </div>
+  <div class="overlay hidden" id="routeOverlay">
+    <form class="help-box" id="routeForm">
+      <h2 id="routeTitle">Store route</h2>
+      <p class="muted" id="routeHint"></p>
+      <input id="routeName" class="field" maxlength="40" autocomplete="off">
+      <ol class="route-list" id="routeList"></ol>
+      <div class="geo-box" id="routeGeo">
+        <h3 id="routeGeoTitle">Store location</h3>
+        <p class="geo-text" id="routeGeoText"></p>
+        <div class="route-actions">
+          <button type="button" class="btn ghost" id="routeGeoUse">📍 Use my current location</button>
+          <button type="button" class="btn danger" id="routeGeoClear">Remove location</button>
+        </div>
+        <input id="routeGeoInput" class="field" inputmode="decimal" autocomplete="off">
+      </div>
+      <div class="route-actions">
+        <button type="submit" class="btn primary" id="routeSave">Save</button>
+        <button type="button" class="btn ghost" id="routeCancel">Cancel</button>
+        <button type="button" class="btn danger" id="routeDelete">Delete store</button>
+      </div>
+    </form>
+  </div>
+  <div class="overlay hidden" id="itemOverlay">
+    <form class="help-box" id="itemForm">
+      <h2 id="itemTitle">Edit item</h2>
+      <input id="itemName" class="field" maxlength="60" autocomplete="off">
+      <h3 id="itemSectionLabel">Section</h3>
+      <div class="cat-picks" id="catPicks"></div>
+      <p class="muted" id="itemHint"></p>
+      <div class="route-actions">
+        <button type="submit" class="btn primary" id="itemSave">Save</button>
+        <button type="button" class="btn ghost" id="itemCancel">Cancel</button>
+      </div>
+    </form>
+  </div>
   <div class="overlay hidden" id="langOverlay">
     <div class="chooser">
       <h2 id="chooseTitle">Choose language</h2>
@@ -185,7 +304,7 @@
         ready:"Tap to speak", listening:"Listening…", unsupported:"Voice isn’t available in this browser",
         empty:"Nothing on this trip yet", count:n=>n===1?"1 item":n+" items", gotCount:n=>n+" got", placeholder:"Or type an item",
         add:"Add", clear:"Clear trip", confirmClear:"Clear this shopping trip?", clearChecked:"Remove checked", lists:"Saved lists", shop:"This trip",
-        hint:"This trip saves by itself. Swipe an item when you have it. Tap ✕ to remove it for good.", already:"Already listening",
+        hint:"This trip saves by itself. Swipe an item when you have it. Tap ✕ to remove it for good. Press and hold a section to move it.", already:"Already listening",
         newPlaceholder:"Name this list", create:"Create", saveCurrent:"Save this trip as a list",
         saveTrip:"Save as a list", savedOk:"Saved. Name it if you want.", needItems:"Add something first",
         noSaved:"No saved lists yet.", addTrip:"Add to trip", startTrip:"Start trip", edit:"Edit default",
@@ -205,19 +324,49 @@
         helpHome:["Android: Chrome menu (⋮) → Add to Home screen.","iPhone: Safari Share button → Add to Home Screen."],
         copy:"Copy list", copied:"Copied. Paste it in a message.",
         undo:"Undo", undid:"Item removed",
-        editItem:"Fix the name",
         firstMic:"First time: tap the mic, then tap Allow on the popup. Don’t tap Block.",
         notAllowedTitle:"Microphone is blocked",
         notAllowed:"A site cannot turn it back on. Do this, then tap the mic again:",
         notAllowedAnd:"Android / Chrome: lock icon by the web address → Permissions → Microphone → Allow.",
-        notAllowedIos:"iPhone / Safari: aA in the address bar → Website Settings → Microphone → Allow."
+        notAllowedIos:"iPhone / Safari: aA in the address bar → Website Settings → Microphone → Allow.",
+        cats:{ produce:"Produce", bakery:"Bakery", meat:"Meat & seafood", dairy:"Dairy & eggs", pantry:"Pantry", frozen:"Frozen", household:"Household", uncategorized:"Uncategorized" },
+        pickSection:"Pick section",
+        store:"Store", standardStore:"Standard", addStore:"+ Add a store…", editRoute:"Edit store",
+        routeTitle:"Store route", routeHint:"Put the sections in the order you walk them. Anything else shows up last.",
+        storeName:"Store name, like HEB", needName:"Give the store a name first.",
+        saveRoute:"Save", cancel:"Cancel", delStore:"Delete store", confirmDelStore:"Delete this store route?",
+        moveUp:"Move up", moveDown:"Move down",
+        geoOff:"📍 Detect my store: off", geoOn:"📍 Detect my store: on",
+        geoUnsupported:"This browser can’t share your location.",
+        geoDenied:"Location is blocked for this site. Allow it in your browser settings, then turn this on again.",
+        geoNoPlaces:"Save a store’s location first: Edit store → Use my current location.",
+        geoWatching:"Looking for your saved stores while this app is open.",
+        geoNearest:(name,dist)=>`Nearest saved store: ${name}, ${dist} away.`,
+        geoHere:name=>`📍 You’re at ${name}.`,
+        placeNone:"No location saved. Stand inside the store and tap the button, or paste coordinates below.",
+        placeSaved:(lat,lng,acc)=>`Saved: ${lat}, ${lng}${acc?` (accurate to about ${acc} m)`:""}`,
+        placeFinding:"Finding you…", placeFail:"Couldn’t get your location. Try again near a window or outside.",
+        placeTitle:"Store location", placeUse:"📍 Use my current location", placeClear:"Remove location",
+        placePaste:"Or paste coordinates, like 19.4326, -99.1332",
+        placeBad:"Couldn’t read those coordinates. Use the form 19.4326, -99.1332.",
+        low:names=>`Running low on ${names}?`, lowAdd:"Add", lowLater:"Not now",
+        habitsTitle:"Your buying habits", habitsNote:"Private: stays on this phone and is only used for “Running low?” suggestions.",
+        habitsNone:"Nothing learned yet. Check items off as you shop and the app learns how often you buy them.",
+        habitsEvery:d=>d===1?"about every day":`about every ${d} days`, habitsClear:"Clear habits",
+        confirmClearHabits:"Forget all buying habits on this phone?", more:n=>`${n} more`,
+        ideaBtn:"🍳 Meal idea", ideaNext:"Another idea", ideaClose:"Close",
+        ideaMsg:(have,add,meal)=>`You have ${have} on your list. Add <b>${add}</b> to make <b>${meal}</b> tonight!`,
+        ideaAdd:add=>`Add ${add}`, ideaAdded:(add,meal)=>`Added ${add}. Enjoy the ${meal}!`,
+        ideaNone:"No meal idea yet. Add a few more ingredients, like chicken, rice, tortillas or eggs, and try again.",
+        and:"and",
+        editItemTitle:"Edit item", section:"Section", sectionHint:"Pick a section and it will be remembered for this item. Clear the name to remove it."
       },
       es: {
         title:"Lista del súper", subtitle:"Habla para agregar. Desliza el artículo cuando ya lo tengas.",
         ready:"Toca para hablar", listening:"Escuchando…", unsupported:"Este navegador no admite voz",
         empty:"Este viaje aún no tiene artículos", count:n=>n===1?"1 artículo":n+" artículos", gotCount:n=>n+" en el carrito", placeholder:"O escribe un artículo",
         add:"Agregar", clear:"Borrar viaje", confirmClear:"¿Borrar este viaje de compras?", clearChecked:"Quitar marcados", lists:"Listas guardadas", shop:"Este viaje",
-        hint:"Este viaje se guarda solo. Desliza un artículo cuando ya lo tengas. Toca ✕ para quitarlo del todo.", already:"Ya está escuchando",
+        hint:"Este viaje se guarda solo. Desliza un artículo cuando ya lo tengas. Toca ✕ para quitarlo del todo. Mantén presionada una sección para moverla.", already:"Ya está escuchando",
         newPlaceholder:"Nombre de esta lista", create:"Crear", saveCurrent:"Guardar este viaje como lista",
         saveTrip:"Guardar como lista", savedOk:"Guardada. Ponle nombre si quieres.", needItems:"Agrega algo primero",
         noSaved:"Aún no hay listas guardadas.", addTrip:"Sumar al viaje", startTrip:"Empezar viaje", edit:"Editar predeterminada",
@@ -237,25 +386,235 @@
         helpHome:["Android: menú de Chrome (⋮) → Agregar a pantalla de inicio.","iPhone: Safari → Compartir → Agregar a pantalla de inicio."],
         copy:"Copiar lista", copied:"Copiada. Pégala en un mensaje.",
         undo:"Deshacer", undid:"Artículo quitado",
-        editItem:"Corrige el nombre",
         firstMic:"La primera vez: toca el micrófono y luego Permitir. No toques Bloquear.",
         notAllowedTitle:"El micrófono está bloqueado",
         notAllowed:"La página no puede activarlo. Haz esto y vuelve a tocar el micrófono:",
         notAllowedAnd:"Android / Chrome: candado junto a la dirección → Permisos → Micrófono → Permitir.",
-        notAllowedIos:"iPhone / Safari: aA en la barra → Ajustes del sitio → Micrófono → Permitir."
+        notAllowedIos:"iPhone / Safari: aA en la barra → Ajustes del sitio → Micrófono → Permitir.",
+        cats:{ produce:"Frutas y verduras", bakery:"Panadería", meat:"Carnes y mariscos", dairy:"Lácteos y huevos", pantry:"Despensa", frozen:"Congelados", household:"Hogar", uncategorized:"Sin categoría" },
+        pickSection:"Elegir sección",
+        store:"Tienda", standardStore:"Estándar", addStore:"+ Agregar tienda…", editRoute:"Editar tienda",
+        routeTitle:"Ruta de la tienda", routeHint:"Pon las secciones en el orden en que las recorres. Lo demás aparece al final.",
+        storeName:"Nombre de la tienda, como HEB", needName:"Primero ponle nombre a la tienda.",
+        saveRoute:"Guardar", cancel:"Cancelar", delStore:"Borrar tienda", confirmDelStore:"¿Borrar la ruta de esta tienda?",
+        moveUp:"Subir", moveDown:"Bajar",
+        geoOff:"📍 Detectar mi tienda: no", geoOn:"📍 Detectar mi tienda: sí",
+        geoUnsupported:"Este navegador no puede compartir tu ubicación.",
+        geoDenied:"La ubicación está bloqueada para este sitio. Permítela en los ajustes del navegador y vuelve a activar esto.",
+        geoNoPlaces:"Primero guarda la ubicación de una tienda: Editar tienda → Usar mi ubicación actual.",
+        geoWatching:"Buscando tus tiendas guardadas mientras la app está abierta.",
+        geoNearest:(name,dist)=>`Tienda guardada más cercana: ${name}, a ${dist}.`,
+        geoHere:name=>`📍 Estás en ${name}.`,
+        placeNone:"Sin ubicación guardada. Párate dentro de la tienda y toca el botón, o pega coordenadas abajo.",
+        placeSaved:(lat,lng,acc)=>`Guardada: ${lat}, ${lng}${acc?` (precisión de unos ${acc} m)`:""}`,
+        placeFinding:"Buscando tu ubicación…", placeFail:"No se pudo obtener tu ubicación. Intenta cerca de una ventana o afuera.",
+        placeTitle:"Ubicación de la tienda", placeUse:"📍 Usar mi ubicación actual", placeClear:"Quitar ubicación",
+        placePaste:"O pega coordenadas, como 19.4326, -99.1332",
+        placeBad:"No se pudieron leer esas coordenadas. Usa la forma 19.4326, -99.1332.",
+        low:names=>`¿Te falta ${names}?`, lowAdd:"Agregar", lowLater:"Ahora no",
+        habitsTitle:"Tus hábitos de compra", habitsNote:"Privado: se queda en este teléfono y solo se usa para las sugerencias “¿Te falta…?”.",
+        habitsNone:"Aún no hay datos. Marca artículos al comprar y la app aprende cada cuánto los compras.",
+        habitsEvery:d=>d===1?"casi diario":`cada ${d} días aprox.`, habitsClear:"Borrar hábitos",
+        confirmClearHabits:"¿Olvidar todos los hábitos de compra en este teléfono?", more:n=>`${n} más`,
+        ideaBtn:"🍳 Idea de comida", ideaNext:"Otra idea", ideaClose:"Cerrar",
+        ideaMsg:(have,add,meal)=>`Tienes ${have} en tu lista. ¡Agrega <b>${add}</b> y prepara <b>${meal}</b> hoy!`,
+        ideaAdd:add=>`Agregar ${add}`, ideaAdded:(add,meal)=>`Agregaste ${add}. ¡Buen provecho con ${meal}!`,
+        ideaNone:"Aún no hay idea. Agrega algunos ingredientes más, como pollo, arroz, tortillas o huevos, y vuelve a intentar.",
+        and:"y",
+        editItemTitle:"Editar artículo", section:"Sección", sectionHint:"Elige una sección y se recordará para este artículo. Borra el nombre para quitarlo."
       }
     };
+    // ---- Categories: keyword dictionary (English + Spanish, accents ignored) ----
+    const CATEGORIES = ["produce","bakery","meat","dairy","pantry","frozen","household"]; // standard walking order
+    const UNCAT = "uncategorized";
+    const CAT_EMOJI = { produce:"🍎", bakery:"🥖", meat:"🥩", dairy:"🥛", pantry:"📦", frozen:"❄️", household:"🛒", uncategorized:"❔" };
+    const CATEGORY_DICT = {
+      produce:["produce", "apple", "banana", "berry", "berries", "orange", "lemon", "lime", "grape", "grapefruit", "strawberry", "strawberries", "blueberries",
+        "raspberries", "blackberries", "cranberries", "cherry", "cherries", "peach", "nectarine", "apricot", "plum", "pear", "fig", "pomegranate", "tangerine",
+        "clementine", "mandarin", "mango", "papaya", "guava", "pineapple", "coconut", "kiwi", "watermelon", "melon", "cantaloupe", "honeydew", "avocado",
+        "plantain", "tomato", "cherry tomatoes", "potato", "sweet potato", "yam", "onion", "green onion", "red onion", "scallion", "shallot", "leek", "garlic",
+        "ginger", "carrot", "celery", "beet", "radish", "turnip", "parsnip", "broccoli", "cauliflower", "brussels sprouts", "cabbage", "bok choy", "spinach",
+        "kale", "lettuce", "romaine", "arugula", "chard", "collard greens", "spring mix", "salad", "salad kit", "cucumber", "zucchini", "squash", "pumpkin",
+        "eggplant", "okra", "artichoke", "asparagus", "green beans", "snap peas", "snow peas", "peppers", "bell pepper", "jalapeno", "serrano", "poblano",
+        "habanero", "mushroom", "corn", "corn on the cob", "sprouts", "cilantro", "parsley", "basil", "mint", "dill", "rosemary", "thyme", "sage", "chives",
+        "herbs", "fruit", "vegetable", "veggies", "jicama",
+        "manzana", "platano", "banano", "naranja", "limon", "lima", "toronja", "mandarina", "uva", "fresa", "frambuesa", "zarzamora", "arandano", "cereza",
+        "durazno", "ciruela", "pera", "higo", "granada", "guayaba", "pina", "coco", "sandia", "guanabana", "mamey", "zapote", "tejocote", "lichi", "aguacate",
+        "tomate", "jitomate", "tomatillo", "tomate verde", "papa", "camote", "yuca", "cebolla", "cebolla morada", "cebollin", "cebollita", "ajo", "jengibre",
+        "zanahoria", "apio", "betabel", "rabano", "nabo", "poro", "brocoli", "coliflor", "col", "repollo", "lechuga", "espinaca", "acelga", "verdolagas",
+        "quelites", "pepino", "calabaza", "calabacita", "chayote", "berenjena", "ejote", "chicharo", "esparrago", "alcachofa", "elote", "chile",
+        "chile poblano", "chile serrano", "chile jalapeno", "chile habanero", "pimiento", "pimiento morron", "champinon", "hongo", "seta", "nopal",
+        "flor de calabaza", "perejil", "hierbabuena", "menta", "epazote", "albahaca", "romero", "tomillo", "fruta", "verdura", "frutas y verduras"],
+      bakery:["bakery", "bread", "white bread", "wheat bread", "sandwich bread", "rye bread", "bagel", "bun", "hot dog buns", "hamburger buns", "dinner rolls",
+        "sub rolls", "hoagie", "croissant", "muffin", "english muffin", "tortilla", "flour tortillas", "corn tortillas", "pita", "naan", "flatbread",
+        "baguette", "ciabatta", "focaccia", "sourdough", "brioche", "garlic bread", "biscuits", "cake", "cupcake", "cheesecake", "cheese cake", "coffee cake",
+        "birthday cake", "donut", "doughnut", "pie", "pastry", "pastries", "danish", "eclair", "scone", "brownie", "cinnamon rolls", "churro",
+        "panaderia", "pan", "pan dulce", "pan de caja", "pan integral", "pan blanco", "bolillo", "telera", "birote", "cuernito", "concha", "oreja", "rosca",
+        "empanada", "dona", "pastel", "pastelito", "pay", "pay de queso", "pastel de queso", "panque", "mantecada", "tostada", "tortilla de harina",
+        "tortillas de maiz"],
+      meat:["meat", "seafood", "lunch meat", "deli meat", "chicken", "chicken breast", "chicken wings", "wings", "drumsticks", "whole chicken",
+        "rotisserie chicken", "beef", "ground beef", "steak", "ribeye", "sirloin", "t-bone", "tenderloin", "roast", "pot roast", "brisket", "short ribs",
+        "ribs", "veal", "pork", "pork chops", "pork loin", "pork shoulder", "ground pork", "bacon", "ham", "sausage", "bratwurst", "kielbasa", "hot dog",
+        "turkey", "ground turkey", "turkey breast", "lamb", "lamb chops", "duck", "salami", "pepperoni", "prosciutto", "pastrami", "bologna", "meatballs",
+        "chorizo", "hamburger", "chicken salad", "tuna salad", "egg salad", "salmon", "tuna steak", "tilapia", "cod", "trout", "halibut", "catfish",
+        "mahi mahi", "fish", "fillet", "shrimp", "crab", "lobster", "scallops", "clams", "mussels", "oysters", "squid", "calamari", "octopus", "crawfish",
+        "carne", "carnes", "carne molida", "carne para asar", "res", "bistec", "arrachera", "milanesa", "falda", "suadero", "cecina", "chamorro", "lengua",
+        "higado", "tripa", "pollo", "pechuga", "muslo", "pierna", "alitas", "pollo rostizado", "cerdo", "puerco", "lomo", "chuleta", "costilla", "carnitas",
+        "pastor", "tocino", "jamon", "salchicha", "salchichon", "longaniza", "pavo", "queso de puerco", "pescado", "filete", "mojarra", "huachinango", "robalo",
+        "mariscos", "camaron", "pulpo", "calamar", "almeja", "ostion", "jaiba", "langosta"],
+      dairy:["dairy", "milk", "whole milk", "skim milk", "chocolate milk", "lactose free milk", "oat milk", "almond milk", "soy milk", "buttermilk", "creamer",
+        "coffee creamer", "half and half", "cheese", "cheddar", "mozzarella", "parmesan", "swiss", "provolone", "monterey jack", "pepper jack", "colby",
+        "gouda", "brie", "feta", "ricotta", "goat cheese", "string cheese", "shredded cheese", "cottage cheese", "cream cheese", "butter", "margarine", "ghee",
+        "yogurt", "yoghurt", "greek yogurt", "cream", "sour cream", "whipped cream", "heavy cream", "egg", "eggnog", "kefir", "tofu",
+        "lacteos", "leche", "leche entera", "leche deslactosada", "leche light", "leche de almendra", "leche de soya", "leche de avena", "queso",
+        "queso fresco", "queso oaxaca", "queso panela", "panela", "cotija", "manchego", "queso chihuahua", "queso crema", "requeson", "jocoque", "crema",
+        "mantequilla", "margarina", "yogur", "yakult", "danonino", "huevo", "blanquillos", "nata", "natilla"],
+      pantry:["pantry", "rice", "beans", "black beans", "pinto beans", "refried beans", "chickpeas", "lentils", "quinoa", "couscous", "pasta", "spaghetti",
+        "macaroni", "mac and cheese", "lasagna", "noodles", "egg noodles", "ramen", "flour", "cornmeal", "cornstarch", "breadcrumbs", "yeast", "sugar",
+        "brown sugar", "powdered sugar", "sweetener", "stevia", "salt", "pepper", "black pepper", "pepper flakes", "spices", "seasoning", "taco seasoning",
+        "cumin", "paprika", "oregano", "cinnamon", "bay leaves", "garlic powder", "onion powder", "chili powder", "powder", "vanilla", "baking soda",
+        "baking powder", "cake mix", "brownie mix", "muffin mix", "pancake mix", "frosting", "sprinkles", "chocolate chips", "oil", "olive oil",
+        "vegetable oil", "canola oil", "cooking spray", "vinegar", "sauce", "tomato sauce", "tomato paste", "pasta sauce", "marinara", "pesto", "alfredo",
+        "salsa", "hot sauce", "soy sauce", "teriyaki", "sriracha", "worcestershire", "ketchup", "mustard", "mayo", "mayonnaise", "relish", "dressing",
+        "salad dressing", "ranch", "bbq sauce", "pickle", "olive", "capers", "chipotle", "chili", "soup", "broth", "chicken broth", "stock", "bouillon", "tuna",
+        "sardines", "anchovies", "spam", "peanut butter", "almond butter", "nutella", "jelly", "jam", "honey", "syrup", "maple syrup", "cereal", "corn flakes",
+        "oats", "oatmeal", "granola", "granola bars", "protein bars", "crackers", "cookies", "snack", "chips", "tortilla chips", "potato chips", "pretzels",
+        "popcorn", "trail mix", "fruit snacks", "nuts", "peanuts", "almonds", "walnuts", "pecans", "cashews", "pistachios", "sunflower seeds", "seeds",
+        "raisins", "dried fruit", "dried cranberries", "dates", "prunes", "applesauce", "apple sauce", "jello", "gelatin", "pudding", "marshmallows", "candy",
+        "chocolate", "gum", "jerky", "beef jerky", "pork rinds", "coffee", "tea", "tea bags", "hot chocolate", "juice", "apple juice", "orange juice",
+        "lemonade", "soda", "water", "bottled water", "sparkling water", "seltzer", "coconut water", "kombucha", "gatorade", "energy drink", "evaporated milk",
+        "condensed milk", "coconut milk", "beer", "wine", "tequila", "vodka", "rum", "whiskey", "liquor", "champagne", "baby food", "formula", "dog food",
+        "cat food", "pet food", "dog treats", "rice cakes",
+        "despensa", "abarrotes", "arroz", "frijol", "frijoles refritos", "lentejas", "garbanzos", "habas", "alubias", "fideo", "sopa instantanea", "maruchan",
+        "harina", "harina de maiz", "maseca", "masa", "maizena", "pan molido", "levadura", "azucar", "piloncillo", "sal", "pimienta", "comino", "laurel",
+        "clavo", "canela", "chile en polvo", "ajo en polvo", "sazonador", "consome", "caldo", "knorr", "aceite", "aceite de oliva", "manteca", "vinagre",
+        "salsa valentina", "valentina", "tapatio", "salsa de soya", "jugo maggi", "catsup", "mostaza", "mayonesa", "chiles en vinagre", "pure",
+        "pure de tomate", "sopa", "atun", "sardina", "leche condensada", "leche evaporada", "media crema", "crema de cacahuate", "mermelada", "cajeta", "miel",
+        "avena", "hojuelas", "galleta", "papitas", "papas fritas", "sabritas", "doritos", "cheetos", "takis", "totopos", "palomitas", "chicharron", "cacahuate",
+        "nuez", "almendra", "pistache", "semilla", "pepitas", "pasas", "dulce", "chicle", "tajin", "chamoy", "cafe", "nescafe", "te", "jamaica", "tamarindo",
+        "horchata", "jugo", "jumex", "refresco", "coca cola", "pepsi", "jarritos", "agua", "agua mineral", "topo chico", "electrolit", "suero", "cerveza",
+        "vino", "mezcal", "ron", "croqueta", "comida para perro", "comida para gato", "gelatina"],
+      frozen:["ice cream", "ice", "popsicle", "ice pops", "sorbet", "gelato", "whipped topping", "cool whip", "pizza", "frozen pizza", "waffle", "fries",
+        "french fries", "tater tots", "hash browns", "onion rings", "nuggets", "chicken nuggets", "fish sticks", "corn dogs", "egg rolls", "dumplings",
+        "potstickers", "burrito", "hot pockets", "pot pie", "tv dinner", "frozen veggies", "edamame", "mozzarella sticks",
+        "helado", "nieve", "paleta", "hielo", "papas a la francesa", "pizza congelada", "verduras congeladas"],
+      household:["household", "cleaning", "paper towel", "toilet paper", "napkin", "tissue", "kleenex", "paper plates", "paper cups", "plastic cups", "plastic forks",
+        "straws", "soap", "dish soap", "hand soap", "dishwasher pods", "detergent", "laundry", "fabric softener", "dryer sheets", "stain remover", "bleach",
+        "cleaner", "glass cleaner", "disinfectant", "lysol", "clorox", "windex", "air freshener", "trash bag", "garbage bag", "sandwich bags", "ziploc", "foil",
+        "aluminum foil", "plastic wrap", "parchment paper", "wax paper", "sponge", "steel wool", "gloves", "mop", "broom", "candles", "matches", "lighter",
+        "light bulb", "batteries", "charcoal", "cat litter", "kitty litter", "shampoo", "conditioner", "body wash", "lotion", "sunscreen", "deodorant",
+        "toothpaste", "toothbrush", "floss", "mouthwash", "razor", "shaving cream", "cotton balls", "cotton swabs", "q-tips", "tampons", "band aids",
+        "medicine", "vitamins", "tylenol", "advil", "ibuprofen", "aspirin", "cough syrup", "hand sanitizer", "baby wipes", "wipe", "diaper", "baby powder",
+        "limpieza", "papel higienico", "papel de bano", "toalla de papel", "servitoallas", "servilleta", "panuelos", "platos desechables", "vasos desechables",
+        "popotes", "jabon", "jabon zote", "jabon para trastes", "lavatrastes", "detergente", "suavizante", "suavitel", "downy", "cloro", "cloralex", "pinol",
+        "fabuloso", "maestro limpio", "insecticida", "aromatizante", "bolsa de basura", "bolsas", "papel aluminio", "aluminio", "esponja", "fibra", "escoba",
+        "trapeador", "jerga", "guantes", "velas", "cerillos", "encendedor", "foco", "pila", "carbon", "arena para gato", "champu", "acondicionador",
+        "crema corporal", "crema para manos", "crema para afeitar", "bloqueador", "desodorante", "pasta de dientes", "crema dental", "cepillo de dientes",
+        "hilo dental", "enjuague bucal", "rastrillo", "algodon", "hisopos", "toallas femeninas", "toallas sanitarias", "tampones", "curitas", "medicina",
+        "vitaminas", "aspirina", "paracetamol", "ibuprofeno", "jarabe", "gel antibacterial", "toallita", "toallas humedas", "panal"]
+    };
+    const normalize = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim();
+    // These also match at the end of a longer word: cheesecake, cupcake, cornbread, shortbread.
+    const SUFFIX_WORDS = new Set(["cake","bread"]);
+    const wordRe = w => new RegExp(`(${SUFFIX_WORDS.has(w) ? "" : "^|[^a-z]"})${w}(e?s)?(?![a-z])`);
+    const CAT_MATCHERS = Object.entries(CATEGORY_DICT)
+      .flatMap(([cat, words]) => words.map(w => ({ w: normalize(w), cat })))
+      .sort((a, b) => b.w.length - a.w.length)
+      .map(({ w, cat }) => ({ cat, len: w.length, re: wordRe(w) }));
+    // Spanish names lead with the product: "jugo de naranja", "sopa de pollo".
+    const ES_HEAD = /^ (de|del|para|con|en|sabor) /;
+    // Score each matching keyword: longer is more specific ("peanut butter" beats "butter"), and the
+    // product word gets a bonus: last in English ("chicken noodle soup"), first in Spanish ("jugo de mandarina").
+    function bestMatch(key){
+      let best=null, bestScore=-1;
+      for (const m of CAT_MATCHERS) {
+        const hit = m.re.exec(key); if (!hit) continue;
+        const start = hit.index + hit[1].length, end = hit.index + hit[0].length;
+        const score = m.len + (end === key.length ? 8 : 0) + (start === 0 && ES_HEAD.test(key.slice(end)) ? 16 : 0);
+        if (score > bestScore) { best = m; bestScore = score; }
+      }
+      return best;
+    }
+    // Words that decide the aisle no matter what follows: "frozen peas", "canned corn".
+    const CAT_PREFIXES = [
+      { cat:"frozen", re:/(^|[^a-z])(frozen|congelad[oa]s?)(?![a-z])/ },
+      { cat:"pantry", re:/(^|[^a-z])(canned|enlatad[oa]s?|de lata|en lata)(?![a-z])/ }
+    ];
+    const catCache = new Map();
+    function autoCategory(text){
+      const key = normalize(text);
+      if (catCache.has(key)) return catCache.get(key);
+      const hit = CAT_PREFIXES.find(m => m.re.test(key)) || bestMatch(key);
+      const cat = hit ? hit.cat : UNCAT;
+      catCache.set(key, cat);
+      return cat;
+    }
+    // Sections the user picked by hand, keyed by normalized item name: localStorage "grocery-item-cats".
+    const ITEM_CATS_KEY = "grocery-item-cats";
+    let itemCats = {};
+    try { itemCats = JSON.parse(localStorage.getItem(ITEM_CATS_KEY)) || {}; } catch {}
+    const categorizeItem = itemName => {
+      const picked = itemCats[normalize(itemName)];
+      return picked === UNCAT || CATEGORIES.includes(picked) ? picked : autoCategory(itemName);
+    };
+
+    // ---- Store routes: localStorage "grocery-routes" = { active, stores: { name: [category, ...] } } ----
+    const ROUTES_KEY = "grocery-routes", STANDARD = "standard";
+    const PRESET_STORES = ["Soriana", "Chedraui", "Walmart", "La Comer", "Costco", "Sam's Club", "Bodega Aurrerá"], PRESETS_VERSION = 4;
+    function loadRoutes(){
+      let r = null;
+      try { r = JSON.parse(localStorage.getItem(ROUTES_KEY)); } catch {}
+      if (!r || typeof r.stores !== "object" || !r.stores) r = { active: STANDARD, stores: {} };
+      if (!Array.isArray(r.stores[STANDARD])) r.stores[STANDARD] = CATEGORIES.slice();
+      // Preset stores are added once; a preset the user deletes stays deleted.
+      if (r.presets !== PRESETS_VERSION) {
+        const tj = r.stores["Trader Joe's"];
+        if (tj && tj.join() === "produce,bakery,dairy,pantry") delete r.stores["Trader Joe's"]; // old unedited preset
+        PRESET_STORES.forEach(name => { if (!r.stores[name]) r.stores[name] = CATEGORIES.slice(); });
+        r.presets = PRESETS_VERSION;
+      }
+      if (!r.stores[r.active]) r.active = STANDARD;
+      if (typeof r.places !== "object" || !r.places) r.places = {}; // store name -> { lat, lng, acc }
+      return r;
+    }
+    // Full aisle order for a store: its custom order, then any categories it left out, then "Other".
+    function routeSequence(storeKey){
+      const seen = new Set(), seq = [];
+      [...(storeRoutes.stores[storeKey] || []), ...CATEGORIES].forEach(c => {
+        if (CATEGORIES.includes(c) && !seen.has(c)) { seen.add(c); seq.push(c); }
+      });
+      seq.push(UNCAT);
+      return seq;
+    }
+    // Group items by category in route order. Keeps original indexes; checked items sink within their group.
+    function sortByRoute(items, seq){
+      const groups = new Map(seq.map(c => [c, []]));
+      items.forEach((item, i) => groups.get(categorizeItem(item.text)).push({ item, i }));
+      return seq
+        .map(cat => ({ cat, entries: groups.get(cat).sort((a, b) => a.item.checked - b.item.checked) }))
+        .filter(g => g.entries.length);
+    }
+
     const $ = id => document.getElementById(id);
     const migrateItems = arr => arr.map(x => typeof x === "string" ? { text: x, checked: false } : x);
     let lang = localStorage.getItem("grocery-lang") || "";
     let trip = migrateItems(JSON.parse(localStorage.getItem("grocery-trip") || localStorage.getItem("grocery") || "[]"));
     let lists = JSON.parse(localStorage.getItem("grocery-lists") || "[]").map(l => ({ ...l, items: migrateItems(l.items) }));
+    let storeRoutes = loadRoutes();
+    // Store detection: { on } — when on, the app selects a saved store you're standing in.
+    const GEO_KEY = "grocery-geo";
+    let geo = { on:false };
+    try { geo = { on: !!JSON.parse(localStorage.getItem(GEO_KEY)).on }; } catch {}
     let view = "shop", editingId = null, recTrip = null, recEdit = null;
-    let lastRemoved = null, undoTimer = null;
+    let lastRemoved = null, undoTimer = null, routeDraft = null, itemDraft = null;
     const save = () => {
       if (lang) localStorage.setItem("grocery-lang", lang);
       localStorage.setItem("grocery-trip", JSON.stringify(trip));
       localStorage.setItem("grocery-lists", JSON.stringify(lists));
+      localStorage.setItem(ROUTES_KEY, JSON.stringify(storeRoutes));
+      localStorage.setItem(ITEM_CATS_KEY, JSON.stringify(itemCats));
+      localStorage.setItem(GEO_KEY, JSON.stringify(geo));
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     };
     const splitUtterance = text => text.split(/\s+(?:and|y|e|plus|más)\s+|,\s*/i).map(s=>s.replace(/^[\s.]+|[\s.]+$/g,"")).filter(Boolean);
     const mergeItems = (base, extraTexts) => {
@@ -290,36 +649,396 @@
       $("helpMoreTitle").textContent=c.helpMoreTitle;
       $("helpHomeTitle").textContent=c.helpHomeTitle;
       $("helpClose").textContent=c.helpClose;
+      $("storeLabel").textContent=c.store; $("editRouteBtn").textContent=c.editRoute;
+      $("routeTitle").textContent=c.routeTitle; $("routeName").placeholder=c.storeName;
+      $("routeSave").textContent=c.saveRoute; $("routeCancel").textContent=c.cancel; $("routeDelete").textContent=c.delStore;
+      renderStoreSelect();
+      $("geoToggle").textContent = geo.on ? c.geoOn : c.geoOff; $("geoToggle").setAttribute("aria-pressed", String(geo.on));
+      $("routeGeoTitle").textContent=c.placeTitle; $("routeGeoUse").textContent=c.placeUse; $("routeGeoClear").textContent=c.placeClear;
+      $("routeGeoInput").placeholder=c.placePaste;
+      showGeoStatus();
+      $("ideaBtn").textContent=c.ideaBtn;
+      $("ideaBtn").classList.toggle("hidden", !trip.some(i=>!i.checked));
       const fillOl = (id, items) => { const ol=$(id); ol.innerHTML=""; items.forEach(s=>{ const li=document.createElement("li"); li.textContent=s; ol.appendChild(li); }); };
       fillOl("helpAnd", c.helpAnd); fillOl("helpIos", c.helpIos); fillOl("helpMore", c.helpMore); fillOl("helpHome", c.helpHome);
     }
     function showView(next){ view=next; $("shopView").classList.toggle("hidden", next!=="shop"); $("listsView").classList.toggle("hidden", next!=="lists"); $("editView").classList.toggle("hidden", next!=="edit"); applyCopy(); render(); }
     function bindSwipe(row, onRemove){
-      let startX=0, dx=0, tracking=false; const inner=row.querySelector(".row-inner");
+      let startX=0, dx=0, tracking=false, pointerId=null; const inner=row.querySelector(".row-inner");
       const start=x=>{ tracking=true; startX=x; dx=0; inner.style.transition="none"; };
-      const move=x=>{ if(!tracking) return; dx=x-startX; inner.style.transform=`translateX(${dx}px)`; };
+      const move=x=>{ if(!tracking) return; dx=x-startX; inner.style.transform=`translateX(${dx}px)`;
+        // Capture only once it is a real swipe; capturing on pointerdown retargets taps away from the item name.
+        if(pointerId!==null && Math.abs(dx)>8){ try { row.setPointerCapture(pointerId); } catch {} pointerId=null; } };
       const end=()=>{ if(!tracking) return; tracking=false; inner.style.transition="";
         if(Math.abs(dx)>72){ row.classList.add("removing", dx<0?"left":"right"); setTimeout(onRemove,180); }
         else inner.style.transform=""; };
-      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x")) return; row.setPointerCapture(e.pointerId); start(e.clientX); });
+      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x, .cat-fix")) return; pointerId=e.pointerId; start(e.clientX); });
       row.addEventListener("pointermove", e=>move(e.clientX));
-      row.addEventListener("pointerup", end);
-      row.addEventListener("pointercancel", end);
+      const stop=()=>{ pointerId=null; end(); };
+      row.addEventListener("pointerup", stop);
+      row.addEventListener("pointercancel", stop);
+      row.addEventListener("pointerleave", ()=>{ if(pointerId!==null) stop(); });
       row.addEventListener("click", e=>{ if(Math.abs(dx)>12) e.preventDefault(); }, true);
     }
     function renderItems(target, items, onSwipe, onEdit, onRemove){
       target.innerHTML=""; const c=t[lang]||t.en;
-      if(!items.length){ const li=document.createElement("li"); li.className="row empty"; li.textContent=c.empty; target.appendChild(li); return; }
-      const ordered = items.map((item,i)=>({item,i})).sort((a,b)=>(a.item.checked===b.item.checked)?0:(a.item.checked?1:-1));
-      ordered.forEach(({item,i})=>{
-        const li=document.createElement("li"); li.className="row"+(item.checked?" done":"");
-        li.innerHTML=`<div class="row-inner"><button class="item-text" type="button"></button><button class="x" type="button">✕</button></div>`;
-        const label=li.querySelector(".item-text");
-        label.textContent=item.text;
-        label.onclick=()=>onEdit(i, item);
-        li.querySelector(".x").onclick=()=>onRemove(i);
-        bindSwipe(li, ()=>onSwipe(i));
-        target.appendChild(li);
+      if(!items.length){ const p=document.createElement("p"); p.className="empty"; p.textContent=c.empty; target.appendChild(p); return; }
+      // One card per section that has items, in the active store's route order.
+      sortByRoute(items, routeSequence(storeRoutes.active)).forEach(({cat, entries})=>{
+        const card=document.createElement("section"); card.className="cat-card"+(cat===UNCAT?" uncat no-drag":""); card.dataset.key=cat;
+        card.innerHTML=`<header class="cat-head"><span class="cat-emoji" aria-hidden="true"></span><h3></h3><span class="cat-count"></span>${cat===UNCAT?"":`<span class="grip" aria-hidden="true"><svg viewBox="0 0 10 16" width="10" height="16"><circle cx="2" cy="2" r="1.6"/><circle cx="8" cy="2" r="1.6"/><circle cx="2" cy="8" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="2" cy="14" r="1.6"/><circle cx="8" cy="14" r="1.6"/></svg></span>`}</header><ul class="cat-items"></ul>`;
+        card.querySelector(".cat-emoji").textContent=CAT_EMOJI[cat];
+        card.querySelector("h3").textContent=c.cats[cat];
+        card.querySelector(".cat-count").textContent=entries.filter(e=>!e.item.checked).length||"✓";
+        const ul=card.querySelector(".cat-items");
+        entries.forEach(({item,i})=>{
+          const li=document.createElement("li"); li.className="row"+(item.checked?" done":"");
+          li.innerHTML=`<div class="row-inner"><button class="item-text" type="button"></button><button class="x" type="button">✕</button></div>`;
+          const label=li.querySelector(".item-text");
+          label.textContent=item.text;
+          label.onclick=()=>onEdit(i, item);
+          if(cat===UNCAT) label.after(sectionDropdown(item.text));
+          li.querySelector(".x").onclick=()=>onRemove(i);
+          bindSwipe(li, ()=>onSwipe(i));
+          ul.appendChild(li);
+        });
+        target.appendChild(card);
+      });
+    }
+    // ---- "Running low?": learn how often each item is bought (checked off) and suggest it when it's due ----
+    // localStorage "grocery-history" = { key: { name, buys:[timestamps], snoozeUntil, dismissals } }. Stays on the phone.
+    const HISTORY_KEY="grocery-history", DAY=864e5;
+    const MIN_BUYS=3, MAX_SPREAD=0.5, MUTE_AFTER=3, KEEP_BUYS=12;
+    let history={};
+    try { history=JSON.parse(localStorage.getItem(HISTORY_KEY)) || {}; } catch {}
+    const habitKey = text => normalize(text).replace(/s$/, ""); // "Eggs" and "egg" are the same habit
+    function recordBuy(item, bought){
+      const k=habitKey(item.text), now=Date.now(), h=history[k] || (history[k]={ name:item.text, buys:[], dismissals:0 });
+      const last=h.buys[h.buys.length-1];
+      if(bought){
+        if(last && now-last < DAY/2) h.buys[h.buys.length-1]=now; // same shopping trip: count once
+        else h.buys.push(now);
+        h.buys=h.buys.slice(-KEEP_BUYS); h.name=item.text; h.dismissals=0; delete h.snoozeUntil;
+      } else if(last && now-last < DAY/2) h.buys.pop(); // un-checked by mistake
+    }
+    // Typical gap between purchases in days, or null when there isn't a steady pattern yet.
+    function habitInterval(h){
+      if(h.buys.length < MIN_BUYS) return null;
+      const gaps=h.buys.slice(1).map((b,i)=>(b-h.buys[i])/DAY).sort((a,b)=>a-b);
+      const median=gaps[Math.floor(gaps.length/2)];
+      if(median < 1 || median > 60) return null;
+      const spread=gaps.reduce((sum,g)=>sum+Math.abs(g-median),0)/gaps.length/median;
+      return spread <= MAX_SPREAD ? median : null; // skip irregular buys
+    }
+    function dueItems(){
+      const now=Date.now(), onList=new Set(trip.filter(i=>!i.checked).map(i=>habitKey(i.text)));
+      return Object.entries(history).filter(([k,h])=>{
+        const every=habitInterval(h); if(!every || onList.has(k)) return false;
+        if(h.dismissals>=MUTE_AFTER || (h.snoozeUntil && now<h.snoozeUntil)) return false;
+        const since=(now-h.buys[h.buys.length-1])/DAY;
+        return since >= every*0.9 && since <= every*3; // due around the usual day; stop if they quit buying it
+      }).map(([k,h])=>({ k, h }));
+    }
+    function updateLowBar(){
+      const c=t[lang]||t.en, due=view==="shop" && $("undoBar").classList.contains("hidden") ? dueItems() : [];
+      $("lowBar").classList.toggle("hidden", !due.length); document.body.classList.toggle("has-low", !!due.length);
+      if(!due.length) return;
+      const names=due.map(d=>d.h.name.toLowerCase()), shown=names.length>3 ? [...names.slice(0,2), c.more(names.length-2)] : names;
+      $("lowText").textContent=c.low(joinWords(shown, c.and));
+      $("lowAdd").textContent=c.lowAdd; $("lowLater").textContent=c.lowLater;
+    }
+    function renderHabits(){
+      const c=t[lang]||t.en, ul=$("habitsList");
+      $("habitsTitle").textContent=c.habitsTitle; $("habitsNote").textContent=c.habitsNote; $("habitsClear").textContent=c.habitsClear;
+      const learned=Object.values(history).map(h=>({ h, every:habitInterval(h) })).filter(x=>x.every).sort((a,b)=>a.every-b.every);
+      ul.innerHTML="";
+      if(!learned.length){ const li=document.createElement("li"); li.textContent=c.habitsNone; ul.appendChild(li); }
+      learned.forEach(({h,every})=>{ const li=document.createElement("li"); const a=document.createElement("span"), b=document.createElement("span");
+        a.textContent=h.name; b.textContent=c.habitsEvery(Math.max(1, Math.round(every))); li.append(a,b); ul.appendChild(li); });
+      $("habitsClear").classList.toggle("hidden", !Object.keys(history).length);
+    }
+    // ---- Meal ideas: find a meal that is exactly one ingredient away from the unchecked items ----
+    // Ingredient: [English name, Spanish name, keywords that mean it on a list]
+    const INGREDIENTS = {
+      chicken:["chicken","pollo","chicken, chicken breast, wings, pollo, pechuga, alitas, muslo"],
+      beef:["beef","carne de res","beef, steak, ribeye, sirloin, res, bistec, arrachera, carne, carne asada"],
+      groundbeef:["ground beef","carne molida","ground beef, hamburger meat, carne molida"],
+      pork:["pork","cerdo","pork, pork chops, cerdo, puerco, chuleta, lomo, carnitas, pastor"],
+      chorizo:["chorizo","chorizo","chorizo"], bacon:["bacon","tocino","bacon, tocino"], ham:["ham","jamón","ham, jamon"],
+      shrimp:["shrimp","camarones","shrimp, camaron"], fish:["fish","pescado","fish, fillet, tilapia, salmon, cod, pescado, filete de pescado, mojarra"],
+      tuna:["tuna","atún","tuna, atun"], eggs:["eggs","huevos","egg, huevo, blanquillo"],
+      tortilla:["tortillas","tortillas","tortilla"], tostadas:["tostadas","tostadas","tostada"],
+      tortillachips:["tortilla chips","totopos","tortilla chips, totopos"],
+      bread:["bread","pan","bread, baguette, pan, pan de caja, bolillo, telera"],
+      buns:["hamburger buns","pan para hamburguesa","hamburger buns, bun, pan para hamburguesa"],
+      pasta:["pasta","pasta","pasta, spaghetti, espagueti, macaroni, noodles, fideo"], rice:["rice","arroz","rice, arroz"],
+      beans:["beans","frijoles","beans, frijol"], potato:["potatoes","papas","potato, papa"], onion:["onions","cebolla","onion, cebolla"],
+      garlic:["garlic","ajo","garlic, ajo"], tomato:["tomatoes","jitomate","tomato, tomate, jitomate"],
+      tomatillo:["tomatillos","tomate verde","tomatillo, tomate verde"], bellpepper:["bell peppers","pimiento morrón","bell pepper, peppers, pimiento"],
+      jalapeno:["jalapeños","chiles jalapeños","jalapeno, serrano, chile, chile jalapeno, chile serrano"],
+      poblano:["poblano peppers","chiles poblanos","poblano, chile poblano"], avocado:["avocados","aguacates","avocado, aguacate"],
+      lettuce:["lettuce","lechuga","lettuce, romaine, lechuga"], cabbage:["cabbage","repollo","cabbage, col, repollo"],
+      cilantro:["cilantro","cilantro","cilantro"], lime:["limes","limones","lime, lemon, limon"],
+      cheese:["cheese","queso","cheese, cheddar, mozzarella, parmesan, cream cheese, queso, panela, cotija, manchego, queso oaxaca"],
+      cream:["sour cream","crema","sour cream, crema"], salsa:["salsa","salsa","salsa"], mayo:["mayonnaise","mayonesa","mayo, mayonnaise, mayonesa"],
+      carrot:["carrots","zanahorias","carrot, zanahoria"], celery:["celery","apio","celery, apio"], corn:["corn","elote","corn, elote"],
+      zucchini:["zucchini","calabacitas","zucchini, calabacita"], mushroom:["mushrooms","champiñones","mushroom, champinon, hongo"],
+      spinach:["spinach","espinacas","spinach, espinaca"], cucumber:["cucumber","pepino","cucumber, pepino"],
+      broth:["broth","caldo","broth, chicken broth, stock, caldo, consome"],
+      tomatosauce:["tomato sauce","puré de tomate","tomato sauce, pasta sauce, marinara, pure de tomate"],
+      butter:["butter","mantequilla","butter, mantequilla"], milk:["milk","leche","milk, leche"], flour:["flour","harina","flour, harina"],
+      bananas:["bananas","plátanos","banana, platano"], strawberry:["strawberries","fresas","strawberry, strawberries, fresa"],
+      pineapple:["pineapple","piña","pineapple, pina"], peas:["peas","chícharos","peas, chicharo"], soy:["soy sauce","salsa de soya","soy sauce, salsa de soya"],
+      _skip:["","","peanut butter, pan dulce, pan molido, chile en polvo, ajo en polvo, crema de cacahuate, tortilla chips de maiz"]
+    };
+    // Meal: [English name, Spanish name, ingredients]
+    const MEALS = [
+      ["chicken fajitas","fajitas de pollo","chicken tortilla onion bellpepper"],
+      ["beef fajitas","fajitas de res","beef tortilla onion bellpepper"],
+      ["steak tacos","tacos de bistec","beef tortilla onion cilantro"],
+      ["tacos al pastor","tacos al pastor","pork tortilla pineapple onion"],
+      ["fish tacos","tacos de pescado","fish tortilla cabbage lime"],
+      ["green enchiladas","enchiladas verdes","chicken tortilla tomatillo cream"],
+      ["chilaquiles","chilaquiles","tortilla tomatillo cream cheese"],
+      ["mushroom quesadillas","quesadillas de champiñones","tortilla cheese mushroom"],
+      ["huevos rancheros","huevos rancheros","eggs tortilla tomato jalapeno"],
+      ["Mexican-style eggs","huevos a la mexicana","eggs tomato onion jalapeno"],
+      ["chorizo and eggs","huevo con chorizo","chorizo eggs tortilla beans"],
+      ["chorizo and potato tacos","tacos de papa con chorizo","chorizo potato tortilla onion"],
+      ["guacamole","guacamole","avocado tomato onion lime cilantro"],
+      ["pico de gallo","pico de gallo","tomato onion jalapeno cilantro lime"],
+      ["burritos","burritos","tortilla beans rice cheese"],
+      ["nachos","nachos","tortillachips cheese beans jalapeno"],
+      ["chicken tinga tostadas","tostadas de tinga","tostadas chicken tomato onion"],
+      ["ceviche","ceviche","fish lime tomato onion cilantro"],
+      ["shrimp cocktail","coctel de camarón","shrimp tomato avocado onion lime"],
+      ["garlic shrimp","camarones al mojo de ajo","shrimp garlic butter rice"],
+      ["garlic fish","pescado al mojo de ajo","fish garlic butter lime"],
+      ["chicken and rice","arroz con pollo","chicken rice tomato onion"],
+      ["chicken soup","caldo de pollo","chicken carrot potato zucchini"],
+      ["noodle soup","sopa de fideo","pasta tomato onion broth"],
+      ["spaghetti with meat sauce","espagueti a la boloñesa","pasta groundbeef tomatosauce garlic"],
+      ["chicken and spinach pasta","pasta con pollo y espinacas","pasta chicken spinach garlic"],
+      ["creamy mushroom pasta","pasta cremosa con champiñones","pasta mushroom cream garlic"],
+      ["burgers","hamburguesas","groundbeef buns cheese lettuce"],
+      ["picadillo","picadillo","groundbeef potato carrot tomato"],
+      ["steak and potatoes","bistec con papas","beef potato butter garlic"],
+      ["pork chops in green salsa","chuletas en salsa verde","pork tomatillo onion garlic"],
+      ["chile rellenos","chiles rellenos","poblano cheese eggs tomato"],
+      ["rajas con crema","rajas con crema","poblano cream corn onion"],
+      ["esquites","esquites","corn mayo lime cheese"],
+      ["calabacitas","calabacitas a la mexicana","zucchini tomato onion corn"],
+      ["charro beans","frijoles charros","beans bacon onion tomato"],
+      ["molletes","molletes","bread beans cheese salsa"],
+      ["tuna sandwiches","sándwiches de atún","tuna mayo bread onion"],
+      ["ham and cheese sandwiches","sándwiches de jamón y queso","bread ham cheese mayo"],
+      ["an omelette","un omelette","eggs cheese ham bellpepper"],
+      ["bacon and eggs","huevos con tocino","bacon eggs bread butter"],
+      ["mashed potatoes","puré de papa","potato butter milk garlic"],
+      ["pancakes","hot cakes","flour eggs milk butter"],
+      ["a banana smoothie","un licuado de plátano","bananas milk strawberry"],
+      ["chicken stir-fry","pollo salteado","chicken rice soy carrot"],
+      ["fried rice","arroz frito","rice eggs peas soy"],
+      ["a fresh salad","una ensalada fresca","lettuce tomato cucumber avocado"],
+    ].map(([en, es, ing]) => ({ en, es, ing: ing.split(" ") }));
+    const ING_MATCHERS = Object.entries(INGREDIENTS)
+      .flatMap(([key, [, , words]]) => words.split(",").map(w => ({ key, w: normalize(w) })))
+      .sort((a, b) => b.w.length - a.w.length)
+      .map(({ key, w }) => ({ key, re: wordRe(w) }));
+    // Which ingredient a list item is, if any (longest keyword wins: "chicken broth" is broth).
+    const ingredientOf = text => { const k=normalize(text), m=ING_MATCHERS.find(x=>x.re.test(k)); return m && m.key!=="_skip" ? m.key : null; };
+    function mealIdeas(items){
+      const have=new Map(); // ingredient -> the item text the shopper typed
+      items.filter(i=>!i.checked).forEach(i=>{ const k=ingredientOf(i.text); if(k && !have.has(k)) have.set(k, i.text); });
+      return MEALS
+        .map(meal=>({ meal, missing: meal.ing.filter(k=>!have.has(k)), used: meal.ing.filter(k=>have.has(k)).map(k=>have.get(k)) }))
+        .filter(x=>x.missing.length===1 && x.used.length>=2)
+        .sort((a, b)=>b.used.length-a.used.length);
+    }
+    let ideaList=[], ideaIndex=0;
+    const joinWords = (arr, and) => arr.length<2 ? arr.join("") : arr.slice(0,-1).join(", ")+" "+and+" "+arr[arr.length-1];
+    const escapeHtml = s => s.replace(/[&<>"]/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[ch]);
+    function showIdea(){
+      const c=t[lang], card=$("ideaCard"); card.classList.remove("hidden");
+      $("ideaClose").textContent=c.ideaClose; $("ideaNext").textContent=c.ideaNext;
+      if(!ideaList.length){ $("ideaText").textContent=c.ideaNone; $("ideaAdd").classList.add("hidden"); $("ideaNext").classList.add("hidden"); return; }
+      const { meal, missing, used } = ideaList[ideaIndex % ideaList.length];
+      const add=INGREDIENTS[missing[0]][lang==="es"?1:0], name=lang==="es"?meal.es:meal.en;
+      $("ideaText").innerHTML=c.ideaMsg(escapeHtml(joinWords(used, c.and)), escapeHtml(add), escapeHtml(name));
+      $("ideaAdd").textContent=c.ideaAdd(add); $("ideaAdd").classList.remove("hidden");
+      $("ideaNext").classList.toggle("hidden", ideaList.length<2);
+    }
+    const catLabel = cat => `${CAT_EMOJI[cat]} ${(t[lang]||t.en).cats[cat]}`;
+    // Remember a hand-picked section for this item name; the dictionary guess is used when none is saved.
+    function rememberSection(itemName, cat){
+      const key=normalize(itemName);
+      if(cat===autoCategory(itemName)) delete itemCats[key]; else itemCats[key]=cat;
+    }
+    function sectionDropdown(itemName){
+      const sel=document.createElement("select"); sel.className="cat-fix";
+      sel.setAttribute("aria-label", (t[lang]||t.en).pickSection+": "+itemName);
+      const ph=document.createElement("option"); ph.value=""; ph.textContent=(t[lang]||t.en).pickSection; ph.disabled=true; ph.selected=true; sel.appendChild(ph);
+      CATEGORIES.forEach(cat=>{ const o=document.createElement("option"); o.value=cat; o.textContent=catLabel(cat); sel.appendChild(o); });
+      sel.onchange=()=>{ rememberSection(itemName, sel.value); save(); render(); };
+      return sel;
+    }
+    // Press and hold (or grab the dotted grip) to drag a block up or down. onDrop gets the new key order.
+    let sortDrag=null;
+    document.addEventListener("touchmove", e=>{ if(sortDrag) e.preventDefault(); }, { passive:false });
+    function makeSortable(container, itemSel, handleSel, scroller, onDrop){
+      container.addEventListener("contextmenu", e=>{ if(e.target.closest(handleSel)) e.preventDefault(); });
+      container.addEventListener("pointerdown", e=>{
+        if(e.button>0 || sortDrag || e.target.closest("button, select, input")) return;
+        const handle=e.target.closest(handleSel), item=handle && handle.closest(itemSel);
+        if(!item || !container.contains(item) || item.classList.contains("no-drag")) return;
+        const pid=e.pointerId, x0=e.clientX, y0=e.clientY;
+        let lastY=y0, timer=setTimeout(begin, e.target.closest(".grip") ? 0 : 350);
+        const layoutTop = el => container.getBoundingClientRect().top + el.offsetTop; // ignores transforms
+        function begin(){
+          timer=null;
+          sortDrag={ item, grab:lastY-layoutTop(item), raf:0 };
+          item.classList.add("dragging");
+          if(navigator.vibrate) navigator.vibrate(12);
+          tick();
+        }
+        function tick(){
+          const edge=70, h=scroller===window ? innerHeight : scroller.getBoundingClientRect().bottom;
+          const top=scroller===window ? 0 : scroller.getBoundingClientRect().top;
+          if(lastY<top+edge) scroller.scrollBy(0, -Math.ceil((top+edge-lastY)/6));
+          else if(lastY>h-edge) scroller.scrollBy(0, Math.ceil((lastY-(h-edge))/6));
+          const others=[...container.querySelectorAll(itemSel)].filter(el=>el!==item);
+          const fixed=others.find(el=>el.classList.contains("no-drag")) || null;
+          const before=others.find(el=>!el.classList.contains("no-drag") && lastY < layoutTop(el)+el.offsetHeight/2) || fixed;
+          if(before!==item.nextElementSibling){
+            const tops=new Map(others.map(el=>[el, el.offsetTop]));
+            container.insertBefore(item, before);
+            others.forEach(el=>{ const dy=tops.get(el)-el.offsetTop; if(!dy) return;
+              el.style.transition="none"; el.style.transform=`translateY(${dy}px)`; el.offsetHeight;
+              el.style.transition="transform .15s ease"; el.style.transform=""; });
+          }
+          item.style.transform=`translateY(${lastY-sortDrag.grab-layoutTop(item)}px)`;
+          sortDrag.raf=requestAnimationFrame(tick);
+        }
+        const move=ev=>{ if(ev.pointerId!==pid) return; lastY=ev.clientY;
+          if(timer && (Math.abs(ev.clientX-x0)>10 || Math.abs(ev.clientY-y0)>10)) cleanup(); }; // it's a scroll, not a hold
+        const up=ev=>{ if(ev.pointerId===pid) finish(); };
+        // Listen on window: moving the card in the DOM drops pointer capture, so events stop reaching it.
+        addEventListener("pointermove", move); addEventListener("pointerup", up); addEventListener("pointercancel", up);
+        function cleanup(){ clearTimeout(timer); timer=null;
+          removeEventListener("pointermove", move); removeEventListener("pointerup", up); removeEventListener("pointercancel", up); }
+        function finish(){
+          cleanup();
+          if(!sortDrag || sortDrag.item!==item) return;
+          cancelAnimationFrame(sortDrag.raf); sortDrag=null;
+          item.classList.remove("dragging"); item.style.transform="";
+          onDrop([...container.querySelectorAll(itemSel)].map(el=>el.dataset.key));
+        }
+      });
+    }
+    // ---- Store detection: watch position while the app is open; within 200 m of a saved store, select it ----
+    const NEAR_M = 200, LEAVE_M = 300, MAX_ACCURACY_M = 250;
+    let geoWatchId = null, geoNearest = null; const geoInside = new Set();
+    // Great-circle distance in meters (haversine).
+    function distanceMeters(lat1, lng1, lat2, lng2){
+      const R=6371000, rad=Math.PI/180;
+      const dLat=(lat2-lat1)*rad, dLng=(lng2-lng1)*rad;
+      const a=Math.sin(dLat/2)**2 + Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLng/2)**2;
+      return 2*R*Math.asin(Math.sqrt(a));
+    }
+    const fmtDist = m => m<1000 ? `${Math.round(m/10)*10} m` : `${(m/1000).toFixed(1)} km`;
+    const setGeoStatus = text => { $("geoStatus").textContent=text; };
+    function checkPosition(lat, lng, accuracy){
+      let nearest=null;
+      Object.entries(storeRoutes.places).forEach(([name, pl])=>{
+        if(!storeRoutes.stores[name]) return;
+        const d=distanceMeters(lat, lng, pl.lat, pl.lng);
+        if(!nearest || d<nearest.d) nearest={ name, d };
+        // Rough Wi-Fi/cell fixes can be off by a kilometer; only a GPS-quality fix counts as arriving.
+        // Select the store once on arrival, so picking another store by hand while inside sticks.
+        if(d<=NEAR_M && accuracy<=MAX_ACCURACY_M && !geoInside.has(name)){ geoInside.add(name); if(storeRoutes.active!==name){ storeRoutes.active=name; save(); render(); } }
+        else if(d>LEAVE_M) geoInside.delete(name); // a gap so GPS jitter at the edge doesn't re-trigger
+      });
+      geoNearest=nearest; showGeoStatus();
+    }
+    function showGeoStatus(){
+      if(!geo.on || geoWatchId===null) return;
+      const c=t[lang]||t.en, n=geoNearest;
+      if(!n) setGeoStatus(Object.keys(storeRoutes.places).length ? c.geoWatching : c.geoNoPlaces);
+      else setGeoStatus(geoInside.has(n.name) ? c.geoHere(n.name) : c.geoNearest(n.name, fmtDist(n.d)));
+    }
+    function startGeo(){
+      if(geoWatchId!==null || !("geolocation" in navigator)) return;
+      geoWatchId=navigator.geolocation.watchPosition(
+        pos=>checkPosition(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
+        err=>{ if(err.code===1){ geo.on=false; save(); stopGeo(); applyCopy(); setGeoStatus((t[lang]||t.en).geoDenied); } },
+        { enableHighAccuracy:true, maximumAge:10000, timeout:30000 });
+    }
+    function stopGeo(){ if(geoWatchId!==null) navigator.geolocation.clearWatch(geoWatchId); geoWatchId=null; geoNearest=null; geoInside.clear(); }
+    function toggleGeo(){
+      const c=t[lang];
+      if(geo.on){ geo.on=false; save(); stopGeo(); setGeoStatus(""); applyCopy(); return; }
+      if(!("geolocation" in navigator)){ setGeoStatus(c.geoUnsupported); return; }
+      if(!Object.keys(storeRoutes.places).some(n=>storeRoutes.stores[n])){ setGeoStatus(c.geoNoPlaces); return; }
+      geo.on=true; save(); applyCopy();
+      setGeoStatus(c.geoWatching);
+      startGeo();
+    }
+    // Save a dragged order of the visible sections into the active store; hidden sections keep their places.
+    function saveVisibleOrder(keys){
+      const visible=keys.filter(k=>k!==UNCAT);
+      const full=routeSequence(storeRoutes.active).filter(k=>k!==UNCAT);
+      let n=0; const merged=full.map(k=>visible.includes(k) ? visible[n++] : k);
+      storeRoutes.stores[storeRoutes.active]=merged; save(); render();
+    }
+    function renderStoreSelect(){
+      const c=t[lang]||t.en, sel=$("storeSelect");
+      const names=Object.keys(storeRoutes.stores).filter(k=>k!==STANDARD).sort((a,b)=>a.localeCompare(b));
+      sel.innerHTML="";
+      const opt=(value,label)=>{ const o=document.createElement("option"); o.value=value; o.textContent=label; sel.appendChild(o); };
+      opt(STANDARD, c.standardStore); names.forEach(n=>opt(n,n)); opt("__new", c.addStore);
+      sel.value=storeRoutes.active;
+    }
+    function openRouteEditor(key){
+      const c=t[lang];
+      routeDraft={ key, order: routeSequence(key||STANDARD).filter(x=>x!==UNCAT) };
+      $("routeName").value = key===STANDARD ? c.standardStore : (key||"");
+      $("routeName").disabled = key===STANDARD;
+      $("routeHint").textContent=c.routeHint;
+      $("routeDelete").classList.toggle("hidden", !key || key===STANDARD);
+      routeDraft.place = key && key!==STANDARD ? storeRoutes.places[key] || null : null;
+      $("routeGeo").classList.toggle("hidden", key===STANDARD);
+      $("routeGeoInput").value="";
+      renderPlace();
+      renderRouteList();
+      $("routeOverlay").classList.remove("hidden");
+      if(!key) $("routeName").focus();
+    }
+    function renderPlace(msg){
+      const c=t[lang], pl=routeDraft.place;
+      $("routeGeoText").textContent = msg || (pl ? c.placeSaved(pl.lat.toFixed(5), pl.lng.toFixed(5), pl.acc) : c.placeNone);
+      $("routeGeoClear").classList.toggle("hidden", !pl);
+    }
+    // Accepts "19.4326, -99.1332" (what Google Maps copies on a long press).
+    function parseCoords(text){
+      const m=text.match(/(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)/);
+      if(!m) return null;
+      const lat=+m[1], lng=+m[2];
+      return Math.abs(lat)<=90 && Math.abs(lng)<=180 ? { lat, lng } : null;
+    }
+    function closeRouteEditor(){ routeDraft=null; $("routeOverlay").classList.add("hidden"); renderStoreSelect(); }
+    function renderRouteList(){
+      const c=t[lang], ol=$("routeList"), order=routeDraft.order;
+      ol.innerHTML="";
+      order.forEach((cat,k)=>{
+        const li=document.createElement("li"); li.dataset.key=cat;
+        const name=document.createElement("span"); name.textContent=catLabel(cat);
+        const grip=document.createElement("span"); grip.className="grip"; grip.setAttribute("aria-hidden","true"); grip.innerHTML=`<svg viewBox="0 0 10 16" width="10" height="16"><circle cx="2" cy="2" r="1.6"/><circle cx="8" cy="2" r="1.6"/><circle cx="2" cy="8" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="2" cy="14" r="1.6"/><circle cx="8" cy="14" r="1.6"/></svg>`;
+        const btn=(sym,label,to)=>{ const b=document.createElement("button"); b.type="button"; b.textContent=sym; b.setAttribute("aria-label",label+": "+c.cats[cat]);
+          b.disabled = to<0 || to>=order.length;
+          b.onclick=()=>{ [order[k],order[to]]=[order[to],order[k]]; renderRouteList(); ol.children[to].querySelectorAll("button")[to<k?0:1]?.focus(); };
+          return b; };
+        li.append(grip, name, btn("↑",c.moveUp,k-1), btn("↓",c.moveDown,k+1));
+        ol.appendChild(li);
       });
     }
     function renderSaved(){
@@ -342,7 +1061,7 @@
         $("savedBox").appendChild(div);
       });
     }
-    function hideUndo(){ $("undoBar").classList.add("hidden"); $("undoBar").innerHTML=""; lastRemoved=null; if(undoTimer) clearTimeout(undoTimer); }
+    function hideUndo(){ $("undoBar").classList.add("hidden"); $("undoBar").innerHTML=""; lastRemoved=null; if(undoTimer) clearTimeout(undoTimer); updateLowBar(); }
     function showUndo(item){
       const bar=$("undoBar");
       bar.classList.remove("hidden");
@@ -357,6 +1076,7 @@
       bar.append(msg, btn);
       if(undoTimer) clearTimeout(undoTimer);
       undoTimer=setTimeout(hideUndo, 5000);
+      updateLowBar();
     }
     function removeAt(arr, i){
       lastRemoved={ arr, index:i, item:arr[i] };
@@ -364,23 +1084,48 @@
       if(view==="shop") showUndo(lastRemoved.item);
     }
     function editAt(arr, i, item){
-      const next=prompt(t[lang].editItem, item.text);
-      if(next===null) return;
-      const name=next.trim();
+      const c=t[lang];
+      itemDraft={ arr, i, cat:categorizeItem(item.text), touched:false };
+      $("itemName").value=item.text;
+      $("itemTitle").textContent=c.editItemTitle; $("itemSectionLabel").textContent=c.section;
+      $("itemHint").textContent=c.sectionHint; $("itemSave").textContent=c.saveRoute; $("itemCancel").textContent=c.cancel;
+      renderCatPicks();
+      $("itemOverlay").classList.remove("hidden");
+    }
+    function renderCatPicks(){
+      const c=t[lang], box=$("catPicks");
+      box.innerHTML="";
+      [...CATEGORIES, UNCAT].forEach(cat=>{
+        const b=document.createElement("button"); b.type="button"; b.textContent=catLabel(cat);
+        b.setAttribute("aria-pressed", String(cat===itemDraft.cat));
+        b.onclick=()=>{ itemDraft.cat=cat; itemDraft.touched=true; renderCatPicks(); box.children[[...CATEGORIES, UNCAT].indexOf(cat)].focus(); };
+        box.appendChild(b);
+      });
+    }
+    function closeItemSheet(){ itemDraft=null; $("itemOverlay").classList.add("hidden"); }
+    function saveItemSheet(){
+      const { arr, i, cat, touched } = itemDraft;
+      const name=$("itemName").value.trim();
+      closeItemSheet();
       if(!name){ removeAt(arr,i); return; }
-      arr[i]={...arr[i], text:name}; save(); render();
+      arr[i]={...arr[i], text:name};
+      if(touched) rememberSection(name, cat);
+      save(); render();
     }
     function toggleAt(arr, i){
-      arr[i]={...arr[i], checked:!arr[i].checked}; save(); render();
+      arr[i]={...arr[i], checked:!arr[i].checked};
+      if(arr===trip) recordBuy(arr[i], arr[i].checked);
+      save(); render();
     }
     function render(){
       if(!lang) return; applyCopy();
       if(view==="shop") renderItems($("list"), trip, i=>toggleAt(trip,i), (i,item)=>editAt(trip,i,item), i=>removeAt(trip,i));
-      else if(view==="lists") renderSaved();
+      else if(view==="lists"){ renderSaved(); renderHabits(); }
       else {
         const list=editingList(); if(!list){ showView("lists"); return; }
         renderItems($("editList"), list.items, i=>removeAt(list.items,i), (i,item)=>editAt(list.items,i,item), i=>removeAt(list.items,i));
       }
+      updateLowBar();
     }
     function addTo(arr, text){
       const parts=splitUtterance(text); if(!parts.length) return;
@@ -455,7 +1200,9 @@
     }
     $("copyBtn").onclick=async ()=>{
       if(!trip.length){ $("status").textContent=t[lang].needItems; return; }
-      const text=trip.map((item,i)=>`${i+1}. ${item.checked?"[x] ":""}${item.text}`).join("\n");
+      const text=sortByRoute(trip, routeSequence(storeRoutes.active))
+        .map(g=>catLabel(g.cat)+"\n"+g.entries.map(({item})=>`${item.checked?"[x]":"-"} ${item.text}`).join("\n"))
+        .join("\n\n");
       try {
         await navigator.clipboard.writeText(text);
         $("status").textContent=t[lang].copied;
@@ -466,9 +1213,76 @@
     $("saveTripBtn").onclick=saveTripAsList;
     $("saveCurrentBtn").onclick=saveTripAsList;
     $("renameForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); if(!list) return; const name=$("renameInput").value.trim(); if(name){ list.name=name; save(); applyCopy(); } };
+    makeSortable($("list"), ".cat-card", ".cat-head", window, saveVisibleOrder);
+    makeSortable($("editList"), ".cat-card", ".cat-head", window, saveVisibleOrder);
+    makeSortable($("routeList"), "li", "li", $("routeForm"), keys=>{ routeDraft.order=keys; renderRouteList(); });
+    $("storeSelect").onchange=e=>{
+      if(e.target.value==="__new"){ e.target.value=storeRoutes.active; openRouteEditor(null); return; }
+      storeRoutes.active=e.target.value; save(); render();
+    };
+    $("editRouteBtn").onclick=()=>openRouteEditor(storeRoutes.active);
+    $("routeCancel").onclick=closeRouteEditor;
+    $("routeOverlay").addEventListener("click", e=>{ if(e.target.id==="routeOverlay") closeRouteEditor(); });
+    $("routeForm").onsubmit=e=>{
+      e.preventDefault();
+      const { key, order } = routeDraft;
+      let name = STANDARD;
+      if(key!==STANDARD){
+        name=$("routeName").value.trim();
+        if(!name || name==="__new"){ $("routeHint").textContent=t[lang].needName; $("routeName").focus(); return; }
+        const pasted=$("routeGeoInput").value.trim();
+        if(pasted){ const pl=parseCoords(pasted); if(!pl){ renderPlace(t[lang].placeBad); $("routeGeoInput").focus(); return; } routeDraft.place=pl; }
+        if(key && key!==name){ delete storeRoutes.stores[key]; delete storeRoutes.places[key]; }
+        if(routeDraft.place) storeRoutes.places[name]=routeDraft.place; else delete storeRoutes.places[name];
+      }
+      storeRoutes.stores[name]=order.slice(); storeRoutes.active=name;
+      save(); closeRouteEditor(); render();
+    };
+    $("routeDelete").onclick=()=>{
+      const { key } = routeDraft;
+      if(!key || key===STANDARD || !confirm(t[lang].confirmDelStore)) return;
+      delete storeRoutes.stores[key]; delete storeRoutes.places[key]; storeRoutes.active=STANDARD;
+      save(); closeRouteEditor(); render();
+    };
+    $("routeGeoUse").onclick=()=>{
+      const c=t[lang];
+      if(!("geolocation" in navigator)){ renderPlace(c.geoUnsupported); return; }
+      renderPlace(c.placeFinding);
+      navigator.geolocation.getCurrentPosition(pos=>{
+        if(!routeDraft) return;
+        const { latitude:lat, longitude:lng, accuracy } = pos.coords;
+        routeDraft.place={ lat, lng, acc:Math.round(accuracy) }; $("routeGeoInput").value=""; renderPlace();
+      }, err=>{ if(routeDraft) renderPlace(err.code===1 ? c.geoDenied : c.placeFail); },
+      { enableHighAccuracy:true, timeout:20000, maximumAge:0 });
+    };
+    $("routeGeoClear").onclick=()=>{ routeDraft.place=null; $("routeGeoInput").value=""; renderPlace(); };
+    $("geoToggle").onclick=toggleGeo;
+    $("lowAdd").onclick=()=>{
+      const due=dueItems(); if(!due.length) return;
+      const merged=mergeItems(trip, due.map(d=>d.h.name)); trip.length=0; trip.push(...merged); save(); render();
+    };
+    $("lowLater").onclick=()=>{
+      dueItems().forEach(({h})=>{ h.dismissals=(h.dismissals||0)+1; h.snoozeUntil=Date.now()+Math.max(DAY, habitInterval(h)*DAY/2); });
+      save(); updateLowBar();
+    };
+    $("habitsClear").onclick=()=>{ if(!confirm(t[lang].confirmClearHabits)) return; history={}; save(); renderHabits(); updateLowBar(); };
+    $("ideaBtn").onclick=()=>{ ideaList=mealIdeas(trip); ideaIndex=0; showIdea(); };
+    $("ideaNext").onclick=()=>{ ideaIndex++; showIdea(); };
+    $("ideaClose").onclick=()=>$("ideaCard").classList.add("hidden");
+    $("ideaAdd").onclick=()=>{
+      const { meal, missing } = ideaList[ideaIndex % ideaList.length];
+      const add=INGREDIENTS[missing[0]][lang==="es"?1:0];
+      addTo(trip, add);
+      $("ideaText").textContent=t[lang].ideaAdded(add, lang==="es"?meal.es:meal.en);
+      $("ideaAdd").classList.add("hidden"); $("ideaNext").classList.add("hidden");
+    };
+    $("itemForm").onsubmit=e=>{ e.preventDefault(); saveItemSheet(); };
+    $("itemCancel").onclick=closeItemSheet;
+    $("itemOverlay").addEventListener("click", e=>{ if(e.target.id==="itemOverlay") closeItemSheet(); });
     $("mic").onclick=()=>startRec(recTrip,$("mic"),$("status"));
     $("micEdit").onclick=()=>startRec(recEdit,$("micEdit"),$("statusEdit"));
     if (lang) setLang(lang); else $("langOverlay").classList.remove("hidden");
+    if (geo.on) startGeo();
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
     }

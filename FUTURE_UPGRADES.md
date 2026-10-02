@@ -115,6 +115,16 @@ Use Lista Mandado from the wrist, including on its own without the phone nearby.
 - Depends on: the store apps, and the Supabase backend so the watch and phone share the same list
   (and family members' adds show up on the watch).
 
+## Home-screen widget (iPhone and Android)
+See and use the list without opening the app.
+- Small: items left and the active store ("7 por comprar · Walmart"); tap opens the app.
+- Medium/large: the next items in aisle order with tap-to-check, plus quick buttons for
+  "+ Add" and the mic (opens the app straight into voice add).
+- Lock-screen widget (iPhone) / at-a-glance style: items left.
+- Shows the deal-day banner and "¿Te falta café?" restock suggestions when they apply.
+- Needs the store apps: native widget code (WidgetKit for iPhone, Glance/App Widgets for Android)
+  reading the same list the app saves; with Supabase it also updates when a family member adds something.
+
 ## Barcode scanning
 Scan an empty package at home to add it to the list. Needs the camera, so it fits the store apps.
 Look up the product name from the barcode (an open product database or the shopper's own past scans).

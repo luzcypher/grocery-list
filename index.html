@@ -98,7 +98,11 @@
     .route-list button:disabled { opacity:.35; cursor:default; }
     .route-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px; }
     .route-actions .btn.danger { margin-left:auto; }
-    #routeName { width:100%; }
+    #routeName, #itemName { width:100%; }
+    .cat-picks { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+    .cat-picks button { border:1px solid var(--line); background:#f7faf7; color:var(--green-dark); border-radius:999px; padding:8px 12px; font-family:inherit; font-size:.85rem; font-weight:650; cursor:pointer; }
+    .cat-picks button[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:#fff; }
+    #itemHint { text-align:left; font-size:.82rem; margin:0; }
   </style>
 </head>
 <body>
@@ -202,6 +206,19 @@
       </div>
     </form>
   </div>
+  <div class="overlay hidden" id="itemOverlay">
+    <form class="help-box" id="itemForm">
+      <h2 id="itemTitle">Edit item</h2>
+      <input id="itemName" class="field" maxlength="60" autocomplete="off">
+      <h3 id="itemSectionLabel">Section</h3>
+      <div class="cat-picks" id="catPicks"></div>
+      <p class="muted" id="itemHint"></p>
+      <div class="route-actions">
+        <button type="submit" class="btn primary" id="itemSave">Save</button>
+        <button type="button" class="btn ghost" id="itemCancel">Cancel</button>
+      </div>
+    </form>
+  </div>
   <div class="overlay hidden" id="langOverlay">
     <div class="chooser">
       <h2 id="chooseTitle">Choose language</h2>
@@ -239,7 +256,6 @@
         helpHome:["Android: Chrome menu (⋮) → Add to Home screen.","iPhone: Safari Share button → Add to Home Screen."],
         copy:"Copy list", copied:"Copied. Paste it in a message.",
         undo:"Undo", undid:"Item removed",
-        editItem:"Fix the name",
         firstMic:"First time: tap the mic, then tap Allow on the popup. Don’t tap Block.",
         notAllowedTitle:"Microphone is blocked",
         notAllowed:"A site cannot turn it back on. Do this, then tap the mic again:",
@@ -250,7 +266,8 @@
         routeTitle:"Store route", routeHint:"Put the sections in the order you walk them. Anything else shows up last.",
         storeName:"Store name, like Trader Joe’s", needName:"Give the store a name first.",
         saveRoute:"Save", cancel:"Cancel", delStore:"Delete store", confirmDelStore:"Delete this store route?",
-        moveUp:"Move up", moveDown:"Move down"
+        moveUp:"Move up", moveDown:"Move down",
+        editItemTitle:"Edit item", section:"Section", sectionHint:"Pick a section and it will be remembered for this item. Clear the name to remove it."
       },
       es: {
         title:"Lista del súper", subtitle:"Habla para agregar. Desliza el artículo cuando ya lo tengas.",
@@ -277,7 +294,6 @@
         helpHome:["Android: menú de Chrome (⋮) → Agregar a pantalla de inicio.","iPhone: Safari → Compartir → Agregar a pantalla de inicio."],
         copy:"Copiar lista", copied:"Copiada. Pégala en un mensaje.",
         undo:"Deshacer", undid:"Artículo quitado",
-        editItem:"Corrige el nombre",
         firstMic:"La primera vez: toca el micrófono y luego Permitir. No toques Bloquear.",
         notAllowedTitle:"El micrófono está bloqueado",
         notAllowed:"La página no puede activarlo. Haz esto y vuelve a tocar el micrófono:",
@@ -288,7 +304,8 @@
         routeTitle:"Ruta de la tienda", routeHint:"Pon las secciones en el orden en que las recorres. Lo demás aparece al final.",
         storeName:"Nombre de la tienda, como Trader Joe’s", needName:"Primero ponle nombre a la tienda.",
         saveRoute:"Guardar", cancel:"Cancelar", delStore:"Borrar tienda", confirmDelStore:"¿Borrar la ruta de esta tienda?",
-        moveUp:"Subir", moveDown:"Bajar"
+        moveUp:"Subir", moveDown:"Bajar",
+        editItemTitle:"Editar artículo", section:"Sección", sectionHint:"Elige una sección y se recordará para este artículo. Borra el nombre para quitarlo."
       }
     };
     // ---- Categories: keyword dictionary (English + Spanish, accents ignored) ----
@@ -316,19 +333,27 @@
       .sort((a, b) => b.w.length - a.w.length)
       .map(({ w, cat }) => ({ cat, re: wordRe(w) }));
     // Words that decide the aisle no matter what follows: "frozen peas", "canned corn".
-    const CAT_OVERRIDES = [
+    const CAT_PREFIXES = [
       { cat:"frozen", re:/(^|[^a-z])(frozen|congelad[oa]s?)(?![a-z])/ },
       { cat:"pantry", re:/(^|[^a-z])(canned|enlatad[oa]s?|de lata)(?![a-z])/ }
     ];
     const catCache = new Map();
-    function categorize(text){
+    function autoCategory(text){
       const key = normalize(text);
       if (catCache.has(key)) return catCache.get(key);
-      const hit = CAT_OVERRIDES.find(m => m.re.test(key)) || CAT_MATCHERS.find(m => m.re.test(key));
+      const hit = CAT_PREFIXES.find(m => m.re.test(key)) || CAT_MATCHERS.find(m => m.re.test(key));
       const cat = hit ? hit.cat : UNCAT;
       catCache.set(key, cat);
       return cat;
     }
+    // Sections the user picked by hand, keyed by normalized item name: localStorage "grocery-item-cats".
+    const ITEM_CATS_KEY = "grocery-item-cats";
+    let itemCats = {};
+    try { itemCats = JSON.parse(localStorage.getItem(ITEM_CATS_KEY)) || {}; } catch {}
+    const categorize = text => {
+      const picked = itemCats[normalize(text)];
+      return picked === UNCAT || CATEGORIES.includes(picked) ? picked : autoCategory(text);
+    };
 
     // ---- Store routes: localStorage "grocery-routes" = { active, stores: { name: [category, ...] } } ----
     const ROUTES_KEY = "grocery-routes", STANDARD = "standard";
@@ -367,12 +392,13 @@
     let lists = JSON.parse(localStorage.getItem("grocery-lists") || "[]").map(l => ({ ...l, items: migrateItems(l.items) }));
     let storeRoutes = loadRoutes();
     let view = "shop", editingId = null, recTrip = null, recEdit = null;
-    let lastRemoved = null, undoTimer = null, routeDraft = null;
+    let lastRemoved = null, undoTimer = null, routeDraft = null, itemDraft = null;
     const save = () => {
       if (lang) localStorage.setItem("grocery-lang", lang);
       localStorage.setItem("grocery-trip", JSON.stringify(trip));
       localStorage.setItem("grocery-lists", JSON.stringify(lists));
       localStorage.setItem(ROUTES_KEY, JSON.stringify(storeRoutes));
+      localStorage.setItem(ITEM_CATS_KEY, JSON.stringify(itemCats));
     };
     const splitUtterance = text => text.split(/\s+(?:and|y|e|plus|más)\s+|,\s*/i).map(s=>s.replace(/^[\s.]+|[\s.]+$/g,"")).filter(Boolean);
     const mergeItems = (base, extraTexts) => {
@@ -416,16 +442,20 @@
     }
     function showView(next){ view=next; $("shopView").classList.toggle("hidden", next!=="shop"); $("listsView").classList.toggle("hidden", next!=="lists"); $("editView").classList.toggle("hidden", next!=="edit"); applyCopy(); render(); }
     function bindSwipe(row, onRemove){
-      let startX=0, dx=0, tracking=false; const inner=row.querySelector(".row-inner");
+      let startX=0, dx=0, tracking=false, pointerId=null; const inner=row.querySelector(".row-inner");
       const start=x=>{ tracking=true; startX=x; dx=0; inner.style.transition="none"; };
-      const move=x=>{ if(!tracking) return; dx=x-startX; inner.style.transform=`translateX(${dx}px)`; };
+      const move=x=>{ if(!tracking) return; dx=x-startX; inner.style.transform=`translateX(${dx}px)`;
+        // Capture only once it is a real swipe; capturing on pointerdown retargets taps away from the item name.
+        if(pointerId!==null && Math.abs(dx)>8){ try { row.setPointerCapture(pointerId); } catch {} pointerId=null; } };
       const end=()=>{ if(!tracking) return; tracking=false; inner.style.transition="";
         if(Math.abs(dx)>72){ row.classList.add("removing", dx<0?"left":"right"); setTimeout(onRemove,180); }
         else inner.style.transform=""; };
-      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x")) return; row.setPointerCapture(e.pointerId); start(e.clientX); });
+      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x")) return; pointerId=e.pointerId; start(e.clientX); });
       row.addEventListener("pointermove", e=>move(e.clientX));
-      row.addEventListener("pointerup", end);
-      row.addEventListener("pointercancel", end);
+      const stop=()=>{ pointerId=null; end(); };
+      row.addEventListener("pointerup", stop);
+      row.addEventListener("pointercancel", stop);
+      row.addEventListener("pointerleave", ()=>{ if(pointerId!==null) stop(); });
       row.addEventListener("click", e=>{ if(Math.abs(dx)>12) e.preventDefault(); }, true);
     }
     function renderItems(target, items, onSwipe, onEdit, onRemove){
@@ -524,11 +554,36 @@
       if(view==="shop") showUndo(lastRemoved.item);
     }
     function editAt(arr, i, item){
-      const next=prompt(t[lang].editItem, item.text);
-      if(next===null) return;
-      const name=next.trim();
+      const c=t[lang];
+      itemDraft={ arr, i, cat:categorize(item.text), touched:false };
+      $("itemName").value=item.text;
+      $("itemTitle").textContent=c.editItemTitle; $("itemSectionLabel").textContent=c.section;
+      $("itemHint").textContent=c.sectionHint; $("itemSave").textContent=c.saveRoute; $("itemCancel").textContent=c.cancel;
+      renderCatPicks();
+      $("itemOverlay").classList.remove("hidden");
+    }
+    function renderCatPicks(){
+      const c=t[lang], box=$("catPicks");
+      box.innerHTML="";
+      [...CATEGORIES, UNCAT].forEach(cat=>{
+        const b=document.createElement("button"); b.type="button"; b.textContent=c.cats[cat];
+        b.setAttribute("aria-pressed", String(cat===itemDraft.cat));
+        b.onclick=()=>{ itemDraft.cat=cat; itemDraft.touched=true; renderCatPicks(); box.children[[...CATEGORIES, UNCAT].indexOf(cat)].focus(); };
+        box.appendChild(b);
+      });
+    }
+    function closeItemSheet(){ itemDraft=null; $("itemOverlay").classList.add("hidden"); }
+    function saveItemSheet(){
+      const { arr, i, cat, touched } = itemDraft;
+      const name=$("itemName").value.trim();
+      closeItemSheet();
       if(!name){ removeAt(arr,i); return; }
-      arr[i]={...arr[i], text:name}; save(); render();
+      arr[i]={...arr[i], text:name};
+      if(touched){
+        const key=normalize(name);
+        if(cat===autoCategory(name)) delete itemCats[key]; else itemCats[key]=cat;
+      }
+      save(); render();
     }
     function toggleAt(arr, i){
       arr[i]={...arr[i], checked:!arr[i].checked}; save(); render();
@@ -654,6 +709,9 @@
       delete storeRoutes.stores[key]; storeRoutes.active=STANDARD;
       save(); closeRouteEditor(); render();
     };
+    $("itemForm").onsubmit=e=>{ e.preventDefault(); saveItemSheet(); };
+    $("itemCancel").onclick=closeItemSheet;
+    $("itemOverlay").addEventListener("click", e=>{ if(e.target.id==="itemOverlay") closeItemSheet(); });
     $("mic").onclick=()=>startRec(recTrip,$("mic"),$("status"));
     $("micEdit").onclick=()=>startRec(recEdit,$("micEdit"),$("statusEdit"));
     if (lang) setLang(lang); else $("langOverlay").classList.remove("hidden");

@@ -85,6 +85,10 @@
     .row.removing.right .row-inner { transform:translateX(120%); }
     .row.done .row-inner { background:var(--done-bg); }
     .row.done .item-text { text-decoration:line-through; color:var(--muted); font-weight:650; }
+    .speak { flex:none; width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--soft); color:var(--head); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .speak svg { width:20px; height:20px; }
+    #translateToggle { margin-top:6px; }
+    #translateToggle[aria-pressed="true"] { background:var(--done); border-color:var(--done); color:var(--on-accent); }
     .x { border:0; background:none; color:var(--danger); font-size:1.35rem; cursor:pointer; padding:4px 6px; min-width:36px; min-height:36px; }
     .empty { text-align:center; color:var(--muted); padding:28px 8px; background:transparent; box-shadow:none; }
     .saved-card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:12px; margin-top:8px; }
@@ -326,6 +330,7 @@
       <ol id="helpMore"></ol>
       <h3 id="helpDisplayTitle">Display</h3>
       <button type="button" class="chip" id="bigTextToggle" aria-pressed="false">🔠 Large text: off</button>
+      <button type="button" class="chip" id="translateToggle" aria-pressed="true">🔁 Translate list items: on</button>
       <div class="big" style="margin-top:16px">
         <button type="button" class="btn primary" id="helpClose" style="width:100%"></button>
       </div>
@@ -459,7 +464,8 @@
         pantry:"🏠 At home", pantryTitle:"At home", pantryHint:"What you already have. Items you check off on a trip are added here. Tap “+ List” when something runs out.",
         pantryPh:"Add something you have at home", pantryEmpty:"Nothing here yet.", toList:"+ List",
         atHome:"at home", alreadyHome:names=>`Already at home: ${names}`,
-        bigOff:"🔠 Large text: off", bigOn:"🔠 Large text: on", displayTitle:"Display",
+        bigOff:"🔠 Large text: off", bigOn:"🔠 Large text: on",
+        trOn:"🔁 Translate list items: on", trOff:"🔁 Translate list items: off", say:"Say it", displayTitle:"Display",
         low:names=>`Running low on ${names}?`, lowAdd:"Add", lowLater:"Not now",
         habitsTitle:"Your buying habits", habitsNote:"Private: stays on this phone and is only used for “Running low?” suggestions.",
         habitsNone:"Nothing learned yet. Check items off as you shop and the app learns how often you buy them.",
@@ -537,7 +543,8 @@
         pantry:"🏠 En casa", pantryTitle:"En casa", pantryHint:"Lo que ya tienes. Lo que marcas en un viaje se agrega aquí. Toca “+ Lista” cuando algo se acabe.",
         pantryPh:"Agrega algo que tienes en casa", pantryEmpty:"Aún no hay nada.", toList:"+ Lista",
         atHome:"en casa", alreadyHome:names=>`Ya tienes en casa: ${names}`,
-        bigOff:"🔠 Letra grande: no", bigOn:"🔠 Letra grande: sí", displayTitle:"Pantalla",
+        bigOff:"🔠 Letra grande: no", bigOn:"🔠 Letra grande: sí",
+        trOn:"🔁 Traducir artículos: sí", trOff:"🔁 Traducir artículos: no", say:"Decirlo", displayTitle:"Pantalla",
         low:names=>`¿Te falta ${names}?`, lowAdd:"Agregar", lowLater:"Ahora no",
         habitsTitle:"Tus hábitos de compra", habitsNote:"Privado: se queda en este teléfono y solo se usa para las sugerencias “¿Te falta…?”.",
         habitsNone:"Aún no hay datos. Marca artículos al comprar y la app aprende cada cuánto los compras.",
@@ -849,6 +856,7 @@
       $("pantryHint").textContent=c.pantryHint; $("pantryTyped").placeholder=c.pantryPh; $("pantryAddBtn").textContent=c.add; $("backFromPantry").textContent=c.back;
       $("helpDisplayTitle").textContent=c.displayTitle;
       $("bigTextToggle").textContent=display.big?c.bigOn:c.bigOff; $("bigTextToggle").setAttribute("aria-pressed", String(display.big));
+      $("translateToggle").textContent=translating()?c.trOn:c.trOff; $("translateToggle").setAttribute("aria-pressed", String(translating()));
       $("routeDealsTitle").textContent=c.dealsTitle; $("routeDealsText").textContent=c.dealsText; $("dealLabel").placeholder=c.dealPh;
       $("itemQtyLabel").textContent=c.qtyLabel; $("itemNoteLabel").textContent=c.noteLabel; $("itemPriceLabel").textContent=c.priceLabel;
       $("itemQty").placeholder=c.qtyPh; $("itemNote").placeholder=c.notePh; $("itemPrice").placeholder=c.pricePh;
@@ -867,7 +875,7 @@
       const end=()=>{ if(!tracking) return; tracking=false; inner.style.transition="";
         if(Math.abs(dx)>72){ row.classList.add("removing", dx<0?"left":"right"); setTimeout(onRemove,180); }
         else inner.style.transform=""; };
-      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x, .cat-fix, .price-in")) return; pointerId=e.pointerId; start(e.clientX); });
+      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x, .cat-fix, .price-in, .speak")) return; pointerId=e.pointerId; start(e.clientX); });
       row.addEventListener("pointermove", e=>move(e.clientX));
       const stop=()=>{ pointerId=null; end(); };
       row.addEventListener("pointerup", stop);
@@ -889,9 +897,11 @@
           const li=document.createElement("li"); li.className="row"+(item.checked?" done":"");
           li.innerHTML=`<div class="row-inner"><button class="item-text" type="button"></button><button class="x" type="button">✕</button></div>`;
           const label=li.querySelector(".item-text");
-          label.textContent=item.text;
-          const sub=itemSub(item);
+          const tr=translating() && translateItem(item.text, lang);
+          label.textContent=tr || item.text;
+          const sub=[tr?item.text:"", itemSub(item)].filter(Boolean).join(" · ");
           if(sub){ const sm=document.createElement("small"); sm.className="item-sub"; sm.textContent=sub; label.appendChild(sm); }
+          if(tr && "speechSynthesis" in window) li.querySelector(".x").before(speakButton(tr));
           label.onclick=()=>onEdit(i, item);
           if(cat===UNCAT) label.after(sectionDropdown(item.text));
           if(items===trip && spend.on && item.checked) li.querySelector(".x").before(priceBox(item, i));
@@ -1002,8 +1012,10 @@
       pantry.map((x,i)=>({x,i})).sort((a,b)=>order.indexOf(categorizeItem(a.x.text))-order.indexOf(categorizeItem(b.x.text)) || a.x.text.localeCompare(b.x.text))
         .forEach(({x,i})=>{
           const li=document.createElement("li"), name=document.createElement("span");
-          name.textContent=`${CAT_EMOJI[categorizeItem(x.text)]} ${x.text}`;
-          if(x.qty){ const sm=document.createElement("small"); sm.className="item-sub"; sm.textContent=x.qty; name.appendChild(sm); }
+          const tr=translating() && translateItem(x.text, lang);
+          name.textContent=`${CAT_EMOJI[categorizeItem(x.text)]} ${tr || x.text}`;
+          const sub=[tr?x.text:"", x.qty].filter(Boolean).join(" · ");
+          if(sub){ const sm=document.createElement("small"); sm.className="item-sub"; sm.textContent=sub; name.appendChild(sm); }
           const toList=document.createElement("button"); toList.type="button"; toList.className="to-list"; toList.textContent=c.toList;
           toList.onclick=()=>{ trip=mergeItems(trip,[{ text:x.text, qty:x.qty }]); pantry.splice(i,1); save(); renderPantry(); };
           const del=document.createElement("button"); del.type="button"; del.className="x"; del.textContent="✕"; del.setAttribute("aria-label", c.del+": "+x.text);
@@ -1031,6 +1043,355 @@
     // ---- Large text ----
     const applyDisplay = () => document.documentElement.classList.toggle("big-text", !!display.big);
     applyDisplay();
+    // ---- Item translation: show list items in the screen's language (offline word list, Mexican Spanish) ----
+    const ITEM_PAIRS = `
+apples|manzanas
+bananas|plátanos
+oranges|naranjas
+limes|limones
+lemons|limones amarillos
+grapes|uvas
+strawberries|fresas
+blueberries|arándanos
+raspberries|frambuesas
+blackberries|zarzamoras
+cherries|cerezas
+peaches|duraznos
+pears|peras
+plums|ciruelas
+mango|mango
+papaya|papaya
+pineapple|piña
+watermelon|sandía
+melon|melón
+cantaloupe|melón chino
+coconut|coco
+grapefruit|toronja
+tangerines|mandarinas
+guava|guayaba
+pomegranate|granada
+kiwi|kiwi
+avocados|aguacates
+tomatoes|jitomates
+cherry tomatoes|jitomates cherry
+tomatillos|tomates verdes
+potatoes|papas
+sweet potatoes|camotes
+onions|cebollas
+red onion|cebolla morada
+green onions|cebollitas de cambray
+garlic|ajo
+ginger|jengibre
+carrots|zanahorias
+celery|apio
+beets|betabeles
+radishes|rábanos
+broccoli|brócoli
+cauliflower|coliflor
+cabbage|repollo
+lettuce|lechuga
+spinach|espinacas
+kale|col rizada
+cucumbers|pepinos
+zucchini|calabacitas
+squash|calabaza
+pumpkin|calabaza de castilla
+eggplant|berenjena
+green beans|ejotes
+peas|chícharos
+corn|elote
+corn on the cob|elotes
+asparagus|espárragos
+artichoke|alcachofa
+mushrooms|champiñones
+bell peppers|pimientos morrones
+jalapeños|chiles jalapeños
+serrano peppers|chiles serranos
+poblano peppers|chiles poblanos
+chili peppers|chiles
+cilantro|cilantro
+parsley|perejil
+basil|albahaca
+mint|hierbabuena
+rosemary|romero
+thyme|tomillo
+cactus paddles|nopales
+chayote|chayote
+jicama|jícama
+plantains|plátanos machos
+fruit|fruta
+vegetables|verduras
+salad|ensalada
+bread|pan
+sliced bread|pan de caja
+whole wheat bread|pan integral
+rolls|bolillos
+buns|bollos
+hamburger buns|pan para hamburguesa
+hot dog buns|pan para hot dog
+bagels|bagels
+croissants|cuernitos
+muffins|panqués
+cake|pastel
+cupcakes|pastelitos
+cookies|galletas
+donuts|donas
+pie|pay
+cheesecake|pay de queso
+sweet bread|pan dulce
+tortillas|tortillas
+corn tortillas|tortillas de maíz
+flour tortillas|tortillas de harina
+tostadas|tostadas
+meat|carne
+chicken|pollo
+chicken breast|pechuga de pollo
+chicken thighs|muslos de pollo
+chicken wings|alitas de pollo
+whole chicken|pollo entero
+rotisserie chicken|pollo rostizado
+beef|carne de res
+ground beef|carne molida
+steak|bistec
+ribeye|rib eye
+skirt steak|arrachera
+pork|cerdo
+pork chops|chuletas de cerdo
+ribs|costillas
+bacon|tocino
+ham|jamón
+sausage|salchicha
+hot dogs|salchichas
+chorizo|chorizo
+turkey|pavo
+turkey breast|pechuga de pavo
+lamb|cordero
+fish|pescado
+fish fillet|filete de pescado
+salmon|salmón
+tuna|atún
+tilapia|tilapia
+shrimp|camarones
+crab|jaiba
+lobster|langosta
+octopus|pulpo
+squid|calamar
+seafood|mariscos
+oysters|ostiones
+clams|almejas
+milk|leche
+lactose free milk|leche deslactosada
+almond milk|leche de almendra
+oat milk|leche de avena
+soy milk|leche de soya
+chocolate milk|leche con chocolate
+eggs|huevos
+cheese|queso
+cream cheese|queso crema
+cottage cheese|requesón
+shredded cheese|queso rallado
+string cheese|queso en tiras
+butter|mantequilla
+margarine|margarina
+yogurt|yogur
+greek yogurt|yogur griego
+cream|crema
+sour cream|crema agria
+heavy cream|crema para batir
+whipped cream|crema batida
+half and half|crema half and half
+coffee creamer|sustituto de crema
+tofu|tofu
+rice|arroz
+beans|frijoles
+black beans|frijoles negros
+pinto beans|frijoles pintos
+refried beans|frijoles refritos
+lentils|lentejas
+chickpeas|garbanzos
+pasta|pasta
+spaghetti|espagueti
+noodles|fideos
+macaroni|macarrones
+flour|harina
+corn flour|harina de maíz
+sugar|azúcar
+brown sugar|azúcar morena
+salt|sal
+pepper|pimienta
+black pepper|pimienta negra
+oil|aceite
+olive oil|aceite de oliva
+vegetable oil|aceite vegetal
+vinegar|vinagre
+cereal|cereal
+oatmeal|avena
+oats|avena
+granola|granola
+peanut butter|crema de cacahuate
+jam|mermelada
+jelly|mermelada
+honey|miel
+syrup|jarabe
+maple syrup|miel de maple
+coffee|café
+tea|té
+hot chocolate|chocolate caliente
+soup|sopa
+broth|caldo
+chicken broth|caldo de pollo
+bouillon|consomé
+tomato sauce|puré de tomate
+tomato paste|pasta de tomate
+salsa|salsa
+hot sauce|salsa picante
+soy sauce|salsa de soya
+ketchup|catsup
+mustard|mostaza
+mayonnaise|mayonesa
+mayo|mayonesa
+salad dressing|aderezo
+pickles|pepinillos
+olives|aceitunas
+spices|especias
+cinnamon|canela
+cumin|comino
+oregano|orégano
+bay leaves|hojas de laurel
+garlic powder|ajo en polvo
+chili powder|chile en polvo
+vanilla|vainilla
+baking soda|bicarbonato
+baking powder|polvo para hornear
+yeast|levadura
+cornstarch|maicena
+breadcrumbs|pan molido
+chips|papitas
+potato chips|papas fritas
+tortilla chips|totopos
+popcorn|palomitas
+crackers|galletas saladas
+nuts|nueces
+peanuts|cacahuates
+almonds|almendras
+walnuts|nueces de castilla
+pistachios|pistaches
+raisins|pasas
+candy|dulces
+chocolate|chocolate
+gum|chicles
+snacks|botanas
+canned tuna|atún en lata
+canned corn|elote en lata
+canned beans|frijoles de lata
+condensed milk|leche condensada
+evaporated milk|leche evaporada
+juice|jugo
+orange juice|jugo de naranja
+apple juice|jugo de manzana
+soda|refresco
+water|agua
+bottled water|agua embotellada
+sparkling water|agua mineral
+beer|cerveza
+wine|vino
+energy drink|bebida energética
+baby food|papilla
+baby formula|fórmula para bebé
+dog food|comida para perro
+cat food|comida para gato
+ice cream|helado
+ice|hielo
+popsicles|paletas de hielo
+frozen pizza|pizza congelada
+pizza|pizza
+frozen vegetables|verduras congeladas
+french chicken nuggets|nuggets de pollo
+waffles|waffles
+fish sticks|palitos de pescado
+paper towels|toallas de papel
+toilet paper|papel higiénico
+napkins|servilletas
+tissues|pañuelos
+paper plates|platos desechables
+plastic cups|vasos desechables
+straws|popotes
+aluminum foil|papel aluminio
+plastic wrap|plástico para envolver
+trash bags|bolsas de basura
+sandwich bags|bolsas para sándwich
+soap|jabón
+dish soap|jabón para trastes
+hand soap|jabón para manos
+detergent|detergente
+laundry detergent|detergente para ropa
+fabric softener|suavizante
+bleach|cloro
+cleaner|limpiador
+floor cleaner|limpiador de pisos
+sponges|esponjas
+broom|escoba
+mop|trapeador
+gloves|guantes
+light bulbs|focos
+batteries|pilas
+matches|cerillos
+candles|velas
+charcoal|carbón
+shampoo|champú
+conditioner|acondicionador
+body wash|jabón líquido
+lotion|crema corporal
+sunscreen|bloqueador solar
+deodorant|desodorante
+toothpaste|pasta de dientes
+toothbrush|cepillo de dientes
+floss|hilo dental
+mouthwash|enjuague bucal
+razors|rastrillos
+shaving cream|crema para afeitar
+cotton balls|bolitas de algodón
+cotton swabs|hisopos
+band aids|curitas
+diapers|pañales
+baby wipes|toallitas húmedas
+wipes|toallitas
+pads|toallas femeninas
+tampons|tampones
+medicine|medicina
+vitamins|vitaminas
+pain reliever|analgésico
+cough syrup|jarabe para la tos
+cat litter|arena para gato
+`.trim().split("\n").map(l=>l.split("|"));
+    // "eggs" also matches "egg", "limones" also matches "limón", "tomatoes" also matches "tomato".
+    const wordForms = w => [w, ...(w.endsWith("es")?[w.slice(0,-2)]:[]), ...(w.endsWith("s")?[w.slice(0,-1)]:[])];
+    const phraseForms = phrase => phrase.split(" ").reduce((acc,w)=>acc.flatMap(a=>wordForms(w).map(f=>a?a+" "+f:f)), [""]);
+    const TR_INDEX = { en:new Map(), es:new Map() }; // key in one language -> name in the other
+    ITEM_PAIRS.forEach(([en, es])=>{
+      phraseForms(normalize(en)).forEach(k=>{ if(!TR_INDEX.en.has(k)) TR_INDEX.en.set(k, es); });
+      phraseForms(normalize(es)).forEach(k=>{ if(!TR_INDEX.es.has(k)) TR_INDEX.es.set(k, en); });
+    });
+    // The item's name in language `to`, or null when unknown or already in that language.
+    function translateItem(text, to){
+      const idx=TR_INDEX[to==="es"?"en":"es"], orig=text.trim().split(/\s+/), words=normalize(text).split(/\s+/);
+      if(words.length!==orig.length) return null;
+      const look = ws => idx.get(ws.join(" "));
+      // Whole name first, then the longest known start ("leche Lala"), then the longest known end ("organic bananas").
+      let out=look(words);
+      for(let n=words.length-1; !out && n>=1; n--){
+        const head=look(words.slice(0,n)); if(head){ out=head+" "+orig.slice(n).join(" "); break; }
+        const tail=look(words.slice(words.length-n)); if(tail){ out=orig.slice(0,words.length-n).join(" ")+" "+tail; break; }
+      }
+      return out && normalize(out)!==normalize(text) ? out : null;
+    }
+    const translating = () => display.translate!==false;
+    function speakButton(word){
+      const c=t[lang], b=document.createElement("button"); b.type="button"; b.className="speak";
+      b.setAttribute("aria-label", c.say+": "+word); b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"></path></svg>`;
+      b.onclick=()=>{ try { speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(word); u.lang=lang==="es"?"es-MX":"en-US"; u.rate=.9; speechSynthesis.speak(u); } catch {} };
+      return b;
+    }
     // ---- Meal ideas: find a meal that is exactly one ingredient away from the unchecked items ----
     // Ingredient: [English name, Spanish name, keywords that mean it on a list]
     const INGREDIENTS = {
@@ -1547,6 +1908,7 @@
     $("routeGeoClear").onclick=()=>{ routeDraft.place=null; $("routeGeoInput").value=""; renderPlace(); };
     $("geoToggle").onclick=toggleGeo;
     $("spendToggle").onclick=()=>{ spend.on=!spend.on; save(); render(); };
+    $("translateToggle").onclick=()=>{ display.translate=!translating(); save(); render(); };
     $("bigTextToggle").onclick=()=>{ display.big=!display.big; save(); applyDisplay(); applyCopy(); };
     $("pantryForm").onsubmit=e=>{ e.preventDefault(); const v=$("pantryTyped").value.trim(); if(!v) return;
       splitUtterance(v).map(parseItem).filter(x=>x.text).forEach(x=>addToPantry(x, false)); $("pantryTyped").value=""; save(); renderPantry(); };

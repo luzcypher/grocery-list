@@ -112,6 +112,11 @@
     .geo-row { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:-2px 0 10px; }
     .geo-row .chip[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:#fff; }
     .geo-status { flex:1; min-width:12em; color:var(--muted); font-size:.85rem; }
+    .idea-row { display:flex; justify-content:flex-end; margin:-2px 0 8px; }
+    .idea-card { background:#fffaf0; border:1px solid #f0d9a8; border-radius:16px; padding:14px; margin-bottom:12px; box-shadow:var(--shadow); }
+    .idea-card p { font-size:1.02rem; line-height:1.45; }
+    .idea-card b { color:var(--green-dark); }
+    .idea-actions { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:10px; }
     .geo-box { margin-top:14px; padding-top:4px; border-top:1px solid var(--line); }
     .geo-text { color:var(--muted); font-size:.88rem; }
     .geo-box .route-actions { margin:8px 0; }
@@ -164,6 +169,15 @@
           <button class="btn ghost hidden" id="clearChecked" type="button"></button>
           <button class="btn danger" id="clear" type="button"></button>
         </span>
+      </div>
+      <div class="idea-row"><button class="chip" id="ideaBtn" type="button">🍳 Meal idea</button></div>
+      <div class="idea-card hidden" id="ideaCard" aria-live="polite">
+        <p id="ideaText"></p>
+        <div class="idea-actions">
+          <button class="btn primary" id="ideaAdd" type="button"></button>
+          <button class="btn ghost" id="ideaNext" type="button"></button>
+          <button class="btn ghost" id="ideaClose" type="button"></button>
+        </div>
       </div>
       <div class="list" id="list"></div>
       <div id="undoBar" class="toast hidden"></div>
@@ -310,6 +324,11 @@
         placeTitle:"Store location", placeUse:"📍 Use my current location", placeClear:"Remove location",
         placePaste:"Or paste coordinates, like 19.4326, -99.1332",
         placeBad:"Couldn’t read those coordinates. Use the form 19.4326, -99.1332.",
+        ideaBtn:"🍳 Meal idea", ideaNext:"Another idea", ideaClose:"Close",
+        ideaMsg:(have,add,meal)=>`You have ${have} on your list. Add <b>${add}</b> to make <b>${meal}</b> tonight!`,
+        ideaAdd:add=>`Add ${add}`, ideaAdded:(add,meal)=>`Added ${add}. Enjoy the ${meal}!`,
+        ideaNone:"No meal idea yet. Add a few more ingredients, like chicken, rice, tortillas or eggs, and try again.",
+        and:"and",
         editItemTitle:"Edit item", section:"Section", sectionHint:"Pick a section and it will be remembered for this item. Clear the name to remove it."
       },
       es: {
@@ -362,6 +381,11 @@
         placeTitle:"Ubicación de la tienda", placeUse:"📍 Usar mi ubicación actual", placeClear:"Quitar ubicación",
         placePaste:"O pega coordenadas, como 19.4326, -99.1332",
         placeBad:"No se pudieron leer esas coordenadas. Usa la forma 19.4326, -99.1332.",
+        ideaBtn:"🍳 Idea de comida", ideaNext:"Otra idea", ideaClose:"Cerrar",
+        ideaMsg:(have,add,meal)=>`Tienes ${have} en tu lista. ¡Agrega <b>${add}</b> y prepara <b>${meal}</b> hoy!`,
+        ideaAdd:add=>`Agregar ${add}`, ideaAdded:(add,meal)=>`Agregaste ${add}. ¡Buen provecho con ${meal}!`,
+        ideaNone:"Aún no hay idea. Agrega algunos ingredientes más, como pollo, arroz, tortillas o huevos, y vuelve a intentar.",
+        and:"y",
         editItemTitle:"Editar artículo", section:"Sección", sectionHint:"Elige una sección y se recordará para este artículo. Borra el nombre para quitarlo."
       }
     };
@@ -597,6 +621,8 @@
       $("routeGeoTitle").textContent=c.placeTitle; $("routeGeoUse").textContent=c.placeUse; $("routeGeoClear").textContent=c.placeClear;
       $("routeGeoInput").placeholder=c.placePaste;
       showGeoStatus();
+      $("ideaBtn").textContent=c.ideaBtn;
+      $("ideaBtn").classList.toggle("hidden", !trip.some(i=>!i.checked));
       const fillOl = (id, items) => { const ol=$(id); ol.innerHTML=""; items.forEach(s=>{ const li=document.createElement("li"); li.textContent=s; ol.appendChild(li); }); };
       fillOl("helpAnd", c.helpAnd); fillOl("helpIos", c.helpIos); fillOl("helpMore", c.helpMore); fillOl("helpHome", c.helpHome);
     }
@@ -642,6 +668,117 @@
         });
         target.appendChild(card);
       });
+    }
+    // ---- Meal ideas: find a meal that is exactly one ingredient away from the unchecked items ----
+    // Ingredient: [English name, Spanish name, keywords that mean it on a list]
+    const INGREDIENTS = {
+      chicken:["chicken","pollo","chicken, chicken breast, wings, pollo, pechuga, alitas, muslo"],
+      beef:["beef","carne de res","beef, steak, ribeye, sirloin, res, bistec, arrachera, carne, carne asada"],
+      groundbeef:["ground beef","carne molida","ground beef, hamburger meat, carne molida"],
+      pork:["pork","cerdo","pork, pork chops, cerdo, puerco, chuleta, lomo, carnitas, pastor"],
+      chorizo:["chorizo","chorizo","chorizo"], bacon:["bacon","tocino","bacon, tocino"], ham:["ham","jamón","ham, jamon"],
+      shrimp:["shrimp","camarones","shrimp, camaron"], fish:["fish","pescado","fish, fillet, tilapia, salmon, cod, pescado, filete de pescado, mojarra"],
+      tuna:["tuna","atún","tuna, atun"], eggs:["eggs","huevos","egg, huevo, blanquillo"],
+      tortilla:["tortillas","tortillas","tortilla"], tostadas:["tostadas","tostadas","tostada"],
+      tortillachips:["tortilla chips","totopos","tortilla chips, totopos"],
+      bread:["bread","pan","bread, baguette, pan, pan de caja, bolillo, telera"],
+      buns:["hamburger buns","pan para hamburguesa","hamburger buns, bun, pan para hamburguesa"],
+      pasta:["pasta","pasta","pasta, spaghetti, espagueti, macaroni, noodles, fideo"], rice:["rice","arroz","rice, arroz"],
+      beans:["beans","frijoles","beans, frijol"], potato:["potatoes","papas","potato, papa"], onion:["onions","cebolla","onion, cebolla"],
+      garlic:["garlic","ajo","garlic, ajo"], tomato:["tomatoes","jitomate","tomato, tomate, jitomate"],
+      tomatillo:["tomatillos","tomate verde","tomatillo, tomate verde"], bellpepper:["bell peppers","pimiento morrón","bell pepper, peppers, pimiento"],
+      jalapeno:["jalapeños","chiles jalapeños","jalapeno, serrano, chile, chile jalapeno, chile serrano"],
+      poblano:["poblano peppers","chiles poblanos","poblano, chile poblano"], avocado:["avocados","aguacates","avocado, aguacate"],
+      lettuce:["lettuce","lechuga","lettuce, romaine, lechuga"], cabbage:["cabbage","repollo","cabbage, col, repollo"],
+      cilantro:["cilantro","cilantro","cilantro"], lime:["limes","limones","lime, lemon, limon"],
+      cheese:["cheese","queso","cheese, cheddar, mozzarella, parmesan, cream cheese, queso, panela, cotija, manchego, queso oaxaca"],
+      cream:["sour cream","crema","sour cream, crema"], salsa:["salsa","salsa","salsa"], mayo:["mayonnaise","mayonesa","mayo, mayonnaise, mayonesa"],
+      carrot:["carrots","zanahorias","carrot, zanahoria"], celery:["celery","apio","celery, apio"], corn:["corn","elote","corn, elote"],
+      zucchini:["zucchini","calabacitas","zucchini, calabacita"], mushroom:["mushrooms","champiñones","mushroom, champinon, hongo"],
+      spinach:["spinach","espinacas","spinach, espinaca"], cucumber:["cucumber","pepino","cucumber, pepino"],
+      broth:["broth","caldo","broth, chicken broth, stock, caldo, consome"],
+      tomatosauce:["tomato sauce","puré de tomate","tomato sauce, pasta sauce, marinara, pure de tomate"],
+      butter:["butter","mantequilla","butter, mantequilla"], milk:["milk","leche","milk, leche"], flour:["flour","harina","flour, harina"],
+      bananas:["bananas","plátanos","banana, platano"], strawberry:["strawberries","fresas","strawberry, strawberries, fresa"],
+      pineapple:["pineapple","piña","pineapple, pina"], peas:["peas","chícharos","peas, chicharo"], soy:["soy sauce","salsa de soya","soy sauce, salsa de soya"],
+      _skip:["","","peanut butter, pan dulce, pan molido, chile en polvo, ajo en polvo, crema de cacahuate, tortilla chips de maiz"]
+    };
+    // Meal: [English name, Spanish name, ingredients]
+    const MEALS = [
+      ["chicken fajitas","fajitas de pollo","chicken tortilla onion bellpepper"],
+      ["beef fajitas","fajitas de res","beef tortilla onion bellpepper"],
+      ["steak tacos","tacos de bistec","beef tortilla onion cilantro"],
+      ["tacos al pastor","tacos al pastor","pork tortilla pineapple onion"],
+      ["fish tacos","tacos de pescado","fish tortilla cabbage lime"],
+      ["green enchiladas","enchiladas verdes","chicken tortilla tomatillo cream"],
+      ["chilaquiles","chilaquiles","tortilla tomatillo cream cheese"],
+      ["mushroom quesadillas","quesadillas de champiñones","tortilla cheese mushroom"],
+      ["huevos rancheros","huevos rancheros","eggs tortilla tomato jalapeno"],
+      ["Mexican-style eggs","huevos a la mexicana","eggs tomato onion jalapeno"],
+      ["chorizo and eggs","huevo con chorizo","chorizo eggs tortilla beans"],
+      ["chorizo and potato tacos","tacos de papa con chorizo","chorizo potato tortilla onion"],
+      ["guacamole","guacamole","avocado tomato onion lime cilantro"],
+      ["pico de gallo","pico de gallo","tomato onion jalapeno cilantro lime"],
+      ["burritos","burritos","tortilla beans rice cheese"],
+      ["nachos","nachos","tortillachips cheese beans jalapeno"],
+      ["chicken tinga tostadas","tostadas de tinga","tostadas chicken tomato onion"],
+      ["ceviche","ceviche","fish lime tomato onion cilantro"],
+      ["shrimp cocktail","coctel de camarón","shrimp tomato avocado onion lime"],
+      ["garlic shrimp","camarones al mojo de ajo","shrimp garlic butter rice"],
+      ["garlic fish","pescado al mojo de ajo","fish garlic butter lime"],
+      ["chicken and rice","arroz con pollo","chicken rice tomato onion"],
+      ["chicken soup","caldo de pollo","chicken carrot potato zucchini"],
+      ["noodle soup","sopa de fideo","pasta tomato onion broth"],
+      ["spaghetti with meat sauce","espagueti a la boloñesa","pasta groundbeef tomatosauce garlic"],
+      ["chicken and spinach pasta","pasta con pollo y espinacas","pasta chicken spinach garlic"],
+      ["creamy mushroom pasta","pasta cremosa con champiñones","pasta mushroom cream garlic"],
+      ["burgers","hamburguesas","groundbeef buns cheese lettuce"],
+      ["picadillo","picadillo","groundbeef potato carrot tomato"],
+      ["steak and potatoes","bistec con papas","beef potato butter garlic"],
+      ["pork chops in green salsa","chuletas en salsa verde","pork tomatillo onion garlic"],
+      ["chile rellenos","chiles rellenos","poblano cheese eggs tomato"],
+      ["rajas con crema","rajas con crema","poblano cream corn onion"],
+      ["esquites","esquites","corn mayo lime cheese"],
+      ["calabacitas","calabacitas a la mexicana","zucchini tomato onion corn"],
+      ["charro beans","frijoles charros","beans bacon onion tomato"],
+      ["molletes","molletes","bread beans cheese salsa"],
+      ["tuna sandwiches","sándwiches de atún","tuna mayo bread onion"],
+      ["ham and cheese sandwiches","sándwiches de jamón y queso","bread ham cheese mayo"],
+      ["an omelette","un omelette","eggs cheese ham bellpepper"],
+      ["bacon and eggs","huevos con tocino","bacon eggs bread butter"],
+      ["mashed potatoes","puré de papa","potato butter milk garlic"],
+      ["pancakes","hot cakes","flour eggs milk butter"],
+      ["a banana smoothie","un licuado de plátano","bananas milk strawberry"],
+      ["chicken stir-fry","pollo salteado","chicken rice soy carrot"],
+      ["fried rice","arroz frito","rice eggs peas soy"],
+      ["a fresh salad","una ensalada fresca","lettuce tomato cucumber avocado"],
+    ].map(([en, es, ing]) => ({ en, es, ing: ing.split(" ") }));
+    const ING_MATCHERS = Object.entries(INGREDIENTS)
+      .flatMap(([key, [, , words]]) => words.split(",").map(w => ({ key, w: normalize(w) })))
+      .sort((a, b) => b.w.length - a.w.length)
+      .map(({ key, w }) => ({ key, re: wordRe(w) }));
+    // Which ingredient a list item is, if any (longest keyword wins: "chicken broth" is broth).
+    const ingredientOf = text => { const k=normalize(text), m=ING_MATCHERS.find(x=>x.re.test(k)); return m && m.key!=="_skip" ? m.key : null; };
+    function mealIdeas(items){
+      const have=new Map(); // ingredient -> the item text the shopper typed
+      items.filter(i=>!i.checked).forEach(i=>{ const k=ingredientOf(i.text); if(k && !have.has(k)) have.set(k, i.text); });
+      return MEALS
+        .map(meal=>({ meal, missing: meal.ing.filter(k=>!have.has(k)), used: meal.ing.filter(k=>have.has(k)).map(k=>have.get(k)) }))
+        .filter(x=>x.missing.length===1 && x.used.length>=2)
+        .sort((a, b)=>b.used.length-a.used.length);
+    }
+    let ideaList=[], ideaIndex=0;
+    const joinWords = (arr, and) => arr.length<2 ? arr.join("") : arr.slice(0,-1).join(", ")+" "+and+" "+arr[arr.length-1];
+    const escapeHtml = s => s.replace(/[&<>"]/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[ch]);
+    function showIdea(){
+      const c=t[lang], card=$("ideaCard"); card.classList.remove("hidden");
+      $("ideaClose").textContent=c.ideaClose; $("ideaNext").textContent=c.ideaNext;
+      if(!ideaList.length){ $("ideaText").textContent=c.ideaNone; $("ideaAdd").classList.add("hidden"); $("ideaNext").classList.add("hidden"); return; }
+      const { meal, missing, used } = ideaList[ideaIndex % ideaList.length];
+      const add=INGREDIENTS[missing[0]][lang==="es"?1:0], name=lang==="es"?meal.es:meal.en;
+      $("ideaText").innerHTML=c.ideaMsg(escapeHtml(joinWords(used, c.and)), escapeHtml(add), escapeHtml(name));
+      $("ideaAdd").textContent=c.ideaAdd(add); $("ideaAdd").classList.remove("hidden");
+      $("ideaNext").classList.toggle("hidden", ideaList.length<2);
     }
     const catLabel = cat => `${CAT_EMOJI[cat]} ${(t[lang]||t.en).cats[cat]}`;
     // Remember a hand-picked section for this item name; the dictionary guess is used when none is saved.
@@ -1028,6 +1165,16 @@
     };
     $("routeGeoClear").onclick=()=>{ routeDraft.place=null; $("routeGeoInput").value=""; renderPlace(); };
     $("geoToggle").onclick=toggleGeo;
+    $("ideaBtn").onclick=()=>{ ideaList=mealIdeas(trip); ideaIndex=0; showIdea(); };
+    $("ideaNext").onclick=()=>{ ideaIndex++; showIdea(); };
+    $("ideaClose").onclick=()=>$("ideaCard").classList.add("hidden");
+    $("ideaAdd").onclick=()=>{
+      const { meal, missing } = ideaList[ideaIndex % ideaList.length];
+      const add=INGREDIENTS[missing[0]][lang==="es"?1:0];
+      addTo(trip, add);
+      $("ideaText").textContent=t[lang].ideaAdded(add, lang==="es"?meal.es:meal.en);
+      $("ideaAdd").classList.add("hidden"); $("ideaNext").classList.add("hidden");
+    };
     $("itemForm").onsubmit=e=>{ e.preventDefault(); saveItemSheet(); };
     $("itemCancel").onclick=closeItemSheet;
     $("itemOverlay").addEventListener("click", e=>{ if(e.target.id==="itemOverlay") closeItemSheet(); });

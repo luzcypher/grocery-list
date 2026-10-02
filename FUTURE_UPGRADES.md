@@ -70,3 +70,10 @@ People buy meat where it's cheap and snacks where they're on sale, so one list s
   the trip between two nearby stores ("Buy meat and cleaning at Sam's, the rest at Soriana, save about $180").
   Needs real prices per store (see price comparison) and the server to hold the AI key.
   Should weigh savings against the extra trip, and let the shopper apply the split as store tags in one tap.
+
+## AI meal ideas (upgrade to the built-in Meal idea button)
+The Meal idea button already works offline with ~50 built-in meals: it finds a meal that is exactly one
+ingredient away from the unchecked items and offers to add it.
+- AI version: send the unchecked items to Claude through the server and get a suggestion for any cuisine,
+  using everything on the list, with a short recipe.
+- Could respect preferences (vegetarian, budget, kid-friendly) and suggest a full week of meals.

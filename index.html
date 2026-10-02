@@ -1284,7 +1284,7 @@
     if (lang) setLang(lang); else $("langOverlay").classList.remove("hidden");
     if (geo.on) startGeo();
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {}));
     }
   </script>
 </body>

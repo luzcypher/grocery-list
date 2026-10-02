@@ -270,7 +270,7 @@
         pickSection:"Pick section",
         store:"Store", standardStore:"Standard", addStore:"+ Add a store…", editRoute:"Edit route",
         routeTitle:"Store route", routeHint:"Put the sections in the order you walk them. Anything else shows up last.",
-        storeName:"Store name, like Trader Joe’s", needName:"Give the store a name first.",
+        storeName:"Store name, like Bodega Aurrerá", needName:"Give the store a name first.",
         saveRoute:"Save", cancel:"Cancel", delStore:"Delete store", confirmDelStore:"Delete this store route?",
         moveUp:"Move up", moveDown:"Move down",
         editItemTitle:"Edit item", section:"Section", sectionHint:"Pick a section and it will be remembered for this item. Clear the name to remove it."
@@ -309,7 +309,7 @@
         pickSection:"Elegir sección",
         store:"Tienda", standardStore:"Estándar", addStore:"+ Agregar tienda…", editRoute:"Editar ruta",
         routeTitle:"Ruta de la tienda", routeHint:"Pon las secciones en el orden en que las recorres. Lo demás aparece al final.",
-        storeName:"Nombre de la tienda, como Trader Joe’s", needName:"Primero ponle nombre a la tienda.",
+        storeName:"Nombre de la tienda, como Bodega Aurrerá", needName:"Primero ponle nombre a la tienda.",
         saveRoute:"Guardar", cancel:"Cancelar", delStore:"Borrar tienda", confirmDelStore:"¿Borrar la ruta de esta tienda?",
         moveUp:"Subir", moveDown:"Bajar",
         editItemTitle:"Editar artículo", section:"Sección", sectionHint:"Elige una sección y se recordará para este artículo. Borra el nombre para quitarlo."
@@ -369,13 +369,19 @@
 
     // ---- Store routes: localStorage "grocery-routes" = { active, stores: { name: [category, ...] } } ----
     const ROUTES_KEY = "grocery-routes", STANDARD = "standard";
+    const PRESET_STORES = ["Soriana", "Chedraui", "Walmart", "La Comer"], PRESETS_VERSION = 3;
     function loadRoutes(){
       let r = null;
       try { r = JSON.parse(localStorage.getItem(ROUTES_KEY)); } catch {}
-      if (!r || typeof r.stores !== "object" || !r.stores) {
-        r = { active: STANDARD, stores: { "Trader Joe's": ["produce","bakery","dairy","pantry"] } };
-      }
+      if (!r || typeof r.stores !== "object" || !r.stores) r = { active: STANDARD, stores: {} };
       if (!Array.isArray(r.stores[STANDARD])) r.stores[STANDARD] = CATEGORIES.slice();
+      // Preset stores are added once; a preset the user deletes stays deleted.
+      if (r.presets !== PRESETS_VERSION) {
+        const tj = r.stores["Trader Joe's"];
+        if (tj && tj.join() === "produce,bakery,dairy,pantry") delete r.stores["Trader Joe's"]; // old unedited preset
+        PRESET_STORES.forEach(name => { if (!r.stores[name]) r.stores[name] = CATEGORIES.slice(); });
+        r.presets = PRESETS_VERSION;
+      }
       if (!r.stores[r.active]) r.active = STANDARD;
       return r;
     }

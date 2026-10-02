@@ -85,3 +85,35 @@ Still to do once the other upgrades exist:
 - Shared family lists: learn from the whole household's purchases.
 - Store tags: suggest the item at the store where it is usually bought.
 - Supabase: keep the habit profile in the shopper's own account so it survives a new phone.
+
+## iPhone and Android apps in the stores
+Wrap the web app as a real app for both the Apple App Store and Google Play using Capacitor
+(same web code inside a native app).
+- Unlocks native features from this list: push notifications (family list alerts, near-store alerts
+  with the app closed), background location, camera (receipt scanning), haptics, home-screen widgets.
+- Needs: Google Play developer account (~$25 USD once), Apple developer account (~$99 USD/year),
+  a Mac with Xcode or a cloud build service for iPhone builds, store listings in English and Spanish,
+  app icons and splash screens.
+- Apple can reject "a website in a box"; shipping it with native features (push, location, camera)
+  makes approval much more likely.
+
+## New look ("Mandado" brand idea), waiting on mockup choice
+- Name idea: "Mandado" (from "hacer el mandado"); works in both languages.
+- Mercado palette: chile red (actions), lime green (done), corn yellow (highlights), Talavera blue (headers),
+  on paper white; plus a dark mode for night shopping.
+- App icon / logo: a mandado bag with a checkmark, clear at small sizes.
+- One-handed layout: add box and mic at the bottom, in thumb reach; the list scrolls above.
+- A friendlier font stored with the app so it works offline. (Large text mode is already built.)
+
+## Barcode scanning
+Scan an empty package at home to add it to the list. Needs the camera, so it fits the store apps.
+Look up the product name from the barcode (an open product database or the shopper's own past scans).
+
+## Voice assistant shortcuts
+"Hey Google, add milk to Mandado" / Siri Shortcuts. Needs the store apps (Android App Actions, iOS Shortcuts).
+
+## Built from the suggestions list (for reference)
+WhatsApp sharing, quantities and notes (also by voice: "dos kilos de tortillas"), spending tracker
+(price per checked item, trip and quincena totals, last price remembered), deal-day reminders per store,
+"At home" pantry (checked-off items land there; meal ideas use it), large text mode.
+- Later with the server: spending and prices feed price comparison; family members share At home.

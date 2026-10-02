@@ -126,7 +126,34 @@
     .habits ul { list-style:none; }
     .habits li { display:flex; justify-content:space-between; gap:8px; padding:8px 2px; border-bottom:1px solid var(--line); font-size:.95rem; }
     .habits li span:last-child { color:var(--muted); white-space:nowrap; }
-    .idea-row { display:flex; justify-content:flex-end; margin:-2px 0 8px; }
+    .idea-row { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin:-2px 0 8px; }
+    .idea-row .chip[aria-pressed="true"], #bigTextToggle[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:#fff; }
+    .spend-row, .deal-row { margin:-2px 0 10px; padding:9px 12px; border-radius:12px; font-size:.9rem; font-weight:600; font-variant-numeric:tabular-nums; }
+    .spend-row { background:#fff; border:1px solid var(--line); color:var(--green-dark); }
+    .deal-row { background:#fff3d6; border:1px solid #f0d9a8; color:#6b4a00; }
+    .item-sub { display:block; color:var(--muted); font-size:.82rem; font-weight:600; margin-top:2px; }
+    .price-in { flex:none; width:5.6em; border:1px solid var(--line); border-radius:10px; padding:7px 8px; font:inherit; font-size:.95rem; text-align:right; background:#fff; color:var(--ink); }
+    .item-extra { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:10px; }
+    .item-extra label { display:flex; flex-direction:column; gap:4px; font-size:.8rem; font-weight:650; color:var(--muted); min-width:0; }
+    .item-extra .field { width:100%; padding:10px; }
+    .day-picks { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+    .day-picks button { border:1px solid var(--line); background:#f7faf7; color:var(--green-dark); border-radius:999px; min-width:44px; padding:8px 10px; font-family:inherit; font-weight:650; cursor:pointer; }
+    .day-picks button[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:#fff; }
+    #dealLabel { width:100%; }
+    .pantry-list { list-style:none; background:#fff; border-radius:16px; box-shadow:var(--shadow); overflow:hidden; margin-bottom:10px; }
+    .pantry-list li { display:flex; align-items:center; gap:8px; padding:12px 14px; border-top:1px solid var(--line); font-size:1.15rem; font-weight:550; }
+    .pantry-list li:first-child { border-top:0; }
+    .pantry-list li > span { flex:1; min-width:0; overflow-wrap:anywhere; }
+    .pantry-list li.empty { color:var(--muted); font-size:.95rem; font-weight:400; justify-content:center; }
+    .pantry-list .to-list { border:1px solid var(--line); background:#f7faf7; color:var(--green-dark); border-radius:999px; padding:6px 10px; font-family:inherit; font-size:.82rem; font-weight:650; cursor:pointer; }
+    .top-row { flex-wrap:wrap; }
+    .chips { flex-wrap:wrap; justify-content:flex-end; }
+    .meta { flex-wrap:wrap; gap:4px 8px; }
+    .meta > span:last-child { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:0 10px; }
+    html.big-text { font-size:118%; }
+    .spend-card table { width:100%; border-collapse:collapse; font-size:.9rem; font-variant-numeric:tabular-nums; }
+    .spend-card td { padding:6px 2px; border-bottom:1px solid var(--line); }
+    .spend-card td:last-child { text-align:right; font-weight:650; }
     .idea-card { background:#fffaf0; border:1px solid #f0d9a8; border-radius:16px; padding:14px; margin-bottom:12px; box-shadow:var(--shadow); }
     .idea-card p { font-size:1.02rem; line-height:1.45; }
     .idea-card b { color:var(--green-dark); }
@@ -153,6 +180,7 @@
       </div>
       <div class="chips">
         <button class="chip" id="helpBtn" type="button">?</button>
+        <button class="chip" id="navPantry" type="button">🏠 At home</button>
         <button class="chip" id="navLists" type="button"></button>
       </div>
     </div>
@@ -171,6 +199,7 @@
         <select id="storeSelect" class="field"></select>
         <button class="chip" id="editRouteBtn" type="button">Edit store</button>
       </div>
+      <p class="deal-row hidden" id="dealRow"></p>
       <div class="geo-row">
         <button class="chip" id="geoToggle" type="button" aria-pressed="false">📍 Detect my store: off</button>
         <span class="geo-status" id="geoStatus" aria-live="polite"></span>
@@ -178,13 +207,18 @@
       <div class="meta">
         <span id="count"></span>
         <span>
+          <button class="btn ghost" id="shareBtn" type="button">WhatsApp</button>
           <button class="btn ghost" id="copyBtn" type="button"></button>
           <button class="btn ghost" id="saveTripBtn" type="button"></button>
           <button class="btn ghost hidden" id="clearChecked" type="button"></button>
           <button class="btn danger" id="clear" type="button"></button>
         </span>
       </div>
-      <div class="idea-row"><button class="chip" id="ideaBtn" type="button">🍳 Meal idea</button></div>
+      <div class="idea-row">
+        <button class="chip" id="spendToggle" type="button" aria-pressed="false">💲 Spending: off</button>
+        <button class="chip" id="ideaBtn" type="button">🍳 Meal idea</button>
+      </div>
+      <p class="spend-row hidden" id="spendRow"></p>
       <div class="idea-card hidden" id="ideaCard" aria-live="polite">
         <p id="ideaText"></p>
         <div class="idea-actions">
@@ -203,6 +237,10 @@
       </form>
       <button class="btn ghost" id="saveCurrentBtn" type="button"></button>
       <div id="savedBox" class="saved-card"></div>
+      <div class="saved-card spend-card habits">
+        <h3 id="spendTitle">Spending</h3>
+        <div id="spendBox"></div>
+      </div>
       <div class="saved-card habits">
         <h3 id="habitsTitle">Your buying habits</h3>
         <p class="habits-note" id="habitsNote"></p>
@@ -210,6 +248,15 @@
         <button class="btn danger" id="habitsClear" type="button"></button>
       </div>
       <button class="btn ghost" id="backFromLists" type="button"></button>
+    </section>
+    <section id="pantryView" class="hidden">
+      <p class="sub" id="pantryHint" style="margin-bottom:10px"></p>
+      <form class="add" id="pantryForm">
+        <input id="pantryTyped" type="text" autocomplete="off">
+        <button class="btn primary" type="submit" id="pantryAddBtn">Add</button>
+      </form>
+      <ul class="pantry-list" id="pantryList"></ul>
+      <button class="btn ghost" id="backFromPantry" type="button"></button>
     </section>
     <section id="editView" class="hidden">
       <form class="edit-bar" id="renameForm">
@@ -242,6 +289,8 @@
       <ol id="helpHome"></ol>
       <h3 id="helpMoreTitle">If the mic says “not allowed”</h3>
       <ol id="helpMore"></ol>
+      <h3 id="helpDisplayTitle">Display</h3>
+      <button type="button" class="chip" id="bigTextToggle" aria-pressed="false">🔠 Large text: off</button>
       <div class="big" style="margin-top:16px">
         <button type="button" class="btn primary" id="helpClose" style="width:100%"></button>
       </div>
@@ -267,6 +316,12 @@
         </div>
         <input id="routeGeoInput" class="field" inputmode="decimal" autocomplete="off">
       </div>
+      <div class="geo-box" id="routeDeals">
+        <h3 id="routeDealsTitle">Deal days</h3>
+        <p class="geo-text" id="routeDealsText"></p>
+        <div class="day-picks" id="dayPicks"></div>
+        <input id="dealLabel" class="field" maxlength="40" autocomplete="off">
+      </div>
       <div class="route-actions">
         <button type="submit" class="btn primary" id="routeSave">Save</button>
         <button type="button" class="btn ghost" id="routeCancel">Cancel</button>
@@ -278,6 +333,11 @@
     <form class="help-box" id="itemForm">
       <h2 id="itemTitle">Edit item</h2>
       <input id="itemName" class="field" maxlength="60" autocomplete="off">
+      <div class="item-extra">
+        <label><span id="itemQtyLabel">Amount</span><input id="itemQty" class="field" maxlength="20" autocomplete="off"></label>
+        <label><span id="itemNoteLabel">Note</span><input id="itemNote" class="field" maxlength="40" autocomplete="off"></label>
+        <label id="itemPriceWrap"><span id="itemPriceLabel">Price</span><input id="itemPrice" class="field" inputmode="decimal" autocomplete="off"></label>
+      </div>
       <h3 id="itemSectionLabel">Section</h3>
       <div class="cat-picks" id="catPicks"></div>
       <p class="muted" id="itemHint"></p>
@@ -349,6 +409,22 @@
         placeTitle:"Store location", placeUse:"📍 Use my current location", placeClear:"Remove location",
         placePaste:"Or paste coordinates, like 19.4326, -99.1332",
         placeBad:"Couldn’t read those coordinates. Use the form 19.4326, -99.1332.",
+        share:"WhatsApp", shareTitle:"Grocery list", shareNothing:"Nothing left to buy on this trip.",
+        qtyLabel:"Amount", noteLabel:"Note", priceLabel:"Price", qtyPh:"2 kg", notePh:"brand, size…",
+        spendOff:"💲 Spending: off", spendOn:"💲 Spending: on",
+        spendTrip:(trip,q)=>`This trip: ${trip} · This quincena: ${q}`, pricePh:"$",
+        lastPrice:(p,store)=>`Last time ${p}${store?` at ${store}`:""}`,
+        spendTitle:"Spending", spendNone:"No spending yet. Turn on 💲 Spending and type prices as you check items off.",
+        spendThisQ:"This quincena", spendLastQ:"Last quincena", spendTrips:"Recent trips",
+        dealsTitle:"Deal days", dealsText:"Days this store has its weekly deals. The app shows a reminder on those days.",
+        dealPh:"Deal name (optional), like Martes de Frescura",
+        days:["Su","Mo","Tu","We","Th","Fr","Sa"],
+        dealToday:(label,store)=>`🏷️ Today: ${label||"deal day"} at ${store}`,
+        dealsOther:list=>`🏷️ Deals today: ${list}`,
+        pantry:"🏠 At home", pantryTitle:"At home", pantryHint:"What you already have. Items you check off on a trip are added here. Tap “+ List” when something runs out.",
+        pantryPh:"Add something you have at home", pantryEmpty:"Nothing here yet.", toList:"+ List",
+        atHome:"at home", alreadyHome:names=>`Already at home: ${names}`,
+        bigOff:"🔠 Large text: off", bigOn:"🔠 Large text: on", displayTitle:"Display",
         low:names=>`Running low on ${names}?`, lowAdd:"Add", lowLater:"Not now",
         habitsTitle:"Your buying habits", habitsNote:"Private: stays on this phone and is only used for “Running low?” suggestions.",
         habitsNone:"Nothing learned yet. Check items off as you shop and the app learns how often you buy them.",
@@ -411,6 +487,22 @@
         placeTitle:"Ubicación de la tienda", placeUse:"📍 Usar mi ubicación actual", placeClear:"Quitar ubicación",
         placePaste:"O pega coordenadas, como 19.4326, -99.1332",
         placeBad:"No se pudieron leer esas coordenadas. Usa la forma 19.4326, -99.1332.",
+        share:"WhatsApp", shareTitle:"Lista del súper", shareNothing:"No queda nada por comprar en este viaje.",
+        qtyLabel:"Cantidad", noteLabel:"Nota", priceLabel:"Precio", qtyPh:"2 kg", notePh:"marca, tamaño…",
+        spendOff:"💲 Gastos: no", spendOn:"💲 Gastos: sí",
+        spendTrip:(trip,q)=>`Este viaje: ${trip} · Esta quincena: ${q}`, pricePh:"$",
+        lastPrice:(p,store)=>`La última vez ${p}${store?` en ${store}`:""}`,
+        spendTitle:"Gastos", spendNone:"Aún no hay gastos. Activa 💲 Gastos y escribe precios al marcar artículos.",
+        spendThisQ:"Esta quincena", spendLastQ:"Quincena pasada", spendTrips:"Viajes recientes",
+        dealsTitle:"Días de ofertas", dealsText:"Días en que esta tienda tiene sus ofertas de la semana. La app te lo recuerda esos días.",
+        dealPh:"Nombre de la oferta (opcional), como Martes de Frescura",
+        days:["Do","Lu","Ma","Mi","Ju","Vi","Sá"],
+        dealToday:(label,store)=>`🏷️ Hoy: ${label||"día de ofertas"} en ${store}`,
+        dealsOther:list=>`🏷️ Ofertas hoy: ${list}`,
+        pantry:"🏠 En casa", pantryTitle:"En casa", pantryHint:"Lo que ya tienes. Lo que marcas en un viaje se agrega aquí. Toca “+ Lista” cuando algo se acabe.",
+        pantryPh:"Agrega algo que tienes en casa", pantryEmpty:"Aún no hay nada.", toList:"+ Lista",
+        atHome:"en casa", alreadyHome:names=>`Ya tienes en casa: ${names}`,
+        bigOff:"🔠 Letra grande: no", bigOn:"🔠 Letra grande: sí", displayTitle:"Pantalla",
         low:names=>`¿Te falta ${names}?`, lowAdd:"Agregar", lowLater:"Ahora no",
         habitsTitle:"Tus hábitos de compra", habitsNote:"Privado: se queda en este teléfono y solo se usa para las sugerencias “¿Te falta…?”.",
         habitsNone:"Aún no hay datos. Marca artículos al comprar y la app aprende cada cuánto los compras.",
@@ -575,6 +667,7 @@
       }
       if (!r.stores[r.active]) r.active = STANDARD;
       if (typeof r.places !== "object" || !r.places) r.places = {}; // store name -> { lat, lng, acc }
+      if (typeof r.deals !== "object" || !r.deals) r.deals = {};    // store name -> { days:[0-6], label }
       return r;
     }
     // Full aisle order for a store: its custom order, then any categories it left out, then "Other".
@@ -601,6 +694,12 @@
     let trip = migrateItems(JSON.parse(localStorage.getItem("grocery-trip") || localStorage.getItem("grocery") || "[]"));
     let lists = JSON.parse(localStorage.getItem("grocery-lists") || "[]").map(l => ({ ...l, items: migrateItems(l.items) }));
     let storeRoutes = loadRoutes();
+    const PANTRY_KEY="grocery-pantry", SPEND_KEY="grocery-spend", PRICES_KEY="grocery-prices", DISPLAY_KEY="grocery-display";
+    const readJSON = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+    let pantry = readJSON(PANTRY_KEY, []);                      // [{ text, qty, t, auto }] — what's already at home
+    let spend = { on:false, log:[], ...readJSON(SPEND_KEY, {}) }; // log: [{ t, store, total }] per finished trip
+    let prices = readJSON(PRICES_KEY, {});                      // habit key -> { p, store, t } last price paid
+    let display = { big:false, ...readJSON(DISPLAY_KEY, {}) };
     // Store detection: { on } — when on, the app selects a saved store you're standing in.
     const GEO_KEY = "grocery-geo";
     let geo = { on:false };
@@ -615,11 +714,61 @@
       localStorage.setItem(ITEM_CATS_KEY, JSON.stringify(itemCats));
       localStorage.setItem(GEO_KEY, JSON.stringify(geo));
       localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      localStorage.setItem(PANTRY_KEY, JSON.stringify(pantry));
+      localStorage.setItem(SPEND_KEY, JSON.stringify(spend));
+      localStorage.setItem(PRICES_KEY, JSON.stringify(prices));
+      localStorage.setItem(DISPLAY_KEY, JSON.stringify(display));
     };
-    const splitUtterance = text => text.split(/\s+(?:and|y|e|plus|más)\s+|,\s*/i).map(s=>s.replace(/^[\s.]+|[\s.]+$/g,"")).filter(Boolean);
-    const mergeItems = (base, extraTexts) => {
-      const seen = new Set(base.map(o=>o.text.toLowerCase())); const out = base.slice();
-      extraTexts.forEach(text => { const k=text.toLowerCase(); if(!seen.has(k)){ seen.add(k); out.push({text, checked:false}); } });
+    // Items whose name contains "and"/"y" stay whole when a sentence is split into items.
+    const JOINED = ["half and half", "mac and cheese", "frutas y verduras"];
+    const splitUtterance = text => {
+      const keep=[]; let s=text;
+      JOINED.forEach(ph=>{ s=s.replace(new RegExp(ph,"ig"), m=>{ keep.push(m); return `\u0001${keep.length-1}\u0001`; }); });
+      return s.split(/\s+(?:and|y|e|plus|más)\s+|,\s*/i)
+        .map(x=>x.replace(/\u0001(\d+)\u0001/g, (_,n)=>keep[n]).replace(/^[\s.]+|[\s.]+$/g,"")).filter(Boolean);
+    };
+    // ---- Quantities: "2 kg tortillas", "dos kilos de tortillas", "leche 1 L", "jamón (San Rafael)" ----
+    const NUM_WORDS={ a:1, an:1, one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10, eleven:11, twelve:12, half:.5,
+      un:1, una:1, uno:1, dos:2, tres:3, cuatro:4, cinco:5, seis:6, siete:7, ocho:8, nueve:9, diez:10, once:11, doce:12, medio:.5, media:.5 };
+    const UNIT_SHORT={ kg:"kg", kgs:"kg", kilo:"kg", kilos:"kg", kilogramo:"kg", kilogramos:"kg", kilogram:"kg", kilograms:"kg",
+      g:"g", gr:"g", grs:"g", gramo:"g", gramos:"g", gram:"g", grams:"g", lb:"lb", lbs:"lb", libra:"lb", libras:"lb", pound:"lb", pounds:"lb",
+      l:"L", lt:"L", lts:"L", litro:"L", litros:"L", liter:"L", liters:"L", litre:"L", litres:"L", ml:"ml", oz:"oz" };
+    const UNIT_WORDS="pz|pza|pzas|pieza|piezas|pieces|piece|paquetes|paquete|packages|package|packs|pack|cajas|caja|boxes|box|bolsas|bolsa|bags|bag|latas|lata|cans|can|"+
+      "docenas|docena|dozen|botellas|botella|bottles|bottle|manojos|manojo|bunches|bunch|frascos|frasco|jars|jar|galones|galón|galon|gallons|gallon|rollos|rollo|rolls|roll";
+    const UNIT_RE=`(${Object.keys(UNIT_SHORT).sort((a,b)=>b.length-a.length).join("|")}|${UNIT_WORDS})`;
+    const DIGITS_RE="(\\d+\\/\\d+|\\d+(?:[.,]\\d+)?|½)";
+    const LEAD_RE=new RegExp(`^(${Object.keys(NUM_WORDS).join("|")}|\\d+\\/\\d+|\\d+(?:[.,]\\d+)?|½)\\s*(?:${UNIT_RE}\\.?)?\\s+(?:(?:de|of)\\s+)?(.+)$`, "i");
+    const TRAIL_RE=new RegExp(`^(.+?)\\s+(?:x\\s*)?${DIGITS_RE}\\s*(?:${UNIT_RE}\\.?)?$`, "i");
+    const ALL_KEYWORDS=new Set(Object.values(CATEGORY_DICT).flat().map(normalize));
+    function fmtQty(num, unit){
+      const w=num.toLowerCase();
+      const n = w in NUM_WORDS ? NUM_WORDS[w] : w==="½" ? .5 : w.includes("/") ? w.split("/")[0]/w.split("/")[1] : parseFloat(w.replace(",", "."));
+      if(!isFinite(n) || n<=0) return "";
+      if(!unit && n===1) return ""; // "un aguacate" is just an avocado
+      const ns = n%1===.5 ? (Math.floor(n)||"")+"½" : String(n);
+      return unit ? `${ns} ${UNIT_SHORT[unit.toLowerCase()] || unit.toLowerCase()}` : ns;
+    }
+    function parseItem(raw){
+      let text=raw.trim(), qty="", note="";
+      const paren=text.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+      if(paren && paren[1]){ text=paren[1]; note=paren[2].trim(); }
+      if(!ALL_KEYWORDS.has(normalize(text))){ // "half and half" is a product, not ½ of "and half"
+        let m=text.match(LEAD_RE);
+        if(m && !/^(and|y)\s/i.test(m[3])){ const q=fmtQty(m[1], m[2]); if(q || /^(a|an|un|una|uno|one)$/i.test(m[1])){ qty=q; text=m[3]; } }
+        else if((m=text.match(TRAIL_RE))){ const q=fmtQty(m[2], m[3]); if(q){ qty=q; text=m[1]; } }
+      }
+      return { text:text.trim(), qty, note };
+    }
+    const itemSub = item => [item.qty, item.note].filter(Boolean).join(" · ");
+    // Add items (strings or {text, qty, note}); an item already on the list keeps its place but takes the new amount/note.
+    const mergeItems = (base, extras) => {
+      const out=base.slice(), idx=new Map(out.map((o,i)=>[o.text.toLowerCase(), i]));
+      extras.forEach(x=>{
+        const it = typeof x==="string" ? { text:x } : x; if(!it.text) return;
+        const extra = { ...(it.qty?{qty:it.qty}:{}), ...(it.note?{note:it.note}:{}) }, k=it.text.toLowerCase();
+        if(idx.has(k)) out[idx.get(k)]={ ...out[idx.get(k)], ...extra };
+        else { idx.set(k, out.length); out.push({ text:it.text, checked:false, ...extra }); }
+      });
       return out;
     };
     const editingList = () => lists.find(l => l.id === editingId);
@@ -627,10 +776,11 @@
       if (!lang) return;
       const c = t[lang];
       document.documentElement.lang = lang; document.title = c.title;
-      $("title").textContent = view==="lists"?c.lists:(view==="edit"&&editingList()?editingList().name:c.title);
+      $("title").textContent = view==="lists"?c.lists:view==="pantry"?c.pantryTitle:(view==="edit"&&editingList()?editingList().name:c.title);
       $("subtitle").textContent = view==="edit"?c.editHint:c.subtitle;
       $("en").classList.toggle("active", lang==="en"); $("es").classList.toggle("active", lang==="es");
-      $("navLists").textContent = view==="shop"?c.lists:c.shop;
+      $("navLists").textContent = view==="lists"?c.shop:c.lists;
+      $("navPantry").textContent = view==="pantry"?c.shop:c.pantry;
       $("typed").placeholder=c.placeholder; $("editTyped").placeholder=c.placeholder;
       $("addBtn").textContent=c.add; $("editAddBtn").textContent=c.add; $("clear").textContent=c.clear;
       const checkedN = trip.filter(x=>x.checked).length;
@@ -658,11 +808,20 @@
       $("routeGeoInput").placeholder=c.placePaste;
       showGeoStatus();
       $("ideaBtn").textContent=c.ideaBtn;
+      $("shareBtn").textContent=c.share;
+      $("spendToggle").textContent=spend.on?c.spendOn:c.spendOff; $("spendToggle").setAttribute("aria-pressed", String(spend.on));
+      $("pantryHint").textContent=c.pantryHint; $("pantryTyped").placeholder=c.pantryPh; $("pantryAddBtn").textContent=c.add; $("backFromPantry").textContent=c.back;
+      $("helpDisplayTitle").textContent=c.displayTitle;
+      $("bigTextToggle").textContent=display.big?c.bigOn:c.bigOff; $("bigTextToggle").setAttribute("aria-pressed", String(display.big));
+      $("routeDealsTitle").textContent=c.dealsTitle; $("routeDealsText").textContent=c.dealsText; $("dealLabel").placeholder=c.dealPh;
+      $("itemQtyLabel").textContent=c.qtyLabel; $("itemNoteLabel").textContent=c.noteLabel; $("itemPriceLabel").textContent=c.priceLabel;
+      $("itemQty").placeholder=c.qtyPh; $("itemNote").placeholder=c.notePh; $("itemPrice").placeholder=c.pricePh;
+      $("spendTitle").textContent=c.spendTitle;
       $("ideaBtn").classList.toggle("hidden", !trip.some(i=>!i.checked));
       const fillOl = (id, items) => { const ol=$(id); ol.innerHTML=""; items.forEach(s=>{ const li=document.createElement("li"); li.textContent=s; ol.appendChild(li); }); };
       fillOl("helpAnd", c.helpAnd); fillOl("helpIos", c.helpIos); fillOl("helpMore", c.helpMore); fillOl("helpHome", c.helpHome);
     }
-    function showView(next){ view=next; $("shopView").classList.toggle("hidden", next!=="shop"); $("listsView").classList.toggle("hidden", next!=="lists"); $("editView").classList.toggle("hidden", next!=="edit"); applyCopy(); render(); }
+    function showView(next){ view=next; ["shop","lists","edit","pantry"].forEach(v=>$(v+"View").classList.toggle("hidden", next!==v)); applyCopy(); render(); }
     function bindSwipe(row, onRemove){
       let startX=0, dx=0, tracking=false, pointerId=null; const inner=row.querySelector(".row-inner");
       const start=x=>{ tracking=true; startX=x; dx=0; inner.style.transition="none"; };
@@ -672,7 +831,7 @@
       const end=()=>{ if(!tracking) return; tracking=false; inner.style.transition="";
         if(Math.abs(dx)>72){ row.classList.add("removing", dx<0?"left":"right"); setTimeout(onRemove,180); }
         else inner.style.transform=""; };
-      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x, .cat-fix")) return; pointerId=e.pointerId; start(e.clientX); });
+      row.addEventListener("pointerdown", e=>{ if(e.target.closest(".x, .cat-fix, .price-in")) return; pointerId=e.pointerId; start(e.clientX); });
       row.addEventListener("pointermove", e=>move(e.clientX));
       const stop=()=>{ pointerId=null; end(); };
       row.addEventListener("pointerup", stop);
@@ -696,8 +855,11 @@
           li.innerHTML=`<div class="row-inner"><button class="item-text" type="button"></button><button class="x" type="button">✕</button></div>`;
           const label=li.querySelector(".item-text");
           label.textContent=item.text;
+          const sub=itemSub(item);
+          if(sub){ const sm=document.createElement("small"); sm.className="item-sub"; sm.textContent=sub; label.appendChild(sm); }
           label.onclick=()=>onEdit(i, item);
           if(cat===UNCAT) label.after(sectionDropdown(item.text));
+          if(items===trip && spend.on && item.checked) li.querySelector(".x").before(priceBox(item, i));
           li.querySelector(".x").onclick=()=>onRemove(i);
           bindSwipe(li, ()=>onSwipe(i));
           ul.appendChild(li);
@@ -757,6 +919,83 @@
         a.textContent=h.name; b.textContent=c.habitsEvery(Math.max(1, Math.round(every))); li.append(a,b); ul.appendChild(li); });
       $("habitsClear").classList.toggle("hidden", !Object.keys(history).length);
     }
+    // ---- Spending: optional price per checked item; totals per trip and per quincena (1st–15th, 16th–end) ----
+    const parseMoney = v => { const n=parseFloat(String(v).replace(/[$\s]/g,"").replace(",", ".")); return isFinite(n) && n>0 ? Math.round(n*100)/100 : 0; };
+    const money = n => "$"+n.toLocaleString(lang==="es"?"es-MX":"en-US", { minimumFractionDigits:n%1?2:0, maximumFractionDigits:2 });
+    const quincenaStart = ms => { const d=new Date(ms); return new Date(d.getFullYear(), d.getMonth(), d.getDate()<=15?1:16).getTime(); };
+    const tripSpent = () => trip.reduce((sum,i)=>sum+(i.checked && i.price>0 ? i.price : 0), 0);
+    const loggedBetween = (from, to) => spend.log.filter(e=>e.t>=from && e.t<to).reduce((sum,e)=>sum+e.total, 0);
+    function logSpending(items){
+      const total=items.reduce((sum,i)=>sum+(i.checked && i.price>0 ? i.price : 0), 0);
+      if(total>0){ spend.log.push({ t:Date.now(), store:storeRoutes.active, total:Math.round(total*100)/100 }); spend.log=spend.log.slice(-300); }
+    }
+    function rememberPrice(item){ prices[habitKey(item.text)]={ p:item.price, store:storeRoutes.active, t:Date.now() }; }
+    const storeName = key => key===STANDARD ? (t[lang]||t.en).standardStore : key;
+    function priceBox(item, i){
+      const c=t[lang], inp=document.createElement("input"), last=prices[habitKey(item.text)];
+      inp.className="price-in"; inp.inputMode="decimal"; inp.autocomplete="off"; inp.value=item.price||"";
+      inp.placeholder = last ? money(last.p) : c.pricePh;
+      inp.setAttribute("aria-label", c.priceLabel+": "+item.text);
+      if(last) inp.title=c.lastPrice(money(last.p), storeName(last.store));
+      inp.onchange=()=>{ const p=parseMoney(inp.value); trip[i]={...trip[i], price:p}; if(!p) delete trip[i].price; else rememberPrice(trip[i]); save(); updateSpendRow(); };
+      inp.onkeydown=e=>{ if(e.key==="Enter") inp.blur(); };
+      return inp;
+    }
+    function updateSpendRow(){
+      const on=spend.on && view==="shop"; $("spendRow").classList.toggle("hidden", !on); if(!on) return;
+      const q0=quincenaStart(Date.now());
+      $("spendRow").textContent=t[lang].spendTrip(money(tripSpent()), money(loggedBetween(q0, Infinity)+tripSpent()));
+    }
+    function renderSpending(){
+      const c=t[lang], box=$("spendBox"), q0=quincenaStart(Date.now()), prevStart=quincenaStart(q0-1);
+      if(!spend.log.length && !tripSpent()){ box.innerHTML=""; const p=document.createElement("p"); p.className="habits-note"; p.textContent=c.spendNone; box.appendChild(p); return; }
+      const rows=[[c.spendThisQ, money(loggedBetween(q0, Infinity)+tripSpent())], [c.spendLastQ, money(loggedBetween(prevStart, q0))]];
+      const recent=spend.log.slice(-5).reverse().map(e=>[`${new Date(e.t).toLocaleDateString(lang==="es"?"es-MX":"en-US",{ day:"numeric", month:"short" })} · ${storeName(e.store)}`, money(e.total)]);
+      box.innerHTML="";
+      const table=document.createElement("table");
+      [...rows, ...(recent.length?[[c.spendTrips,""]]:[]), ...recent].forEach(([a,b])=>{ const tr=table.insertRow(); tr.insertCell().textContent=a; tr.insertCell().textContent=b; });
+      box.appendChild(table);
+    }
+    // ---- At home (pantry): what's already in the house. Checked-off trip items are added automatically. ----
+    const pantryHas = text => { const k=habitKey(text); return pantry.some(x=>habitKey(x.text)===k); };
+    function addToPantry(item, auto=true){ if(pantryHas(item.text)) return; pantry.push({ text:item.text, ...(item.qty?{qty:item.qty}:{}), t:Date.now(), auto }); }
+    function removeAutoPantry(item){ const k=habitKey(item.text); pantry=pantry.filter(x=>!(x.auto && habitKey(x.text)===k && Date.now()-x.t<DAY/2)); }
+    function renderPantry(){
+      const c=t[lang], ul=$("pantryList"); ul.innerHTML="";
+      if(!pantry.length){ const li=document.createElement("li"); li.className="empty"; li.textContent=c.pantryEmpty; ul.appendChild(li); return; }
+      const order=[...CATEGORIES, UNCAT];
+      pantry.map((x,i)=>({x,i})).sort((a,b)=>order.indexOf(categorizeItem(a.x.text))-order.indexOf(categorizeItem(b.x.text)) || a.x.text.localeCompare(b.x.text))
+        .forEach(({x,i})=>{
+          const li=document.createElement("li"), name=document.createElement("span");
+          name.textContent=`${CAT_EMOJI[categorizeItem(x.text)]} ${x.text}`;
+          if(x.qty){ const sm=document.createElement("small"); sm.className="item-sub"; sm.textContent=x.qty; name.appendChild(sm); }
+          const toList=document.createElement("button"); toList.type="button"; toList.className="to-list"; toList.textContent=c.toList;
+          toList.onclick=()=>{ trip=mergeItems(trip,[{ text:x.text, qty:x.qty }]); pantry.splice(i,1); save(); renderPantry(); };
+          const del=document.createElement("button"); del.type="button"; del.className="x"; del.textContent="✕"; del.setAttribute("aria-label", c.del+": "+x.text);
+          del.onclick=()=>{ pantry.splice(i,1); save(); renderPantry(); };
+          li.append(name, toList, del); ul.appendChild(li);
+        });
+    }
+    // ---- Deal days: each store can name weekdays with deals; the shop screen reminds on those days ----
+    const DAY_ORDER=[1,2,3,4,5,6,0]; // Monday first, as calendars in Mexico
+    function renderDayPicks(){
+      const c=t[lang], box=$("dayPicks"); box.innerHTML="";
+      DAY_ORDER.forEach(d=>{ const b=document.createElement("button"); b.type="button"; b.textContent=c.days[d];
+        b.setAttribute("aria-pressed", String(routeDraft.deal.days.includes(d)));
+        b.onclick=()=>{ const ds=routeDraft.deal.days; routeDraft.deal.days = ds.includes(d) ? ds.filter(x=>x!==d) : [...ds, d]; renderDayPicks(); };
+        box.appendChild(b); });
+    }
+    function updateDealRow(){
+      const c=t[lang]||t.en, row=$("dealRow"), today=new Date(Date.now()).getDay();
+      const deals=Object.entries(storeRoutes.deals).filter(([n,d])=>storeRoutes.stores[n] && d.days.includes(today));
+      const mine=deals.find(([n])=>n===storeRoutes.active);
+      const text = view!=="shop" || !deals.length ? "" : mine ? c.dealToday(mine[1].label, mine[0])
+        : c.dealsOther(joinWords(deals.map(([n,d])=>d.label?`${n} (${d.label})`:n), c.and));
+      row.textContent=text; row.classList.toggle("hidden", !text);
+    }
+    // ---- Large text ----
+    const applyDisplay = () => document.documentElement.classList.toggle("big-text", !!display.big);
+    applyDisplay();
     // ---- Meal ideas: find a meal that is exactly one ingredient away from the unchecked items ----
     // Ingredient: [English name, Spanish name, keywords that mean it on a list]
     const INGREDIENTS = {
@@ -850,6 +1089,7 @@
     function mealIdeas(items){
       const have=new Map(); // ingredient -> the item text the shopper typed
       items.filter(i=>!i.checked).forEach(i=>{ const k=ingredientOf(i.text); if(k && !have.has(k)) have.set(k, i.text); });
+      pantry.forEach(x=>{ const k=ingredientOf(x.text); if(k && !have.has(k)) have.set(k, `${x.text} (${(t[lang]||t.en).atHome})`); });
       return MEALS
         .map(meal=>({ meal, missing: meal.ing.filter(k=>!have.has(k)), used: meal.ing.filter(k=>have.has(k)).map(k=>have.get(k)) }))
         .filter(x=>x.missing.length===1 && x.used.length>=2)
@@ -1006,6 +1246,11 @@
       $("routeHint").textContent=c.routeHint;
       $("routeDelete").classList.toggle("hidden", !key || key===STANDARD);
       routeDraft.place = key && key!==STANDARD ? storeRoutes.places[key] || null : null;
+      const deal = key && storeRoutes.deals[key];
+      routeDraft.deal = { days: deal ? [...deal.days] : [] };
+      $("dealLabel").value = deal ? deal.label||"" : "";
+      $("routeDeals").classList.toggle("hidden", key===STANDARD);
+      renderDayPicks();
       $("routeGeo").classList.toggle("hidden", key===STANDARD);
       $("routeGeoInput").value="";
       renderPlace();
@@ -1054,8 +1299,8 @@
         div.querySelector('[data-act="start"]').textContent=c.startTrip;
         div.querySelector('[data-act="edit"]').textContent=c.edit;
         div.querySelector('[data-act="del"]').textContent=c.del;
-        div.querySelector('[data-act="add"]').onclick=()=>{ trip=mergeItems(trip,list.items.map(i=>i.text)); save(); showView("shop"); };
-        div.querySelector('[data-act="start"]').onclick=()=>{ trip=list.items.map(i=>({...i, checked:false})); save(); showView("shop"); };
+        div.querySelector('[data-act="add"]').onclick=()=>{ trip=mergeItems(trip,list.items); save(); showView("shop"); };
+        div.querySelector('[data-act="start"]').onclick=()=>{ logSpending(trip); trip=list.items.map(({text,qty,note})=>({text,qty,note,checked:false})); save(); showView("shop"); };
         div.querySelector('[data-act="edit"]').onclick=()=>{ editingId=list.id; $("renameInput").value=list.name; showView("edit"); };
         div.querySelector('[data-act="del"]').onclick=()=>{ if(!confirm(c.confirmDel)) return; lists=lists.filter(x=>x.id!==list.id); save(); renderSaved(); };
         $("savedBox").appendChild(div);
@@ -1086,7 +1331,8 @@
     function editAt(arr, i, item){
       const c=t[lang];
       itemDraft={ arr, i, cat:categorizeItem(item.text), touched:false };
-      $("itemName").value=item.text;
+      $("itemName").value=item.text; $("itemQty").value=item.qty||""; $("itemNote").value=item.note||"";
+      $("itemPrice").value=item.price||""; $("itemPriceWrap").classList.toggle("hidden", !(arr===trip && spend.on));
       $("itemTitle").textContent=c.editItemTitle; $("itemSectionLabel").textContent=c.section;
       $("itemHint").textContent=c.sectionHint; $("itemSave").textContent=c.saveRoute; $("itemCancel").textContent=c.cancel;
       renderCatPicks();
@@ -1105,31 +1351,35 @@
     function closeItemSheet(){ itemDraft=null; $("itemOverlay").classList.add("hidden"); }
     function saveItemSheet(){
       const { arr, i, cat, touched } = itemDraft;
-      const name=$("itemName").value.trim();
+      const parsed=parseItem($("itemName").value), name=parsed.text;
+      const qty=$("itemQty").value.trim()||parsed.qty, note=$("itemNote").value.trim()||parsed.note, price=parseMoney($("itemPrice").value);
       closeItemSheet();
       if(!name){ removeAt(arr,i); return; }
-      arr[i]={...arr[i], text:name};
+      const next={...arr[i], text:name, qty, note, price}; ["qty","note","price"].forEach(k=>{ if(!next[k]) delete next[k]; });
+      arr[i]=next; if(price) rememberPrice(next);
       if(touched) rememberSection(name, cat);
       save(); render();
     }
     function toggleAt(arr, i){
       arr[i]={...arr[i], checked:!arr[i].checked};
-      if(arr===trip) recordBuy(arr[i], arr[i].checked);
+      if(arr===trip){ recordBuy(arr[i], arr[i].checked); if(arr[i].checked) addToPantry(arr[i]); else removeAutoPantry(arr[i]); }
       save(); render();
     }
     function render(){
       if(!lang) return; applyCopy();
       if(view==="shop") renderItems($("list"), trip, i=>toggleAt(trip,i), (i,item)=>editAt(trip,i,item), i=>removeAt(trip,i));
-      else if(view==="lists"){ renderSaved(); renderHabits(); }
+      else if(view==="lists"){ renderSaved(); renderSpending(); renderHabits(); }
+      else if(view==="pantry") renderPantry();
       else {
         const list=editingList(); if(!list){ showView("lists"); return; }
         renderItems($("editList"), list.items, i=>removeAt(list.items,i), (i,item)=>editAt(list.items,i,item), i=>removeAt(list.items,i));
       }
-      updateLowBar();
+      updateLowBar(); updateSpendRow(); updateDealRow();
     }
     function addTo(arr, text){
-      const parts=splitUtterance(text); if(!parts.length) return;
+      const parts=splitUtterance(text).map(parseItem).filter(x=>x.text); if(!parts.length) return;
       const merged=mergeItems(arr, parts); arr.length=0; arr.push(...merged); save(); render();
+      if(arr===trip){ const home=parts.filter(x=>pantryHas(x.text)).map(x=>x.text); if(home.length) $("status").textContent=t[lang].alreadyHome(joinWords(home, t[lang].and)); }
     }
     function makeRecognizer(onText, statusEl, micBtn){
       const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -1179,18 +1429,20 @@
     $("helpOverlay").addEventListener("click", e=>{ if(e.target.id==="helpOverlay") closeHelp(); });
     $("en").onclick=()=>setLang("en"); $("es").onclick=()=>setLang("es");
     $("pickEn").onclick=()=>setLang("en"); $("pickEs").onclick=()=>setLang("es");
-    $("navLists").onclick=()=>showView(view==="shop"?"lists":"shop");
+    $("navLists").onclick=()=>showView(view==="lists"?"shop":"lists");
+    $("navPantry").onclick=()=>showView(view==="pantry"?"shop":"pantry");
+    $("backFromPantry").onclick=()=>showView("shop");
     $("backShop").onclick=()=>showView("shop");
     $("backFromLists").onclick=()=>showView("shop");
     $("addForm").onsubmit=e=>{ e.preventDefault(); const v=$("typed").value.trim(); if(!v) return; addTo(trip,v); $("typed").value=""; };
     $("editAddForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); const v=$("editTyped").value.trim(); if(!list||!v) return; addTo(list.items,v); $("editTyped").value=""; };
-    $("clear").onclick=()=>{ if(!trip.length) return; if(confirm(t[lang].confirmClear)){ trip=[]; save(); render(); } };
-    $("clearChecked").onclick=()=>{ if(!trip.some(x=>x.checked)) return; trip=trip.filter(x=>!x.checked); save(); render(); };
+    $("clear").onclick=()=>{ if(!trip.length) return; if(confirm(t[lang].confirmClear)){ logSpending(trip); trip=[]; save(); render(); } };
+    $("clearChecked").onclick=()=>{ if(!trip.some(x=>x.checked)) return; logSpending(trip); trip=trip.filter(x=>!x.checked); save(); render(); };
     $("newListForm").onsubmit=e=>{ e.preventDefault(); lists.push({id:String(Date.now()), name:$("newListName").value.trim()||t[lang].named, items:[]}); $("newListName").value=""; save(); renderSaved(); };
     function saveTripAsList(){
       if(!trip.length){ $("status").textContent=t[lang].needItems; return; }
       const id=String(Date.now());
-      lists.push({id, name:t[lang].named, items:trip.map(i=>({...i, checked:false}))});
+      lists.push({id, name:t[lang].named, items:trip.map(({text,qty,note})=>({text,qty,note,checked:false}))});
       editingId=id; save();
       $("renameInput").value="";
       $("renameInput").placeholder=t[lang].newPlaceholder;
@@ -1201,7 +1453,7 @@
     $("copyBtn").onclick=async ()=>{
       if(!trip.length){ $("status").textContent=t[lang].needItems; return; }
       const text=sortByRoute(trip, routeSequence(storeRoutes.active))
-        .map(g=>catLabel(g.cat)+"\n"+g.entries.map(({item})=>`${item.checked?"[x]":"-"} ${item.text}`).join("\n"))
+        .map(g=>catLabel(g.cat)+"\n"+g.entries.map(({item})=>`${item.checked?"[x]":"-"} ${item.text}${itemSub(item)?` (${itemSub(item)})`:""}`).join("\n"))
         .join("\n\n");
       try {
         await navigator.clipboard.writeText(text);
@@ -1232,8 +1484,10 @@
         if(!name || name==="__new"){ $("routeHint").textContent=t[lang].needName; $("routeName").focus(); return; }
         const pasted=$("routeGeoInput").value.trim();
         if(pasted){ const pl=parseCoords(pasted); if(!pl){ renderPlace(t[lang].placeBad); $("routeGeoInput").focus(); return; } routeDraft.place=pl; }
-        if(key && key!==name){ delete storeRoutes.stores[key]; delete storeRoutes.places[key]; }
+        if(key && key!==name){ delete storeRoutes.stores[key]; delete storeRoutes.places[key]; delete storeRoutes.deals[key]; }
         if(routeDraft.place) storeRoutes.places[name]=routeDraft.place; else delete storeRoutes.places[name];
+        const label=$("dealLabel").value.trim();
+        if(routeDraft.deal.days.length) storeRoutes.deals[name]={ days:routeDraft.deal.days.slice().sort(), label }; else delete storeRoutes.deals[name];
       }
       storeRoutes.stores[name]=order.slice(); storeRoutes.active=name;
       save(); closeRouteEditor(); render();
@@ -1241,7 +1495,7 @@
     $("routeDelete").onclick=()=>{
       const { key } = routeDraft;
       if(!key || key===STANDARD || !confirm(t[lang].confirmDelStore)) return;
-      delete storeRoutes.stores[key]; delete storeRoutes.places[key]; storeRoutes.active=STANDARD;
+      delete storeRoutes.stores[key]; delete storeRoutes.places[key]; delete storeRoutes.deals[key]; storeRoutes.active=STANDARD;
       save(); closeRouteEditor(); render();
     };
     $("routeGeoUse").onclick=()=>{
@@ -1257,6 +1511,19 @@
     };
     $("routeGeoClear").onclick=()=>{ routeDraft.place=null; $("routeGeoInput").value=""; renderPlace(); };
     $("geoToggle").onclick=toggleGeo;
+    $("spendToggle").onclick=()=>{ spend.on=!spend.on; save(); render(); };
+    $("bigTextToggle").onclick=()=>{ display.big=!display.big; save(); applyDisplay(); applyCopy(); };
+    $("pantryForm").onsubmit=e=>{ e.preventDefault(); const v=$("pantryTyped").value.trim(); if(!v) return;
+      splitUtterance(v).map(parseItem).filter(x=>x.text).forEach(x=>addToPantry(x, false)); $("pantryTyped").value=""; save(); renderPantry(); };
+    // WhatsApp: what's still left to buy, grouped by section in the store's order.
+    $("shareBtn").onclick=()=>{
+      const c=t[lang], left=trip.filter(i=>!i.checked);
+      if(!left.length){ $("status").textContent=c.shareNothing; return; }
+      const where = storeRoutes.active===STANDARD ? "" : ` · ${storeRoutes.active}`;
+      const body = sortByRoute(left, routeSequence(storeRoutes.active)).map(g=>`${CAT_EMOJI[g.cat]} *${c.cats[g.cat]}*\n`+
+        g.entries.map(({item})=>`• ${item.text}${itemSub(item)?` (${itemSub(item)})`:""}`).join("\n")).join("\n\n");
+      window.open("https://wa.me/?text="+encodeURIComponent(`🛒 *${c.shareTitle}*${where}\n\n${body}`), "_blank");
+    };
     $("lowAdd").onclick=()=>{
       const due=dueItems(); if(!due.length) return;
       const merged=mergeItems(trip, due.map(d=>d.h.name)); trip.length=0; trip.push(...merged); save(); render();

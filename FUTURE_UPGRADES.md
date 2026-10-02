@@ -36,3 +36,25 @@ Shopper pastes a recipe URL; the backend reads the ingredients; a review screen 
   ("2 cups all-purpose flour, sifted" → flour; keep the amount as a note), combine duplicates,
   leave staples (salt, pepper, oil, water) unchecked, sort with the existing dictionary.
 - Option that works without a backend: paste the ingredient text itself and parse it on the phone.
+
+## Supabase backend (foundation for the items below)
+- Tables: trip_items, lists + list_items, stores (route order + location), item_sections, user_settings.
+- Hook into the single `save()` function; keep the dictionary and sorting on the phone.
+- Needs: sign-in (SMS/WhatsApp code or email link), a permanent ID per item, offline-first sync
+  (keep saving on the phone, sync when there is signal), row-level security, and a one-time upload
+  of each shopper's existing phone data on first sign-in.
+
+## Shared family lists
+A family shares one list; anyone can add or check off items and everyone sees it live (Supabase realtime).
+- Invite family members to a list; each person still has their own private lists.
+
+## The same list on every device
+Sign in on any phone or computer and see the same trip, saved lists, stores and section choices.
+The data survives getting a new phone.
+
+## Instant push when someone adds to a shared list
+Example: he is at the store; she remembers milk and adds it to the family list at home.
+His phone gets a push right away ("Ana added milk to Family list"), even if the app is closed.
+- Sent by the server when an item is added to a shared list (not to the person who added it).
+- Group several quick adds into one push so it doesn't buzz five times.
+- Let each person turn these off, or only get them while "at the store" (pairs with Detect my store).

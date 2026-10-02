@@ -83,6 +83,22 @@
       border-radius:14px; padding:12px 14px; margin:8px 0 4px; text-align:left; font-size:.9rem; line-height:1.4;
     }
     .perm b { display:block; margin-bottom:6px; }
+    .store-row { display:flex; align-items:center; gap:8px; margin:4px 0 10px; }
+    .store-row label { color:var(--muted); font-size:.86rem; font-weight:650; }
+    .store-row select { min-width:0; padding:10px 12px; font-family:inherit; color:var(--ink); }
+    .cat-head { display:flex; justify-content:space-between; align-items:baseline; padding:12px 4px 6px; color:var(--green-dark); font-size:.74rem; font-weight:750; letter-spacing:.08em; text-transform:uppercase; }
+    .cat-head:first-child { padding-top:2px; }
+    .cat-head span:last-child { color:var(--muted); letter-spacing:0; }
+    .help-box .route-list { list-style:none; margin:12px 0 4px; padding:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; counter-reset:aisle; }
+    .help-box .route-list li { margin:0; color:var(--ink); display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--line); counter-increment:aisle; }
+    .route-list li:last-child { border-bottom:0; }
+    .route-list li::before { content:counter(aisle); width:1.4em; color:var(--muted); font-weight:700; font-variant-numeric:tabular-nums; }
+    .route-list li span { flex:1; font-weight:600; }
+    .route-list button { border:1px solid var(--line); background:#f7faf7; border-radius:8px; width:34px; height:34px; font-size:1rem; cursor:pointer; color:var(--green-dark); }
+    .route-list button:disabled { opacity:.35; cursor:default; }
+    .route-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px; }
+    .route-actions .btn.danger { margin-left:auto; }
+    #routeName { width:100%; }
   </style>
 </head>
 <body>
@@ -111,6 +127,11 @@
         <input id="typed" type="text" autocomplete="off">
         <button class="btn primary" type="submit" id="addBtn">Add</button>
       </form>
+      <div class="store-row">
+        <label for="storeSelect" id="storeLabel">Store</label>
+        <select id="storeSelect" class="field"></select>
+        <button class="chip" id="editRouteBtn" type="button">Edit route</button>
+      </div>
       <div class="meta">
         <span id="count"></span>
         <span>
@@ -168,6 +189,19 @@
       </div>
     </div>
   </div>
+  <div class="overlay hidden" id="routeOverlay">
+    <form class="help-box" id="routeForm">
+      <h2 id="routeTitle">Store route</h2>
+      <p class="muted" id="routeHint"></p>
+      <input id="routeName" class="field" maxlength="40" autocomplete="off">
+      <ol class="route-list" id="routeList"></ol>
+      <div class="route-actions">
+        <button type="submit" class="btn primary" id="routeSave">Save</button>
+        <button type="button" class="btn ghost" id="routeCancel">Cancel</button>
+        <button type="button" class="btn danger" id="routeDelete">Delete store</button>
+      </div>
+    </form>
+  </div>
   <div class="overlay hidden" id="langOverlay">
     <div class="chooser">
       <h2 id="chooseTitle">Choose language</h2>
@@ -210,7 +244,13 @@
         notAllowedTitle:"Microphone is blocked",
         notAllowed:"A site cannot turn it back on. Do this, then tap the mic again:",
         notAllowedAnd:"Android / Chrome: lock icon by the web address → Permissions → Microphone → Allow.",
-        notAllowedIos:"iPhone / Safari: aA in the address bar → Website Settings → Microphone → Allow."
+        notAllowedIos:"iPhone / Safari: aA in the address bar → Website Settings → Microphone → Allow.",
+        cats:{ produce:"Produce", bakery:"Bakery", meat:"Meat & seafood", dairy:"Dairy & eggs", pantry:"Pantry", frozen:"Frozen", uncategorized:"Other" },
+        store:"Store", standardStore:"Standard", addStore:"+ Add a store…", editRoute:"Edit route",
+        routeTitle:"Store route", routeHint:"Put the sections in the order you walk them. Anything else shows up last.",
+        storeName:"Store name, like Trader Joe’s", needName:"Give the store a name first.",
+        saveRoute:"Save", cancel:"Cancel", delStore:"Delete store", confirmDelStore:"Delete this store route?",
+        moveUp:"Move up", moveDown:"Move down"
       },
       es: {
         title:"Lista del súper", subtitle:"Habla para agregar. Desliza el artículo cuando ya lo tengas.",
@@ -242,20 +282,97 @@
         notAllowedTitle:"El micrófono está bloqueado",
         notAllowed:"La página no puede activarlo. Haz esto y vuelve a tocar el micrófono:",
         notAllowedAnd:"Android / Chrome: candado junto a la dirección → Permisos → Micrófono → Permitir.",
-        notAllowedIos:"iPhone / Safari: aA en la barra → Ajustes del sitio → Micrófono → Permitir."
+        notAllowedIos:"iPhone / Safari: aA en la barra → Ajustes del sitio → Micrófono → Permitir.",
+        cats:{ produce:"Frutas y verduras", bakery:"Panadería", meat:"Carnes y mariscos", dairy:"Lácteos y huevos", pantry:"Despensa", frozen:"Congelados", uncategorized:"Otros" },
+        store:"Tienda", standardStore:"Estándar", addStore:"+ Agregar tienda…", editRoute:"Editar ruta",
+        routeTitle:"Ruta de la tienda", routeHint:"Pon las secciones en el orden en que las recorres. Lo demás aparece al final.",
+        storeName:"Nombre de la tienda, como Trader Joe’s", needName:"Primero ponle nombre a la tienda.",
+        saveRoute:"Guardar", cancel:"Cancelar", delStore:"Borrar tienda", confirmDelStore:"¿Borrar la ruta de esta tienda?",
+        moveUp:"Subir", moveDown:"Bajar"
       }
     };
+    // ---- Categories: keyword dictionary (English + Spanish, accents ignored) ----
+    const CATEGORIES = ["produce","bakery","meat","dairy","pantry","frozen"]; // standard walking order
+    const UNCAT = "uncategorized";
+    const CATEGORY_DICT = {
+      produce:["apple","banana","orange","lemon","lime","grape","strawberry","strawberries","blueberries","raspberries","berries","cherry","cherries","peach","pear","plum","mango","pineapple","watermelon","melon","cantaloupe","kiwi","avocado","tomato","potato","sweet potato","onion","green onion","scallion","garlic","ginger","carrot","celery","broccoli","cauliflower","spinach","kale","lettuce","cabbage","cucumber","zucchini","squash","pepper","bell pepper","jalapeno","mushroom","corn","green beans","asparagus","cilantro","parsley","basil","herbs","salad","fruit","vegetable","veggies",
+        "manzana","platano","banano","naranja","limon","uva","fresa","pina","sandia","aguacate","tomate","jitomate","tomatillo","papa","cebolla","cebollin","ajo","zanahoria","apio","brocoli","espinaca","lechuga","repollo","col","pepino","calabaza","calabacita","chile","pimiento","champinon","hongo","elote","perejil","nopal","fruta","verdura"],
+      bakery:["bread","bagel","bun","hot dog buns","hamburger buns","dinner rolls","croissant","muffin","english muffin","tortilla","pita","baguette","sourdough","brioche","garlic bread","cake","cupcake","donut","doughnut","pie",
+        "pan","bolillo","concha","pastel","pan dulce"],
+      meat:["chicken","beef","ground beef","steak","pork","pork chops","bacon","ham","sausage","turkey","lamb","ribs","brisket","hot dog","salami","pepperoni","deli meat","meatballs","chorizo","salmon","shrimp","fish","tilapia","cod",
+        "pollo","carne","carne molida","res","cerdo","puerco","tocino","jamon","salchicha","pavo","pescado","camaron","chuleta","bistec","costilla"],
+      dairy:["milk","cheese","butter","yogurt","cream","sour cream","cream cheese","whipped cream","half and half","egg","cottage cheese","mozzarella","cheddar","parmesan","oat milk","almond milk","kefir","margarine",
+        "leche","queso","queso fresco","mantequilla","yogur","crema","huevo","requeson"],
+      pantry:["rice","beans","pasta","spaghetti","noodles","flour","sugar","salt","black pepper","oil","olive oil","vinegar","cereal","oats","oatmeal","peanut butter","jelly","jam","honey","coffee","tea","soup","broth","chicken broth","tomato sauce","tomato paste","salsa","ketchup","mustard","mayo","mayonnaise","soy sauce","spices","chips","crackers","cookies","snacks","nuts","almonds","popcorn","granola","juice","apple juice","orange juice","soda","water","sparkling water","tuna","baking soda","baking powder","vanilla","syrup","maple syrup",
+        "arroz","frijol","fideo","harina","azucar","sal","aceite","vinagre","avena","cafe","te","sopa","caldo","catsup","mostaza","mayonesa","miel","galleta","jugo","refresco","agua","atun","consome"],
+      frozen:["ice cream","ice","popsicle","pizza","frozen pizza","waffles","fries","french fries","tater tots","ice pops",
+        "helado","paleta","hielo"]
+    };
+    const normalize = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim();
+    const wordRe = w => new RegExp(`(^|[^a-z])${w}(e?s)?(?![a-z])`);
+    // Longest keyword wins, so "peanut butter" beats "butter" and "ice cream" beats "cream".
+    const CAT_MATCHERS = Object.entries(CATEGORY_DICT)
+      .flatMap(([cat, words]) => words.map(w => ({ w: normalize(w), cat })))
+      .sort((a, b) => b.w.length - a.w.length)
+      .map(({ w, cat }) => ({ cat, re: wordRe(w) }));
+    // Words that decide the aisle no matter what follows: "frozen peas", "canned corn".
+    const CAT_OVERRIDES = [
+      { cat:"frozen", re:/(^|[^a-z])(frozen|congelad[oa]s?)(?![a-z])/ },
+      { cat:"pantry", re:/(^|[^a-z])(canned|enlatad[oa]s?|de lata)(?![a-z])/ }
+    ];
+    const catCache = new Map();
+    function categorize(text){
+      const key = normalize(text);
+      if (catCache.has(key)) return catCache.get(key);
+      const hit = CAT_OVERRIDES.find(m => m.re.test(key)) || CAT_MATCHERS.find(m => m.re.test(key));
+      const cat = hit ? hit.cat : UNCAT;
+      catCache.set(key, cat);
+      return cat;
+    }
+
+    // ---- Store routes: localStorage "grocery-routes" = { active, stores: { name: [category, ...] } } ----
+    const ROUTES_KEY = "grocery-routes", STANDARD = "standard";
+    function loadRoutes(){
+      let r = null;
+      try { r = JSON.parse(localStorage.getItem(ROUTES_KEY)); } catch {}
+      if (!r || typeof r.stores !== "object" || !r.stores) {
+        r = { active: STANDARD, stores: { "Trader Joe's": ["produce","bakery","dairy","pantry"] } };
+      }
+      if (!Array.isArray(r.stores[STANDARD])) r.stores[STANDARD] = CATEGORIES.slice();
+      if (!r.stores[r.active]) r.active = STANDARD;
+      return r;
+    }
+    // Full aisle order for a store: its custom order, then any categories it left out, then "Other".
+    function routeSequence(storeKey){
+      const seen = new Set(), seq = [];
+      [...(storeRoutes.stores[storeKey] || []), ...CATEGORIES].forEach(c => {
+        if (CATEGORIES.includes(c) && !seen.has(c)) { seen.add(c); seq.push(c); }
+      });
+      seq.push(UNCAT);
+      return seq;
+    }
+    // Group items by category in route order. Keeps original indexes; checked items sink within their group.
+    function sortByRoute(items, seq){
+      const groups = new Map(seq.map(c => [c, []]));
+      items.forEach((item, i) => groups.get(categorize(item.text)).push({ item, i }));
+      return seq
+        .map(cat => ({ cat, entries: groups.get(cat).sort((a, b) => a.item.checked - b.item.checked) }))
+        .filter(g => g.entries.length);
+    }
+
     const $ = id => document.getElementById(id);
     const migrateItems = arr => arr.map(x => typeof x === "string" ? { text: x, checked: false } : x);
     let lang = localStorage.getItem("grocery-lang") || "";
     let trip = migrateItems(JSON.parse(localStorage.getItem("grocery-trip") || localStorage.getItem("grocery") || "[]"));
     let lists = JSON.parse(localStorage.getItem("grocery-lists") || "[]").map(l => ({ ...l, items: migrateItems(l.items) }));
+    let storeRoutes = loadRoutes();
     let view = "shop", editingId = null, recTrip = null, recEdit = null;
-    let lastRemoved = null, undoTimer = null;
+    let lastRemoved = null, undoTimer = null, routeDraft = null;
     const save = () => {
       if (lang) localStorage.setItem("grocery-lang", lang);
       localStorage.setItem("grocery-trip", JSON.stringify(trip));
       localStorage.setItem("grocery-lists", JSON.stringify(lists));
+      localStorage.setItem(ROUTES_KEY, JSON.stringify(storeRoutes));
     };
     const splitUtterance = text => text.split(/\s+(?:and|y|e|plus|más)\s+|,\s*/i).map(s=>s.replace(/^[\s.]+|[\s.]+$/g,"")).filter(Boolean);
     const mergeItems = (base, extraTexts) => {
@@ -290,6 +407,10 @@
       $("helpMoreTitle").textContent=c.helpMoreTitle;
       $("helpHomeTitle").textContent=c.helpHomeTitle;
       $("helpClose").textContent=c.helpClose;
+      $("storeLabel").textContent=c.store; $("editRouteBtn").textContent=c.editRoute;
+      $("routeTitle").textContent=c.routeTitle; $("routeName").placeholder=c.storeName;
+      $("routeSave").textContent=c.saveRoute; $("routeCancel").textContent=c.cancel; $("routeDelete").textContent=c.delStore;
+      renderStoreSelect();
       const fillOl = (id, items) => { const ol=$(id); ol.innerHTML=""; items.forEach(s=>{ const li=document.createElement("li"); li.textContent=s; ol.appendChild(li); }); };
       fillOl("helpAnd", c.helpAnd); fillOl("helpIos", c.helpIos); fillOl("helpMore", c.helpMore); fillOl("helpHome", c.helpHome);
     }
@@ -310,16 +431,55 @@
     function renderItems(target, items, onSwipe, onEdit, onRemove){
       target.innerHTML=""; const c=t[lang]||t.en;
       if(!items.length){ const li=document.createElement("li"); li.className="row empty"; li.textContent=c.empty; target.appendChild(li); return; }
-      const ordered = items.map((item,i)=>({item,i})).sort((a,b)=>(a.item.checked===b.item.checked)?0:(a.item.checked?1:-1));
-      ordered.forEach(({item,i})=>{
-        const li=document.createElement("li"); li.className="row"+(item.checked?" done":"");
-        li.innerHTML=`<div class="row-inner"><button class="item-text" type="button"></button><button class="x" type="button">✕</button></div>`;
-        const label=li.querySelector(".item-text");
-        label.textContent=item.text;
-        label.onclick=()=>onEdit(i, item);
-        li.querySelector(".x").onclick=()=>onRemove(i);
-        bindSwipe(li, ()=>onSwipe(i));
-        target.appendChild(li);
+      sortByRoute(items, routeSequence(storeRoutes.active)).forEach(({cat, entries})=>{
+        const head=document.createElement("li"); head.className="cat-head";
+        const name=document.createElement("span"); name.textContent=c.cats[cat];
+        const left=document.createElement("span"); left.textContent=entries.filter(e=>!e.item.checked).length||"✓";
+        head.append(name, left); target.appendChild(head);
+        entries.forEach(({item,i})=>{
+          const li=document.createElement("li"); li.className="row"+(item.checked?" done":"");
+          li.innerHTML=`<div class="row-inner"><button class="item-text" type="button"></button><button class="x" type="button">✕</button></div>`;
+          const label=li.querySelector(".item-text");
+          label.textContent=item.text;
+          label.onclick=()=>onEdit(i, item);
+          li.querySelector(".x").onclick=()=>onRemove(i);
+          bindSwipe(li, ()=>onSwipe(i));
+          target.appendChild(li);
+        });
+      });
+    }
+    function renderStoreSelect(){
+      const c=t[lang]||t.en, sel=$("storeSelect");
+      const names=Object.keys(storeRoutes.stores).filter(k=>k!==STANDARD).sort((a,b)=>a.localeCompare(b));
+      sel.innerHTML="";
+      const opt=(value,label)=>{ const o=document.createElement("option"); o.value=value; o.textContent=label; sel.appendChild(o); };
+      opt(STANDARD, c.standardStore); names.forEach(n=>opt(n,n)); opt("__new", c.addStore);
+      sel.value=storeRoutes.active;
+    }
+    function openRouteEditor(key){
+      const c=t[lang];
+      routeDraft={ key, order: routeSequence(key||STANDARD).filter(x=>x!==UNCAT) };
+      $("routeName").value = key===STANDARD ? c.standardStore : (key||"");
+      $("routeName").disabled = key===STANDARD;
+      $("routeHint").textContent=c.routeHint;
+      $("routeDelete").classList.toggle("hidden", !key || key===STANDARD);
+      renderRouteList();
+      $("routeOverlay").classList.remove("hidden");
+      if(!key) $("routeName").focus();
+    }
+    function closeRouteEditor(){ routeDraft=null; $("routeOverlay").classList.add("hidden"); renderStoreSelect(); }
+    function renderRouteList(){
+      const c=t[lang], ol=$("routeList"), order=routeDraft.order;
+      ol.innerHTML="";
+      order.forEach((cat,k)=>{
+        const li=document.createElement("li");
+        const name=document.createElement("span"); name.textContent=c.cats[cat];
+        const btn=(sym,label,to)=>{ const b=document.createElement("button"); b.type="button"; b.textContent=sym; b.setAttribute("aria-label",label+": "+c.cats[cat]);
+          b.disabled = to<0 || to>=order.length;
+          b.onclick=()=>{ [order[k],order[to]]=[order[to],order[k]]; renderRouteList(); ol.children[to].querySelectorAll("button")[to<k?0:1]?.focus(); };
+          return b; };
+        li.append(name, btn("↑",c.moveUp,k-1), btn("↓",c.moveDown,k+1));
+        ol.appendChild(li);
       });
     }
     function renderSaved(){
@@ -455,7 +615,10 @@
     }
     $("copyBtn").onclick=async ()=>{
       if(!trip.length){ $("status").textContent=t[lang].needItems; return; }
-      const text=trip.map((item,i)=>`${i+1}. ${item.checked?"[x] ":""}${item.text}`).join("\n");
+      const c=t[lang];
+      const text=sortByRoute(trip, routeSequence(storeRoutes.active))
+        .map(g=>c.cats[g.cat]+"\n"+g.entries.map(({item})=>`${item.checked?"[x]":"-"} ${item.text}`).join("\n"))
+        .join("\n\n");
       try {
         await navigator.clipboard.writeText(text);
         $("status").textContent=t[lang].copied;
@@ -466,6 +629,31 @@
     $("saveTripBtn").onclick=saveTripAsList;
     $("saveCurrentBtn").onclick=saveTripAsList;
     $("renameForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); if(!list) return; const name=$("renameInput").value.trim(); if(name){ list.name=name; save(); applyCopy(); } };
+    $("storeSelect").onchange=e=>{
+      if(e.target.value==="__new"){ e.target.value=storeRoutes.active; openRouteEditor(null); return; }
+      storeRoutes.active=e.target.value; save(); render();
+    };
+    $("editRouteBtn").onclick=()=>openRouteEditor(storeRoutes.active);
+    $("routeCancel").onclick=closeRouteEditor;
+    $("routeOverlay").addEventListener("click", e=>{ if(e.target.id==="routeOverlay") closeRouteEditor(); });
+    $("routeForm").onsubmit=e=>{
+      e.preventDefault();
+      const { key, order } = routeDraft;
+      let name = STANDARD;
+      if(key!==STANDARD){
+        name=$("routeName").value.trim();
+        if(!name || name==="__new"){ $("routeHint").textContent=t[lang].needName; $("routeName").focus(); return; }
+        if(key && key!==name) delete storeRoutes.stores[key];
+      }
+      storeRoutes.stores[name]=order.slice(); storeRoutes.active=name;
+      save(); closeRouteEditor(); render();
+    };
+    $("routeDelete").onclick=()=>{
+      const { key } = routeDraft;
+      if(!key || key===STANDARD || !confirm(t[lang].confirmDelStore)) return;
+      delete storeRoutes.stores[key]; storeRoutes.active=STANDARD;
+      save(); closeRouteEditor(); render();
+    };
     $("mic").onclick=()=>startRec(recTrip,$("mic"),$("status"));
     $("micEdit").onclick=()=>startRec(recEdit,$("micEdit"),$("statusEdit"));
     if (lang) setLang(lang); else $("langOverlay").classList.remove("hidden");

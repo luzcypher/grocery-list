@@ -132,6 +132,21 @@ Look up the product name from the barcode (an open product database or the shopp
 ## Voice assistant shortcuts
 "Hey Google, add milk to Lista Mandado" / Siri Shortcuts. Needs the store apps (Android App Actions, iOS Shortcuts).
 
+## Move everything to a new phone (copy code for everyone)
+The "Copy my list" code already exists for iPhone users moving from Safari into the installed app.
+Offer the same button to everyone, in Saved lists, on Android too.
+- Moves the whole setup to a new phone: trip, saved lists, At home, store routes and locations,
+  section choices, habits and spending.
+- Also lets a shopper send just their store routes to a friend ("here's my Soriana order").
+- Pasting adds and never erases, so it is safe to paste twice.
+- Becomes less needed once Supabase sign-in exists ("The same list on every device").
+
+## Send the move code by WhatsApp
+Next to "Copy my list", a WhatsApp button sends the code to yourself (or to a new phone's number).
+- Handy when copying between Safari and the app, or between two phones, is awkward.
+- Opening the message and copying the code, then pasting it in the add box, moves the list.
+- Pairs with the copy-code idea above; can be built any time without a server.
+
 ## Built from the suggestions list (for reference)
 WhatsApp sharing, quantities and notes (also by voice: "dos kilos de tortillas"), spending tracker
 (price per checked item, trip and quincena totals, last price remembered), deal-day reminders per store,

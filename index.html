@@ -108,6 +108,11 @@
     .hidden { display:none !important; }
     .hint { text-align:center; color:var(--muted); font-size:.8rem; margin-top:16px; }
     .edit-bar { display:flex; gap:8px; margin-bottom:10px; }
+    .move-box { margin:12px 0 4px; padding:12px 14px; border:1px solid var(--line); border-radius:14px; background:var(--soft); display:flex; flex-direction:column; gap:8px; }
+    .move-box h3 { margin:0 !important; }
+    .move-msg { color:var(--done); font-weight:700; font-size:.9rem; }
+    .move-msg:empty { display:none; }
+    #moveCode { width:100%; font-size:.75rem; font-family:monospace; }
     .back-top { display:inline-flex; align-items:center; gap:4px; margin:0 0 8px; font-size:1rem; }
     .back-top::before { content:"←"; font-weight:900; }
     .edit-bar input { flex:1; }
@@ -326,6 +331,13 @@
       <ol id="helpAnd"></ol>
       <h3 id="helpIosTitle">iPhone</h3>
       <ol id="helpIos"></ol>
+      <div class="move-box hidden" id="moveBox">
+        <h3 id="moveTitle">Move my list to the app</h3>
+        <p id="moveText"></p>
+        <button type="button" class="btn primary" id="moveBtn">Copy my list</button>
+        <p class="move-msg" id="moveMsg" aria-live="polite"></p>
+        <textarea id="moveCode" class="field hidden" readonly rows="3" aria-label="List code"></textarea>
+      </div>
       <h3 id="helpHomeTitle">Add to Home Screen</h3>
       <ol id="helpHome"></ol>
       <h3 id="helpMoreTitle">If the mic says “not allowed”</h3>
@@ -419,7 +431,7 @@
         helpAndTitle:"Android",
         helpAnd:["Open this page in Chrome.","Tap the mic and tap Allow.","If it says not allowed: tap the lock next to the web address → Permissions → Microphone → Allow.","Or: Settings → Apps → Chrome → Permissions → Microphone → Allow."],
         helpIosTitle:"iPhone",
-        helpIos:["Open this page in Safari.","Tap the mic and tap Allow.","If it says not allowed: tap aA (or the dots) in the address bar → Website Settings → Microphone → Allow.","Or: Settings → Safari → Microphone, and allow this site."],
+        helpIos:["Open this page in Safari.","Tap the mic and tap Allow.","If it says not allowed: tap aA (or the dots) in the address bar → Website Settings → Microphone → Allow.","Or: Settings → Safari → Microphone, and allow this site.","Install it first (Share → Add to Home Screen), then always open it from the home-screen icon. The installed app keeps its own list, separate from Safari, and iPhone won't erase it.","If the app's mic doesn't respond, tap the add box and use the mic on your keyboard. Say several items at once: “milk, eggs and bread”."],
         helpMoreTitle:"If voice still fails",
         helpMore:["Type the item instead. That still works.","Close the browser and open this same link again. The list stays on this phone."],
         helpHomeTitle:"Add to Home Screen",
@@ -467,6 +479,10 @@
         pantryPh:"Add something you have at home", pantryEmpty:"Nothing here yet.", toList:"+ List",
         atHome:"at home", alreadyHome:names=>`Already at home: ${names}`,
         bigOff:"🔠 Large text: off", bigOn:"🔠 Large text: on",
+        moveTitle:"Move my list to the app", moveText:"Started a list here in Safari? Copy it, open Lista Mandado from your home screen, and paste it into the add box.",
+        moveBtn:"Copy my list", moveCopied:"Copied. Now open Lista Mandado from your home screen and paste into the add box.",
+        moveSelect:"Copy the code below, then open Lista Mandado from your home screen and paste it into the add box.",
+        imported:(n,l)=>`Moved in ${n} trip ${n===1?"item":"items"}${l?` and ${l} saved ${l===1?"list":"lists"}`:""}.`, importBad:"That code didn't work. Copy it again from Safari.",
         trOn:"🔁 Translate list items: on", trOff:"🔁 Translate list items: off", say:"Say it", displayTitle:"Display",
         low:names=>`Running low on ${names}?`, lowAdd:"Add", lowLater:"Not now",
         habitsTitle:"Your buying habits", habitsNote:"Private: stays on this phone and is only used for “Running low?” suggestions.",
@@ -498,7 +514,7 @@
         helpAndTitle:"Android",
         helpAnd:["Abre esta página en Chrome.","Toca el micrófono y toca Permitir.","Si dice not allowed: toca el candado junto a la dirección → Permisos → Micrófono → Permitir.","O: Ajustes → Aplicaciones → Chrome → Permisos → Micrófono → Permitir."],
         helpIosTitle:"iPhone",
-        helpIos:["Abre esta página en Safari.","Toca el micrófono y toca Permitir.","Si dice not allowed: toca aA (o los puntos) en la barra → Ajustes del sitio → Micrófono → Permitir.","O: Ajustes → Safari → Micrófono, y permite este sitio."],
+        helpIos:["Abre esta página en Safari.","Toca el micrófono y toca Permitir.","Si dice not allowed: toca aA (o los puntos) en la barra → Ajustes del sitio → Micrófono → Permitir.","O: Ajustes → Safari → Micrófono, y permite este sitio.","Instálala primero (Compartir → Agregar a inicio) y ábrela siempre desde el ícono de la pantalla de inicio. La app instalada guarda su propia lista, aparte de Safari, y el iPhone no la borra.","Si el micrófono de la app no responde, toca la caja para agregar y usa el micrófono del teclado. Di varios artículos a la vez: “leche, huevos y pan”."],
         helpMoreTitle:"Si la voz sigue fallando",
         helpMore:["Escribe el artículo. Eso también funciona.","Cierra el navegador y abre el mismo enlace. La lista se queda en este teléfono."],
         helpHomeTitle:"Agregar a inicio",
@@ -546,6 +562,10 @@
         pantryPh:"Agrega algo que tienes en casa", pantryEmpty:"Aún no hay nada.", toList:"+ Lista",
         atHome:"en casa", alreadyHome:names=>`Ya tienes en casa: ${names}`,
         bigOff:"🔠 Letra grande: no", bigOn:"🔠 Letra grande: sí",
+        moveTitle:"Pasar mi lista a la app", moveText:"¿Empezaste una lista aquí en Safari? Cópiala, abre Lista Mandado desde tu pantalla de inicio y pégala en la caja para agregar.",
+        moveBtn:"Copiar mi lista", moveCopied:"Copiada. Ahora abre Lista Mandado desde tu pantalla de inicio y pégala en la caja para agregar.",
+        moveSelect:"Copia el código de abajo, abre Lista Mandado desde tu pantalla de inicio y pégalo en la caja para agregar.",
+        imported:(n,l)=>`Se pasaron ${n} ${n===1?"artículo":"artículos"} del viaje${l?` y ${l} ${l===1?"lista guardada":"listas guardadas"}`:""}.`, importBad:"Ese código no funcionó. Cópialo otra vez desde Safari.",
         trOn:"🔁 Traducir artículos: sí", trOff:"🔁 Traducir artículos: no", say:"Decirlo", displayTitle:"Pantalla",
         low:names=>`¿Te falta ${names}?`, lowAdd:"Agregar", lowLater:"Ahora no",
         habitsTitle:"Tus hábitos de compra", habitsNote:"Privado: se queda en este teléfono y solo se usa para las sugerencias “¿Te falta…?”.",
@@ -844,6 +864,8 @@
       $("helpMoreTitle").textContent=c.helpMoreTitle;
       $("helpHomeTitle").textContent=c.helpHomeTitle;
       $("helpClose").textContent=c.helpClose;
+      $("moveTitle").textContent=c.moveTitle; $("moveText").textContent=c.moveText; $("moveBtn").textContent=c.moveBtn;
+      $("moveBox").classList.toggle("hidden", !(isIOS && !isInstalled));
       $("storeLabel").textContent=c.store; $("editRouteBtn").textContent=c.editRoute;
       $("routeTitle").textContent=c.routeTitle; $("routeName").placeholder=c.storeName;
       $("routeSave").textContent=c.saveRoute; $("routeCancel").textContent=c.cancel; $("routeDelete").textContent=c.delStore;
@@ -1595,6 +1617,42 @@ cleaning|limpieza
       b.onclick=()=>{ try { speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(word); u.lang=lang==="es"?"es-MX":"en-US"; u.rate=.9; speechSynthesis.speak(u); } catch {} };
       return b;
     }
+    // ---- Move a list from Safari into the installed iPhone app (they don't share storage on iPhone) ----
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+    const isInstalled = navigator.standalone===true || matchMedia("(display-mode: standalone)").matches;
+    const MOVE_PREFIX = "LISTA-MANDADO:";
+    function exportCode(){
+      const data={ v:1, trip, lists, pantry, routes:storeRoutes, itemCats, history, spend, prices };
+      const bytes=new TextEncoder().encode(JSON.stringify(data)); let bin=""; bytes.forEach(b=>{ bin+=String.fromCharCode(b); });
+      return MOVE_PREFIX+btoa(bin);
+    }
+    // Adds what the code carries without removing anything already in this app. Returns null if the code is bad.
+    function importCode(code){
+      let d; try { const bin=atob(code.slice(MOVE_PREFIX.length).replace(/\s+/g,"")); d=JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, ch=>ch.charCodeAt(0)))); } catch { return null; }
+      if(!d || d.v!==1) return null;
+      const before=trip.length;
+      trip=mergeItems(trip, (d.trip||[]).map(({text,qty,note})=>({text,qty,note})));
+      let newLists=0;
+      (d.lists||[]).forEach(l=>{ if(l && l.name && !lists.some(x=>x.name===l.name)){ lists.push({ ...l, id:String(Date.now())+"-"+(newLists++) }); } });
+      (d.pantry||[]).forEach(x=>{ if(x && x.text) addToPantry(x, !!x.auto); });
+      const r=d.routes||{};
+      Object.entries(r.stores||{}).forEach(([n,order])=>{ if(!storeRoutes.stores[n]) storeRoutes.stores[n]=order; });
+      ["places","deals"].forEach(k=>Object.entries(r[k]||{}).forEach(([n,v])=>{ if(!storeRoutes[k][n]) storeRoutes[k][n]=v; }));
+      Object.entries(d.itemCats||{}).forEach(([k,v])=>{ if(!(k in itemCats)) itemCats[k]=v; });
+      Object.entries(d.history||{}).forEach(([k,v])=>{ if(!history[k]) history[k]=v; });
+      Object.entries(d.prices||{}).forEach(([k,v])=>{ if(!prices[k]) prices[k]=v; });
+      const seen=new Set(spend.log.map(e=>e.t)); ((d.spend||{}).log||[]).forEach(e=>{ if(!seen.has(e.t)) spend.log.push(e); });
+      spend.log.sort((a,b)=>a.t-b.t);
+      save(); render();
+      return { items:trip.length-before, lists:newLists };
+    }
+    function tryImport(value){
+      if(!value.startsWith(MOVE_PREFIX)) return false;
+      const res=importCode(value);
+      $("status").textContent = res ? t[lang].imported(res.items, res.lists) : t[lang].importBad;
+      $("typed").value="";
+      return true;
+    }
     // ---- Meal ideas: find a meal that is exactly one ingredient away from the unchecked items ----
     // Ingredient: [English name, Spanish name, keywords that mean it on a list]
     const INGREDIENTS = {
@@ -2033,7 +2091,13 @@ cleaning|limpieza
     $("backFromPantry").onclick=()=>showView("shop");
     $("backShop").onclick=()=>showView("shop");
     $("backFromLists").onclick=()=>showView("shop");
-    $("addForm").onsubmit=e=>{ e.preventDefault(); const v=$("typed").value.trim(); if(!v) return; addTo(trip,v); $("typed").value=""; };
+    $("addForm").onsubmit=e=>{ e.preventDefault(); const v=$("typed").value.trim(); if(!v || tryImport(v)) return; addTo(trip,v); $("typed").value=""; };
+    $("typed").addEventListener("input", ()=>{ const v=$("typed").value.trim(); if(v.startsWith(MOVE_PREFIX) && v.length>MOVE_PREFIX.length+8) tryImport(v); });
+    $("moveBtn").onclick=async ()=>{
+      const c=t[lang], code=exportCode();
+      try { await navigator.clipboard.writeText(code); $("moveMsg").textContent=c.moveCopied; $("moveCode").classList.add("hidden"); }
+      catch { $("moveCode").value=code; $("moveCode").classList.remove("hidden"); $("moveCode").focus(); $("moveCode").select(); $("moveMsg").textContent=c.moveSelect; }
+    };
     $("editAddForm").onsubmit=e=>{ e.preventDefault(); const list=editingList(); const v=$("editTyped").value.trim(); if(!list||!v) return; addTo(list.items,v); $("editTyped").value=""; };
     $("clear").onclick=()=>{ if(!trip.length) return; if(confirm(t[lang].confirmClear)){ logSpending(trip); trip=[]; save(); render(); } };
     $("clearChecked").onclick=()=>{ if(!trip.some(x=>x.checked)) return; logSpending(trip); trip=trip.filter(x=>!x.checked); save(); render(); };

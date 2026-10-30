@@ -82,3 +82,31 @@ Type or say what you need and Lista Mandado sorts it the way your store is laid 
 Open it from the link in my bio and add it to your home screen.
 
 #GroceryList #MealPlanning #GroceryShopping #OrganizedLife #FreeApp
+
+---
+
+## Giveaway: Lista Mandado free for a follow + DM (Español) — `giveaway/lista-mandado-giveaway-es.png`
+
+¿Haces el súper y das vueltas por toda la tienda? 🛒
+
+Hice Lista Mandado: escribes o dices lo que necesitas y tu lista se acomoda sola en el orden de los pasillos de tu tienda (Soriana, Walmart, Chedraui, Costco y más).
+
+🎁 Es gratis.
+👉 Sígueme y mándame DM con la palabra LISTA y te mando la app.
+
+Se instala en tu teléfono en un minuto, sin cuenta y sin anuncios.
+
+#ListaDelSuper #Mandado #Ahorro #Organizacion #HechoEnMexico #PlayaDelCarmen
+
+## Giveaway: Lista Mandado free for a follow + DM (English) — `giveaway/lista-mandado-giveaway-en.png`
+
+Zigzagging across the store because your list is out of order? 🛒
+
+I built Lista Mandado: type or say what you need and your list sorts itself in the order of your store's aisles.
+
+🎁 It's free.
+👉 Follow me and DM me the word LIST and I'll send you the app.
+
+Installs on your phone in a minute. No sign-up, no ads.
+
+#GroceryList #GroceryShopping #MealPlanning #OrganizedLife #FreeApp

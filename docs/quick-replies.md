@@ -43,3 +43,15 @@ App ideas page: https://luzcypher.github.io/grocery-list/apps/
 
 **English**
 > Hi! Just checking whether you had a chance to look at your app plan. Happy to answer any questions. 🙂
+
+## /lista — someone DMs LISTA or LIST for the free grocery app
+
+**Español**
+> ¡Gracias por seguirme! 🛒 Aquí está tu app: https://luzcypher.github.io/grocery-list/
+> Para instalarla: en Android abre el link en Chrome → menú ⋮ → Instalar app. En iPhone ábrelo en Safari → Compartir → Agregar a inicio.
+> Elige tu tienda y tu lista se acomoda por pasillo. ¿Tienes un negocio? Cuéntame, también hago apps para negocios. 😉
+
+**English**
+> Thanks for the follow! 🛒 Here's your app: https://luzcypher.github.io/grocery-list/
+> To install: on Android open the link in Chrome → menu ⋮ → Install app. On iPhone open it in Safari → Share → Add to Home Screen.
+> Pick your store and your list sorts itself by aisle. Have a business? Tell me about it, I build apps for businesses too. 😉

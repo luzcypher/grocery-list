@@ -1,0 +1,4 @@
+node_modules/
+out/
+# Licensed music: keep it off the public repo. Put your copy at public/shop-along.mp3 to render.
+public/shop-along.mp3

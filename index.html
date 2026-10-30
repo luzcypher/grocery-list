@@ -11,10 +11,11 @@
   <link rel="icon" type="image/png" href="icons/favicon.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <title>Lista Mandado</title>
+  <script>(function(){try{var look=(JSON.parse(localStorage.getItem("grocery-display"))||{}).theme;if(look==="light"||look==="dark")document.documentElement.dataset.theme=look;}catch(e){}})();</script>
   <style>
     @font-face { font-family:"Nunito"; src:url("fonts/nunito.woff2") format("woff2"); font-weight:200 1000; font-display:swap; }
     @font-face { font-family:"Bricolage Grotesque"; src:url("fonts/bricolage-800.woff2") format("woff2"); font-weight:800; font-display:swap; }
-    /* Lista Mandado: mercado palette. Light by default, dark when the phone is in dark mode. */
+    /* Lista Mandado: mercado palette. Follows the phone's light/dark setting unless a look is picked in Help. */
     :root {
       --bg:#F7F6F2; --card:#FFFFFF; --soft:#F2EFE6; --ink:#1D2330; --muted:#5E6470; --line:#E2DFD6;
       --accent:#C4372B; --on-accent:#FFFFFF; --head:#1F4E8C; --done:#3F7A1F; --done-bg:#F1F7EC; --danger:#B42318;
@@ -25,7 +26,7 @@
       color-scheme:light;
     }
     @media (prefers-color-scheme: dark) {
-      :root {
+      :root:not([data-theme="light"]) {
         --bg:#10141C; --card:#1A202B; --soft:#222A36; --ink:#ECEFF4; --muted:#A3ABB8; --line:#2A3240;
         --accent:#E8574A; --on-accent:#10141C; --head:#8DB4F0; --done:#7BC25A; --done-bg:#18241A; --danger:#F07B6E;
         --deal-bg:#3A2E12; --deal-ink:#F7D27A; --warn-bg:#2B2414; --warn-line:#4A3B1A; --warn-ink:#F7D27A;
@@ -34,6 +35,16 @@
         --c-produce:#7BC25A; --c-bakery:#F2B632; --c-meat:#E8574A; --c-dairy:#8DB4F0; --c-pantry:#D9A066; --c-frozen:#7CC4E4; --c-household:#A99BE0; --c-uncategorized:#7D8594;
         color-scheme:dark;
       }
+    }
+    /* Look chosen in Help → Display: Dark wins over a light phone setting. */
+    :root[data-theme="dark"] {
+      --bg:#10141C; --card:#1A202B; --soft:#222A36; --ink:#ECEFF4; --muted:#A3ABB8; --line:#2A3240;
+      --accent:#E8574A; --on-accent:#10141C; --head:#8DB4F0; --done:#7BC25A; --done-bg:#18241A; --danger:#F07B6E;
+      --deal-bg:#3A2E12; --deal-ink:#F7D27A; --warn-bg:#2B2414; --warn-line:#4A3B1A; --warn-ink:#F7D27A;
+      --perm-bg:#3A1A16; --perm-line:#5C2A23; --perm-ink:#F7B4A9; --overlay:rgba(0,0,0,.6);
+      --shadow:0 6px 20px rgba(0,0,0,.35); --dock-shade:rgba(0,0,0,.45);
+      --c-produce:#7BC25A; --c-bakery:#F2B632; --c-meat:#E8574A; --c-dairy:#8DB4F0; --c-pantry:#D9A066; --c-frozen:#7CC4E4; --c-household:#A99BE0; --c-uncategorized:#7D8594;
+      color-scheme:dark;
     }
     * { box-sizing:border-box; margin:0; padding:0; }
     body { font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
@@ -88,6 +99,16 @@
     .speak { flex:none; width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--soft); color:var(--head); display:flex; align-items:center; justify-content:center; cursor:pointer; }
     .speak svg { width:20px; height:20px; }
     #translateToggle { margin-top:6px; }
+    .look-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 8px; }
+    .look-row .toggle { display:inline-flex; }
+    .biz-box { margin:18px 0 4px; padding:14px; border:1px solid var(--line); border-radius:14px; background:var(--soft); display:flex; flex-direction:column; gap:10px; }
+    .biz-box h3 { margin:0 !important; }
+    .biz-box p { color:var(--muted); font-size:.92rem; line-height:1.45; }
+    .biz-btns { display:flex; gap:8px; flex-wrap:wrap; }
+    .biz-btns a { flex:1 1 140px; text-align:center; text-decoration:none; border-radius:12px; padding:11px 12px; font-weight:800; font-size:.92rem; }
+    .biz-btns a.wa { background:#1F8F4E; color:#FFFFFF; }
+    .biz-btns a.wa:focus-visible, .biz-more:focus-visible { outline:3px solid var(--head); outline-offset:2px; }
+    .biz-more { color:var(--head); font-weight:800; font-size:.92rem; text-decoration:none; align-self:flex-start; }
     #translateToggle[aria-pressed="true"] { background:var(--done); border-color:var(--done); color:var(--on-accent); }
     .x { border:0; background:none; color:var(--danger); font-size:1.35rem; cursor:pointer; padding:4px 6px; min-width:36px; min-height:36px; }
     .empty { text-align:center; color:var(--muted); padding:28px 8px; background:transparent; box-shadow:none; }
@@ -343,8 +364,25 @@
       <h3 id="helpMoreTitle">If the mic says “not allowed”</h3>
       <ol id="helpMore"></ol>
       <h3 id="helpDisplayTitle">Display</h3>
+      <div class="look-row">
+        <span class="muted" id="lookLabel">Look</span>
+        <div class="toggle" role="group" aria-labelledby="lookLabel">
+          <button type="button" id="lookAuto" data-look="auto">Auto</button>
+          <button type="button" id="lookLight" data-look="light">Light</button>
+          <button type="button" id="lookDark" data-look="dark">Dark</button>
+        </div>
+      </div>
       <button type="button" class="chip" id="bigTextToggle" aria-pressed="false">🔠 Large text: off</button>
       <button type="button" class="chip" id="translateToggle" aria-pressed="true">🔁 Translate list items: on</button>
+      <div class="biz-box">
+        <h3 id="bizTitle">Want an app like this for your business?</h3>
+        <p id="bizText"></p>
+        <div class="biz-btns">
+          <a class="wa" id="bizMx" target="_blank" rel="noopener">🇲🇽 WhatsApp México</a>
+          <a class="wa" id="bizUs" target="_blank" rel="noopener">🇺🇸 WhatsApp US</a>
+        </div>
+        <a class="biz-more" id="bizMore" href="apps/" target="_blank" rel="noopener">See app ideas →</a>
+      </div>
       <div class="big" style="margin-top:16px">
         <button type="button" class="btn primary" id="helpClose" style="width:100%"></button>
       </div>
@@ -484,6 +522,10 @@
         moveSelect:"Copy the code below, then open Lista Mandado from your home screen and paste it into the add box.",
         imported:(n,l)=>`Moved in ${n} trip ${n===1?"item":"items"}${l?` and ${l} saved ${l===1?"list":"lists"}`:""}.`, importBad:"That code didn't work. Copy it again from Safari.",
         trOn:"🔁 Translate list items: on", trOff:"🔁 Translate list items: off", say:"Say it", displayTitle:"Display",
+        lookLabel:"Look", lookAuto:"Auto", lookLight:"Light", lookDark:"Dark",
+        bizTitle:"Want an app like this for your business?",
+        bizText:"I build simple apps for businesses: orders, appointments, loyalty cards and more. Send me a WhatsApp and tell me what you need.",
+        bizMsg:"Hi! I saw Lista Mandado and I'm interested in an app for my business.", bizMore:"See app ideas →",
         low:names=>`Running low on ${names}?`, lowAdd:"Add", lowLater:"Not now",
         habitsTitle:"Your buying habits", habitsNote:"Private: stays on this phone and is only used for “Running low?” suggestions.",
         habitsNone:"Nothing learned yet. Check items off as you shop and the app learns how often you buy them.",
@@ -567,6 +609,10 @@
         moveSelect:"Copia el código de abajo, abre Lista Mandado desde tu pantalla de inicio y pégalo en la caja para agregar.",
         imported:(n,l)=>`Se pasaron ${n} ${n===1?"artículo":"artículos"} del viaje${l?` y ${l} ${l===1?"lista guardada":"listas guardadas"}`:""}.`, importBad:"Ese código no funcionó. Cópialo otra vez desde Safari.",
         trOn:"🔁 Traducir artículos: sí", trOff:"🔁 Traducir artículos: no", say:"Decirlo", displayTitle:"Pantalla",
+        lookLabel:"Apariencia", lookAuto:"Auto", lookLight:"Claro", lookDark:"Oscuro",
+        bizTitle:"¿Quieres una app así para tu negocio?",
+        bizText:"Hago apps sencillas para negocios: pedidos, citas, tarjetas de lealtad y más. Mándame un WhatsApp y cuéntame qué necesitas.",
+        bizMsg:"Hola, vi Lista Mandado y me interesa una app para mi negocio.", bizMore:"Ver ideas de apps →",
         low:names=>`¿Te falta ${names}?`, lowAdd:"Agregar", lowLater:"Ahora no",
         habitsTitle:"Tus hábitos de compra", habitsNote:"Privado: se queda en este teléfono y solo se usa para las sugerencias “¿Te falta…?”.",
         habitsNone:"Aún no hay datos. Marca artículos al comprar y la app aprende cada cuánto los compras.",
@@ -879,6 +925,10 @@
       $("spendToggle").textContent=spend.on?c.spendOn:c.spendOff; $("spendToggle").setAttribute("aria-pressed", String(spend.on));
       $("pantryHint").textContent=c.pantryHint; $("pantryTyped").placeholder=c.pantryPh; $("pantryAddBtn").textContent=c.add; $("backFromPantry").textContent=c.back;
       $("helpDisplayTitle").textContent=c.displayTitle;
+      $("lookLabel").textContent=c.lookLabel; $("lookAuto").textContent=c.lookAuto; $("lookLight").textContent=c.lookLight; $("lookDark").textContent=c.lookDark;
+      ["lookAuto","lookLight","lookDark"].forEach(id=>{ const on=$(id).dataset.look===(display.theme||"auto"); $(id).classList.toggle("active", on); $(id).setAttribute("aria-pressed", String(on)); });
+      $("bizTitle").textContent=c.bizTitle; $("bizText").textContent=c.bizText; $("bizMore").textContent=c.bizMore;
+      $("bizMx").href=BIZ_WA.mx+"?text="+encodeURIComponent(c.bizMsg); $("bizUs").href=BIZ_WA.us+"?text="+encodeURIComponent(c.bizMsg);
       $("bigTextToggle").textContent=display.big?c.bigOn:c.bigOff; $("bigTextToggle").setAttribute("aria-pressed", String(display.big));
       $("translateToggle").textContent=translating()?c.trOn:c.trOff; $("translateToggle").setAttribute("aria-pressed", String(translating()));
       $("routeDealsTitle").textContent=c.dealsTitle; $("routeDealsText").textContent=c.dealsText; $("dealLabel").placeholder=c.dealPh;
@@ -1065,7 +1115,18 @@
       row.textContent=text; row.classList.toggle("hidden", !text);
     }
     // ---- Large text ----
-    const applyDisplay = () => document.documentElement.classList.toggle("big-text", !!display.big);
+    // WhatsApp numbers for business enquiries (Mexico and US).
+    const BIZ_WA = { mx:"https://wa.me/529841293842", us:"https://wa.me/19139901671" };
+    const THEME_BG = { light:"#F7F6F2", dark:"#10141C" };
+    const applyDisplay = () => {
+      const root=document.documentElement, look=display.theme;
+      root.classList.toggle("big-text", !!display.big);
+      if (look==="light" || look==="dark") root.dataset.theme=look; else delete root.dataset.theme;
+      // Phone status-bar color: the picked look, or the phone's own setting on Auto.
+      document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{
+        const dark=/dark/.test(m.media); m.content = look==="light"||look==="dark" ? THEME_BG[look] : THEME_BG[dark?"dark":"light"];
+      });
+    };
     applyDisplay();
     // ---- Item translation: show list items in the screen's language (offline word list, Mexican Spanish) ----
     const ITEM_PAIRS = `
@@ -2177,6 +2238,7 @@ cleaning|limpieza
     $("spendToggle").onclick=()=>{ spend.on=!spend.on; save(); render(); };
     $("translateToggle").onclick=()=>{ display.translate=!translating(); save(); render(); };
     $("bigTextToggle").onclick=()=>{ display.big=!display.big; save(); applyDisplay(); applyCopy(); };
+    ["lookAuto","lookLight","lookDark"].forEach(id=>{ $(id).onclick=()=>{ display.theme=$(id).dataset.look; save(); applyDisplay(); applyCopy(); }; });
     $("pantryForm").onsubmit=e=>{ e.preventDefault(); const v=$("pantryTyped").value.trim(); if(!v) return;
       splitUtterance(v).map(parseItem).filter(x=>x.text).forEach(x=>addToPantry(x, false)); $("pantryTyped").value=""; save(); renderPantry(); };
     // WhatsApp: what's still left to buy, grouped by section in the store's order.

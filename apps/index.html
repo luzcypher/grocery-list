@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F7F6F2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#10141C" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Apps sencillas para negocios en México: pedidos por WhatsApp, citas, tarjetas de lealtad. Hecho por el creador de Lista Mandado.">
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
+  <link rel="icon" type="image/png" href="../icons/favicon.png">
+  <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+  <title>Apps para tu negocio</title>
+  <style>
+    @font-face { font-family:"Nunito"; src:url("../fonts/nunito.woff2") format("woff2"); font-weight:200 1000; font-display:swap; }
+    @font-face { font-family:"Bricolage Grotesque"; src:url("../fonts/bricolage-800.woff2") format("woff2"); font-weight:800; font-display:swap; }
+    /* Same mercado palette as Lista Mandado; follows the phone's light/dark setting. */
+    :root {
+      --bg:#F7F6F2; --card:#FFFFFF; --soft:#F2EFE6; --ink:#1D2330; --muted:#5E6470; --line:#E2DFD6;
+      --accent:#C4372B; --on-accent:#FFFFFF; --head:#1F4E8C; --green:#3F7A1F; --gold:#B7791F; --wa:#1F8F4E;
+      --phone:#14171D; --shadow:0 18px 40px -22px rgba(29,35,48,.45);
+      color-scheme:light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:#10141C; --card:#1A202B; --soft:#222A36; --ink:#ECEFF4; --muted:#A3ABB8; --line:#2A3240;
+        --accent:#E8574A; --on-accent:#10141C; --head:#8DB4F0; --green:#7BC25A; --gold:#F2B632; --wa:#25A55F;
+        --phone:#05070A; --shadow:0 18px 40px -22px rgba(0,0,0,.8);
+        color-scheme:dark;
+      }
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
+    .wrap { max-width:1040px; margin:0 auto; padding-inline:20px; }
+    h1, h2 { font-family:"Bricolage Grotesque","Nunito",sans-serif; font-weight:800; letter-spacing:-.5px; text-wrap:balance; }
+    a { color:var(--head); }
+    a:focus-visible, button:focus-visible { outline:3px solid var(--head); outline-offset:3px; border-radius:8px; }
+
+    /* papel picado strip */
+    .picado { display:flex; height:10px; }
+    .picado span { flex:1; }
+
+    .top { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-block:16px; }
+    .mark { display:flex; align-items:center; gap:10px; font-weight:900; font-size:1.05rem; color:var(--ink); text-decoration:none; }
+    .mark img { width:32px; height:32px; border-radius:8px; }
+    .lang { display:flex; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:3px; }
+    .lang button { border:0; background:transparent; color:var(--ink); font:inherit; font-weight:800; font-size:.85rem; border-radius:999px; padding:6px 12px; cursor:pointer; }
+    .lang button[aria-pressed="true"] { background:var(--accent); color:var(--on-accent); }
+
+    .hero { display:grid; grid-template-columns:1.15fr .85fr; gap:40px; align-items:center; padding-block:28px 56px; }
+    .eyebrow { text-transform:uppercase; letter-spacing:1.6px; font-size:.78rem; font-weight:900; color:var(--accent); margin-bottom:10px; }
+    .hero h1 { font-size:clamp(2.3rem, 5.4vw, 3.6rem); line-height:1.02; color:var(--head); margin-bottom:16px; }
+    .hero h1 em { font-style:normal; color:var(--accent); }
+    .lede { font-size:1.15rem; color:var(--muted); max-width:34em; margin-bottom:24px; }
+    .cta-row { display:flex; flex-wrap:wrap; gap:10px; }
+    .wa-btn { display:inline-flex; align-items:center; gap:8px; background:var(--wa); color:#FFFFFF; text-decoration:none; font-weight:900; border-radius:14px; padding:13px 18px; }
+    .ghost-btn { display:inline-flex; align-items:center; gap:8px; background:var(--card); color:var(--ink); border:1px solid var(--line); text-decoration:none; font-weight:800; border-radius:14px; padding:12px 16px; }
+    .proof { display:flex; flex-direction:column; align-items:center; gap:12px; }
+    .proof figcaption { font-size:.9rem; color:var(--muted); text-align:center; max-width:22em; }
+    .proof figcaption b { color:var(--ink); }
+
+    /* phone frames */
+    .phone { width:250px; max-width:100%; aspect-ratio:9/19.3; background:var(--phone); border-radius:38px; padding:9px; box-shadow:var(--shadow), 0 0 0 1.5px #3A3F48; position:relative; }
+    .phone::before { content:""; position:absolute; top:16px; left:50%; transform:translateX(-50%); width:70px; height:20px; border-radius:12px; background:#000; z-index:2; }
+    .screen { width:100%; height:100%; border-radius:30px; overflow:hidden; background:#F7F6F2; color:#1D2330; position:relative; }
+    .screen img { width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
+    .proof .phone { width:290px; }
+    .proof .screen { padding-top:30px; }
+    .proof .screen img { height:auto; object-fit:initial; }
+
+    section.ideas { padding-block:20px 56px; }
+    .section-head { margin-bottom:26px; max-width:40em; }
+    .section-head h2 { font-size:clamp(1.7rem, 3.6vw, 2.4rem); color:var(--head); line-height:1.1; margin-bottom:8px; }
+    .section-head p { color:var(--muted); font-size:1.05rem; }
+    .grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:22px; }
+    .idea { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:22px; display:grid; grid-template-columns:auto minmax(0,1fr); gap:22px; align-items:center; }
+    .idea .phone { width:170px; border-radius:28px; padding:7px; }
+    .idea .phone::before { top:12px; width:48px; height:14px; }
+    .idea .screen { border-radius:22px; }
+    .idea h3 { font-size:1.2rem; font-weight:900; margin-bottom:4px; }
+    .idea .who { font-size:.8rem; font-weight:900; text-transform:uppercase; letter-spacing:1.2px; color:var(--gold); margin-bottom:6px; }
+    .idea p { color:var(--muted); font-size:.95rem; margin-bottom:14px; }
+    .idea .wa-btn { padding:10px 14px; font-size:.92rem; border-radius:12px; }
+
+    /* mock app screens (always light, like a real app screenshot) */
+    .m { padding:30px 10px 10px; font-size:9.5px; line-height:1.3; height:100%; display:flex; flex-direction:column; gap:6px; }
+    .m-title { font-weight:900; font-size:12.5px; color:#1F4E8C; }
+    .m-sub { color:#5E6470; font-size:8.5px; margin-top:-4px; }
+    .m-card { background:#FFFFFF; border:1px solid #E7E3D8; border-radius:9px; padding:6px 7px; display:flex; align-items:center; justify-content:space-between; gap:6px; }
+    .m-card b { font-weight:800; }
+    .m-card small { display:block; color:#5E6470; font-size:8px; }
+    .m-plus { width:18px; height:18px; border-radius:6px; background:#C4372B; color:#fff; font-weight:900; display:flex; align-items:center; justify-content:center; font-size:12px; flex:none; }
+    .m-qty { color:#3F7A1F; font-weight:900; }
+    .m-cta { margin-top:auto; background:#1F8F4E; color:#fff; border-radius:9px; padding:8px; text-align:center; font-weight:900; font-size:9.5px; }
+    .m-cta.red { background:#C4372B; }
+    .m-total { display:flex; justify-content:space-between; font-weight:900; padding:0 2px; }
+    .m-chips { display:flex; flex-wrap:wrap; gap:4px; }
+    .m-chip { border:1px solid #E2DFD6; background:#fff; border-radius:999px; padding:3px 7px; font-weight:800; font-size:8.5px; }
+    .m-chip.on { background:#1F4E8C; border-color:#1F4E8C; color:#fff; }
+    .m-chip.off { color:#B5B0A4; text-decoration:line-through; }
+    .m-days { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; text-align:center; }
+    .m-days span { background:#fff; border:1px solid #E7E3D8; border-radius:7px; padding:3px 0; font-weight:800; font-size:8px; }
+    .m-days span.on { background:#C4372B; border-color:#C4372B; color:#fff; }
+    .m-stamps { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; padding:8px; background:#FFFFFF; border:1px solid #E7E3D8; border-radius:12px; }
+    .m-stamps span { aspect-ratio:1; border-radius:50%; border:1.5px dashed #C9C5BA; display:flex; align-items:center; justify-content:center; font-size:11px; }
+    .m-stamps span.on { border:0; background:#B7791F; }
+    .m-big { font-size:20px; font-weight:900; color:#C4372B; text-align:center; line-height:1; }
+    .m-note { text-align:center; color:#5E6470; font-size:8.5px; }
+    .m-check { width:12px; height:12px; border-radius:50%; border:1.5px solid #C9C5BA; flex:none; }
+    .m-check.on { background:#3F7A1F; border-color:#3F7A1F; }
+    .m-row { display:flex; align-items:center; gap:6px; }
+    .m-row.m-card { justify-content:flex-start; }
+    .m-done { color:#8A8F98; text-decoration:line-through; }
+    .m-banner { background:#F1F7EC; color:#2F5E16; border-radius:9px; padding:6px 7px; font-weight:900; font-size:9px; }
+
+    section.how { padding-block:8px 56px; }
+    .steps { list-style:none; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:22px; counter-reset:s; }
+    .steps li { counter-increment:s; background:var(--soft); border-radius:18px; padding:20px; }
+    .steps li::before { content:counter(s); display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--accent); color:var(--on-accent); font-weight:900; margin-bottom:10px; }
+    .steps h3 { font-size:1.05rem; font-weight:900; margin-bottom:4px; }
+    .steps p { color:var(--muted); font-size:.95rem; }
+
+    section.contact { background:var(--head); color:#FFFFFF; border-radius:28px; padding:36px; margin-bottom:40px; display:grid; grid-template-columns:1.1fr .9fr; gap:28px; align-items:center; }
+    section.contact h2 { font-size:clamp(1.7rem, 3.6vw, 2.4rem); line-height:1.08; margin-bottom:8px; }
+    section.contact p { opacity:.88; }
+    .numbers { display:flex; flex-direction:column; gap:12px; }
+    .num { background:rgba(255,255,255,.1); border-radius:16px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .num span { font-weight:800; font-variant-numeric:tabular-nums; user-select:all; }
+    .num small { display:block; opacity:.75; font-weight:700; font-size:.8rem; }
+    .num .wa-btn { padding:10px 14px; }
+    @media (prefers-color-scheme: dark) { section.contact { background:#1E2A44; } }
+
+    footer { padding-block:10px 40px; color:var(--muted); font-size:.88rem; text-align:center; }
+
+    @media (max-width: 860px) {
+      .hero, section.contact { grid-template-columns:1fr; }
+      .proof { order:-1; }
+      .grid { grid-template-columns:1fr; }
+      .steps { grid-template-columns:1fr; }
+    }
+    @media (max-width: 480px) {
+      .idea { grid-template-columns:1fr; justify-items:center; text-align:center; }
+      .idea .wa-btn { justify-content:center; }
+      section.contact { padding:24px 18px; border-radius:22px; }
+      .proof .phone { width:240px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="picado" aria-hidden="true"><span style="background:#C4372B"></span><span style="background:#E2A23B"></span><span style="background:#3F7A1F"></span><span style="background:#1F4E8C"></span><span style="background:#D9578C"></span><span style="background:#C4372B"></span><span style="background:#E2A23B"></span><span style="background:#3F7A1F"></span></div>
+
+  <div class="wrap">
+    <div class="top">
+      <a class="mark" href="../"><img src="../icons/icon.svg" alt="">Lista Mandado</a>
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button type="button" data-set-lang="es" aria-pressed="true">Español</button>
+        <button type="button" data-set-lang="en" aria-pressed="false">English</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow" data-i18n="eyebrow">Apps para negocios</div>
+        <h1><span data-i18n="h1a">Una app para tu negocio,</span> <em data-i18n="h1b">sin complicarte.</em></h1>
+        <p class="lede" data-i18n="lede">Hice Lista Mandado, una app gratis para hacer el súper en orden de pasillo. Puedo hacer una así para tus clientes: pedidos por WhatsApp, citas, tarjetas de lealtad y más. Sin descargar nada de las tiendas de apps: se abre con un link y se instala en el teléfono.</p>
+        <div class="cta-row">
+          <a class="wa-btn js-wa" data-msg="general" target="_blank" rel="noopener">💬 <span data-i18n="ctaWa">Escríbeme por WhatsApp</span></a>
+          <a class="ghost-btn" href="../" target="_blank" rel="noopener">🛒 <span data-i18n="ctaTry">Probar Lista Mandado</span></a>
+        </div>
+      </div>
+      <figure class="proof">
+        <div class="phone"><div class="screen"><img src="lista-mandado.png" alt="Lista Mandado: lista del súper ordenada por secciones" data-i18n-alt="proofAlt"></div></div>
+        <figcaption><b>Lista Mandado</b> · <span data-i18n="proofCap">real, gratis y en uso. Español e inglés, voz, tiendas de México.</span></figcaption>
+      </figure>
+    </section>
+
+    <section class="ideas">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="ideasEyebrow">Ideas</div>
+        <h2 data-i18n="ideasTitle">¿Qué podría hacer tu app?</h2>
+        <p data-i18n="ideasText">Cuatro ejemplos para que te imagines la tuya. Cada una se adapta a tu negocio, tu menú y tus colores.</p>
+      </div>
+      <div class="grid">
+
+        <article class="idea">
+          <div class="phone"><div class="screen"><div class="m">
+            <div class="m-title">Tacos Don Beto</div>
+            <div class="m-sub" data-i18n="m1sub">Arma tu pedido</div>
+            <div class="m-card"><span><b data-i18n="m1a">Pastor</b><small>$22 c/u</small></span><span class="m-qty">×6</span></div>
+            <div class="m-card"><span><b data-i18n="m1b">Suadero</b><small>$22 c/u</small></span><span class="m-qty">×4</span></div>
+            <div class="m-card"><span><b data-i18n="m1c">Horchata grande</b><small>$35</small></span><span class="m-plus">+</span></div>
+            <div class="m-total"><span>Total</span><span>$220</span></div>
+            <div class="m-cta" data-i18n="m1cta">Enviar pedido por WhatsApp</div>
+          </div></div></div>
+          <div>
+            <div class="who" data-i18n="i1who">Taquería · Cocina económica</div>
+            <h3 data-i18n="i1title">Pedidos directo a tu WhatsApp</h3>
+            <p data-i18n="i1text">Tus clientes eligen del menú y el pedido te llega ya escrito y sumado. Sin comisiones de apps de reparto.</p>
+            <a class="wa-btn js-wa" data-msg="i1" target="_blank" rel="noopener">💬 <span data-i18n="want">Quiero una así</span></a>
+          </div>
+        </article>
+
+        <article class="idea">
+          <div class="phone"><div class="screen"><div class="m">
+            <div class="m-title">Abarrotes Lupita</div>
+            <div class="m-sub" data-i18n="m2sub">Manda tu lista y pasa por ella</div>
+            <div class="m-row m-card"><span class="m-check on"></span><span class="m-done" data-i18n="m2a">Leche 2 l</span></div>
+            <div class="m-row m-card"><span class="m-check on"></span><span class="m-done" data-i18n="m2b">Huevo 1 kg</span></div>
+            <div class="m-row m-card"><span class="m-check"></span><span data-i18n="m2c">Pan de caja</span></div>
+            <div class="m-row m-card"><span class="m-check"></span><span data-i18n="m2d">Refrescos 3 l</span></div>
+            <div class="m-banner" data-i18n="m2ready">✓ Tu pedido estará listo a las 6:30</div>
+            <div class="m-cta red" data-i18n="m2cta">Enviar mi lista</div>
+          </div></div></div>
+          <div>
+            <div class="who" data-i18n="i2who">Tiendita · Abarrotes</div>
+            <h3 data-i18n="i2title">La lista del cliente, lista para recoger</h3>
+            <p data-i18n="i2text">El cliente manda su lista desde casa, tú la vas surtiendo y le avisas cuando está lista. Menos filas, más ventas.</p>
+            <a class="wa-btn js-wa" data-msg="i2" target="_blank" rel="noopener">💬 <span data-i18n="want">Quiero una así</span></a>
+          </div>
+        </article>
+
+        <article class="idea">
+          <div class="phone"><div class="screen"><div class="m">
+            <div class="m-title">Estética Sofía</div>
+            <div class="m-sub" data-i18n="m3sub">Aparta tu cita</div>
+            <div class="m-chips"><span class="m-chip on" data-i18n="m3a">Corte</span><span class="m-chip" data-i18n="m3b">Tinte</span><span class="m-chip" data-i18n="m3c">Uñas</span><span class="m-chip" data-i18n="m3d">Peinado</span></div>
+            <div class="m-days"><span data-i18n="d1">Lun</span><span class="on" data-i18n="d2">Mar</span><span data-i18n="d3">Mié</span><span data-i18n="d4">Jue</span><span data-i18n="d5">Vie</span></div>
+            <div class="m-chips"><span class="m-chip off">10:00</span><span class="m-chip">11:30</span><span class="m-chip on">13:00</span><span class="m-chip">16:00</span><span class="m-chip off">17:30</span></div>
+            <div class="m-card"><span><b data-i18n="m3sum">Corte · martes 13:00</b><small data-i18n="m3rem">Te recordamos un día antes</small></span></div>
+            <div class="m-cta red" data-i18n="m3cta">Confirmar cita</div>
+          </div></div></div>
+          <div>
+            <div class="who" data-i18n="i3who">Estética · Barbería · Consultorio</div>
+            <h3 data-i18n="i3title">Citas sin llamadas</h3>
+            <p data-i18n="i3text">Tus clientes ven tus horarios libres y apartan su lugar. Tú ves tu agenda del día de un vistazo.</p>
+            <a class="wa-btn js-wa" data-msg="i3" target="_blank" rel="noopener">💬 <span data-i18n="want">Quiero una así</span></a>
+          </div>
+        </article>
+
+        <article class="idea">
+          <div class="phone"><div class="screen"><div class="m">
+            <div class="m-title">Café La Ceiba</div>
+            <div class="m-sub" data-i18n="m4sub">Tu tarjeta de sellos</div>
+            <div class="m-stamps"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span><span>☕</span></div>
+            <div class="m-big" data-i18n="m4big">7 de 10</div>
+            <div class="m-note" data-i18n="m4note">Te faltan 3 para tu café gratis</div>
+            <div class="m-card"><span><b data-i18n="m4promo">Martes 2×1 en frappés</b><small data-i18n="m4promo2">Solo con tu tarjeta</small></span></div>
+            <div class="m-cta red" data-i18n="m4cta">Mostrar mi código</div>
+          </div></div></div>
+          <div>
+            <div class="who" data-i18n="i4who">Cafetería · Panadería · Restaurante</div>
+            <h3 data-i18n="i4title">Tarjeta de lealtad en el teléfono</h3>
+            <p data-i18n="i4text">Adiós a las tarjetas de papel que se pierden. Tus clientes juntan sellos, ven tus promociones y regresan más seguido.</p>
+            <a class="wa-btn js-wa" data-msg="i4" target="_blank" rel="noopener">💬 <span data-i18n="want">Quiero una así</span></a>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="how">
+      <div class="section-head">
+        <div class="eyebrow" data-i18n="howEyebrow">Cómo trabajamos</div>
+        <h2 data-i18n="howTitle">De la idea a tu app</h2>
+      </div>
+      <ol class="steps">
+        <li><h3 data-i18n="s1t">Platicamos por WhatsApp</h3><p data-i18n="s1p">Me cuentas de tu negocio y qué quieres que hagan tus clientes con la app.</p></li>
+        <li><h3 data-i18n="s2t">Te enseño un ejemplo</h3><p data-i18n="s2p">Te mando un prototipo con tu nombre y tus colores para que lo pruebes en tu teléfono.</p></li>
+        <li><h3 data-i18n="s3t">Tu app, lista para compartir</h3><p data-i18n="s3p">La publicamos con un link para tus redes, tu WhatsApp y un código QR para tu mostrador.</p></li>
+      </ol>
+    </section>
+
+    <section class="contact" id="contacto">
+      <div>
+        <h2 data-i18n="cTitle">¿Platicamos de tu app?</h2>
+        <p data-i18n="cText">Mándame un WhatsApp con el nombre de tu negocio y qué te gustaría que hiciera tu app. Te contesto con ideas y un ejemplo.</p>
+      </div>
+      <div class="numbers">
+        <div class="num"><div><small data-i18n="cMx">México</small><span>+52 984 129 3842</span></div><a class="wa-btn" id="waMx" target="_blank" rel="noopener">🇲🇽 WhatsApp</a></div>
+        <div class="num"><div><small data-i18n="cUs">Estados Unidos</small><span>+1 913 990 1671</span></div><a class="wa-btn" id="waUs" target="_blank" rel="noopener">🇺🇸 WhatsApp</a></div>
+      </div>
+    </section>
+
+    <footer data-i18n="foot">Los ejemplos de arriba son ideas para que te imagines tu app; los nombres de negocios son inventados.</footer>
+  </div>
+
+<script>
+  const WA = { mx:"https://wa.me/529841293842", us:"https://wa.me/19139901671" };
+  const T = {
+    en: {
+      eyebrow:"Apps for businesses", h1a:"An app for your business,", h1b:"without the hassle.",
+      lede:"I made Lista Mandado, a free app for grocery shopping in aisle order. I can make one like it for your customers: WhatsApp orders, appointments, loyalty cards and more. No app store download needed: it opens from a link and installs on the phone.",
+      ctaWa:"Message me on WhatsApp", ctaTry:"Try Lista Mandado",
+      proofAlt:"Lista Mandado: a grocery list sorted into store sections", proofCap:"real, free and in use. Spanish and English, voice, Mexican stores.",
+      ideasEyebrow:"Ideas", ideasTitle:"What could your app do?", ideasText:"Four examples to help you picture yours. Each one is adapted to your business, your menu and your colors.",
+      m1sub:"Build your order", m1a:"Al pastor", m1b:"Suadero", m1c:"Large horchata", m1cta:"Send order by WhatsApp",
+      i1who:"Taquería · Home-style kitchen", i1title:"Orders straight to your WhatsApp", i1text:"Customers pick from your menu and the order reaches you already written out and added up. No delivery-app fees.",
+      m2sub:"Send your list, pick it up", m2a:"Milk 2 l", m2b:"Eggs 1 kg", m2c:"Sliced bread", m2d:"Soda 3 l", m2ready:"✓ Your order will be ready at 6:30", m2cta:"Send my list",
+      i2who:"Corner store · Grocery", i2title:"The customer's list, ready for pickup", i2text:"Customers send their list from home, you fill it and let them know when it's ready. Shorter lines, more sales.",
+      m3sub:"Book your appointment", m3a:"Haircut", m3b:"Color", m3c:"Nails", m3d:"Styling", d1:"Mon", d2:"Tue", d3:"Wed", d4:"Thu", d5:"Fri",
+      m3sum:"Haircut · Tuesday 1:00 pm", m3rem:"We'll remind you the day before", m3cta:"Confirm appointment",
+      i3who:"Salon · Barbershop · Clinic", i3title:"Appointments without phone calls", i3text:"Customers see your open times and book their spot. You see the day's schedule at a glance.",
+      m4sub:"Your stamp card", m4big:"7 of 10", m4note:"3 more for a free coffee", m4promo:"Tuesday 2-for-1 frappés", m4promo2:"Only with your card", m4cta:"Show my code",
+      i4who:"Café · Bakery · Restaurant", i4title:"A loyalty card on the phone", i4text:"No more paper cards that get lost. Customers collect stamps, see your promotions and come back more often.",
+      want:"I want one like this",
+      howEyebrow:"How we work", howTitle:"From idea to your app",
+      s1t:"We talk on WhatsApp", s1p:"You tell me about your business and what you want your customers to do with the app.",
+      s2t:"I show you an example", s2p:"I send you a prototype with your name and colors so you can try it on your phone.",
+      s3t:"Your app, ready to share", s3p:"We publish it with a link for your social media, your WhatsApp and a QR code for your counter.",
+      cTitle:"Shall we talk about your app?", cText:"Send me a WhatsApp with your business name and what you'd like your app to do. I'll reply with ideas and an example.",
+      cMx:"Mexico", cUs:"United States",
+      foot:"The examples above are ideas to help you picture your app; the business names are made up.",
+      msg:{ general:"Hi! I saw Lista Mandado and I'm interested in an app for my business.",
+            i1:"Hi! I'm interested in an ordering app for my restaurant (like the taquería example).",
+            i2:"Hi! I'm interested in a shopping-list ordering app for my store.",
+            i3:"Hi! I'm interested in an appointment app for my business.",
+            i4:"Hi! I'm interested in a loyalty card app for my business." }
+    },
+    es: {
+      msg:{ general:"Hola, vi Lista Mandado y me interesa una app para mi negocio.",
+            i1:"Hola, me interesa una app de pedidos para mi negocio de comida (como el ejemplo de la taquería).",
+            i2:"Hola, me interesa una app para que mis clientes me manden su lista de compras.",
+            i3:"Hola, me interesa una app de citas para mi negocio.",
+            i4:"Hola, me interesa una tarjeta de lealtad en app para mi negocio." }
+    }
+  };
+  // Spanish text lives in the page itself; keep a copy so switching back restores it.
+  document.querySelectorAll("[data-i18n]").forEach(el => { T.es[el.dataset.i18n] ??= el.textContent; });
+  document.querySelectorAll("[data-i18n-alt]").forEach(el => { T.es[el.dataset.i18nAlt] ??= el.alt; });
+
+  function setLang(lang) {
+    const c = T[lang];
+    document.documentElement.lang = lang;
+    document.title = lang === "en" ? "Apps for your business" : "Apps para tu negocio";
+    document.querySelectorAll("[data-i18n]").forEach(el => { if (c[el.dataset.i18n] != null) el.textContent = c[el.dataset.i18n]; });
+    document.querySelectorAll("[data-i18n-alt]").forEach(el => { if (c[el.dataset.i18nAlt] != null) el.alt = c[el.dataset.i18nAlt]; });
+    document.querySelectorAll("[data-set-lang]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.setLang === lang)));
+    // Spanish → Mexico number, English → US number; both numbers are listed in the contact box.
+    const main = lang === "en" ? WA.us : WA.mx;
+    document.querySelectorAll(".js-wa").forEach(a => { a.href = main + "?text=" + encodeURIComponent(c.msg[a.dataset.msg]); });
+    document.getElementById("waMx").href = WA.mx + "?text=" + encodeURIComponent(c.msg.general);
+    document.getElementById("waUs").href = WA.us + "?text=" + encodeURIComponent(c.msg.general);
+    try { localStorage.setItem("apps-lang", lang); } catch (e) {}
+  }
+  document.querySelectorAll("[data-set-lang]").forEach(b => b.addEventListener("click", () => setLang(b.dataset.setLang)));
+  let start = "es";
+  try { start = localStorage.getItem("apps-lang") || localStorage.getItem("grocery-lang") || (navigator.language || "es").slice(0, 2); } catch (e) {}
+  setLang(start === "en" ? "en" : "es");
+</script>
+</body>
+</html>

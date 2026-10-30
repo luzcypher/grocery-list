@@ -89,7 +89,7 @@ Open it from the link in my bio and add it to your home screen.
 
 ¿Haces el súper y das vueltas por toda la tienda? 🛒
 
-Hice Lista Mandado: escribes o dices lo que necesitas y tu lista se acomoda sola en el orden de los pasillos de tu tienda (Soriana, Walmart, Chedraui, Costco y más).
+Hice Lista Mandado: escribes o dices lo que necesitas y la app lo acomoda sola por secciones (frutas, panadería, carnes…). Tú pones las secciones en el orden de tu tienda una sola vez, con dos flechas, y listo: tu lista sigue los pasillos.
 
 🎁 Es gratis.
 👉 Sígueme y mándame DM con la palabra LISTA y te mando la app.
@@ -102,7 +102,7 @@ Se instala en tu teléfono en un minuto, sin cuenta y sin anuncios.
 
 Zigzagging across the store because your list is out of order? 🛒
 
-I built Lista Mandado: type or say what you need and your list sorts itself in the order of your store's aisles.
+I built Lista Mandado: type or say what you need and the app sorts it into sections (produce, bakery, meat…). Put the sections in your store's order once, with two arrows, and your list follows the aisles every time.
 
 🎁 It's free.
 👉 Follow me and DM me the word LIST and I'll send you the app.

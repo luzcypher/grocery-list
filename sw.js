@@ -1,4 +1,4 @@
-const CACHE = "grocery-list-v24";
+const CACHE = "grocery-list-v25";
 const ASSETS = [
   "./",
   "./index.html",

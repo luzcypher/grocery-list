@@ -144,10 +144,13 @@
     .item-text { flex:1; min-width:0; text-align:left; background:none; border:0; font:inherit; font-size:1.3rem; font-weight:800; line-height:1.25; color:var(--ink); overflow-wrap:anywhere; cursor:pointer; }
     .help-box { background:var(--card); color:var(--ink); border-radius:22px; padding:22px 18px; width:min(400px,100%); max-height:86vh; overflow:auto; text-align:left; }
     .help-box h2 { text-align:center; margin-bottom:10px; color:var(--head); }
-    .help-box h3 { font-size:.95rem; margin:14px 0 6px; }
-    .help-box p, .help-box li { color:var(--ink); font-size:.92rem; line-height:1.45; }
+    .help-box h3 { font-size:1.08rem; margin:20px 0 8px; color:var(--head); }
+    .help-box h4 { font-size:1rem; margin:14px 0 6px; }
+    .help-box .help-note { font-size:.98rem; font-weight:700; margin:0 0 8px; }
+    .help-box .help-tip { font-size:.95rem; background:var(--soft); border-radius:12px; padding:10px 12px; margin:6px 0 4px; }
+    .help-box p, .help-box li { color:var(--ink); font-size:1rem; line-height:1.5; }
     .help-box ol { padding-left:1.2em; }
-    .help-box li { margin-bottom:6px; }
+    .help-box li { margin-bottom:9px; padding-left:2px; }
     .help-box .muted { color:var(--muted); text-align:center; margin-bottom:12px; }
     .perm { background:var(--perm-bg); border:1px solid var(--perm-line); color:var(--perm-ink);
       border-radius:14px; padding:12px 14px; margin:8px 0 4px; text-align:left; font-size:.9rem; line-height:1.4; }
@@ -346,11 +349,20 @@
   </div>
   <div class="overlay hidden" id="helpOverlay">
     <div class="help-box">
-      <h2 id="helpTitle">Get it working</h2>
+      <h2 id="helpTitle">How to use Lista Mandado</h2>
       <p class="muted" id="helpIntro"></p>
-      <h3 id="helpAndTitle">Android</h3>
+      <h3 id="helpHowTitle">1. Make your list</h3>
+      <ol id="helpHow"></ol>
+      <h3 id="helpOrderTitle">2. Put the sections in your store's order</h3>
+      <p class="help-note" id="helpOrderIntro"></p>
+      <ol id="helpOrder"></ol>
+      <p class="help-tip" id="helpOrderTip"></p>
+      <h3 id="helpInstallTitle">3. Put the app on your phone</h3>
+      <p class="help-note" id="helpInstallIntro"></p>
+      <p class="help-tip" id="helpInstallNote"></p>
+      <h4 id="helpAndTitle">Android</h4>
       <ol id="helpAnd"></ol>
-      <h3 id="helpIosTitle">iPhone</h3>
+      <h4 id="helpIosTitle">iPhone</h4>
       <ol id="helpIos"></ol>
       <div class="move-box hidden" id="moveBox">
         <h3 id="moveTitle">Move my list to the app</h3>
@@ -359,9 +371,7 @@
         <p class="move-msg" id="moveMsg" aria-live="polite"></p>
         <textarea id="moveCode" class="field hidden" readonly rows="3" aria-label="List code"></textarea>
       </div>
-      <h3 id="helpHomeTitle">Add to Home Screen</h3>
-      <ol id="helpHome"></ol>
-      <h3 id="helpMoreTitle">If the mic says “not allowed”</h3>
+      <h3 id="helpMoreTitle">4. If the microphone doesn't work</h3>
       <ol id="helpMore"></ol>
       <h3 id="helpDisplayTitle">Display</h3>
       <div class="look-row">
@@ -464,16 +474,23 @@
         editHint:"This is the reusable list. Voice or type to add. Swipe to remove.",
         rename:"Rename", back:"Back to trip", itemsOf:n=>n===1?"1 saved item":n+" saved items",
         named:"Untitled list", chooseTitle:"Choose language", chooseSub:"This phone will remember your choice.",
-        help:"Help", helpTitle:"Get it working", helpClose:"Got it",
-        helpIntro:"Open this link in Chrome (Android) or Safari (iPhone). Don’t open it from Files, Gmail, or WhatsApp.",
-        helpAndTitle:"Android",
-        helpAnd:["Open this page in Chrome.","Tap the mic and tap Allow.","If it says not allowed: tap the lock next to the web address → Permissions → Microphone → Allow.","Or: Settings → Apps → Chrome → Permissions → Microphone → Allow."],
-        helpIosTitle:"iPhone",
-        helpIos:["Open this page in Safari.","Tap the mic and tap Allow.","If it says not allowed: tap aA (or the dots) in the address bar → Website Settings → Microphone → Allow.","Or: Settings → Safari → Microphone, and allow this site.","Install it first (Share → Add to Home Screen), then always open it from the home-screen icon. The installed app keeps its own list, separate from Safari, and iPhone won't erase it.","If the app's mic doesn't respond, tap the add box and use the mic on your keyboard. Say several items at once: “milk, eggs and bread”."],
-        helpMoreTitle:"If voice still fails",
-        helpMore:["Type the item instead. That still works.","Close the browser and open this same link again. The list stays on this phone."],
-        helpHomeTitle:"Add to Home Screen",
-        helpHome:["Android: Chrome menu (⋮) → Add to Home screen.","iPhone: Safari Share button → Add to Home Screen."],
+        help:"Help", helpTitle:"How to use Lista Mandado", helpClose:"Got it",
+        helpIntro:"Read this once. It only takes a few minutes. You can come back anytime by tapping Help.",
+        helpHowTitle:"1. Make your list",
+        helpHow:["Tap the white box at the bottom of the screen, where it says “Add”.", "Type what you need, for example: milk. Then tap the red + button.", "Or tap the red microphone button and say what you need, like: “milk, eggs and bread”.", "The app puts each thing in its section for you: fruits and vegetables, bread, meat, and so on.", "At the store, when you put something in your cart, slide it with your finger to the left or to the right. It gets a check mark.", "Made a mistake? Tap the ✕ next to the item to remove it."],
+        helpOrderTitle:"2. Put the sections in your store's order",
+        helpOrderIntro:"You only do this once for each store. After that, your list follows the store's aisles.",
+        helpOrder:["At the top of the screen, find the word “Store”. Tap the box next to it and choose your store.", "Tap the button “Edit store”, right next to it.", "A list of sections opens. Next to each section there are two arrows.", "Tap ↑ to move a section up. Tap ↓ to move it down.", "Put first the section you reach first when you walk into your store. For example, if the bread is by the door, move Bakery to the top.", "When the order looks right, tap the red “Save” button at the bottom.", "That's it! Every time you shop at that store, your list shows the sections in that order."],
+        helpOrderTip:"Your store isn't on the list? Tap the store box and choose “+ Add a store…”. Type its name, put the sections in order with the arrows, and tap Save.",
+        helpInstallTitle:"3. Put the app on your phone",
+        helpInstallIntro:"Do this once. Then Lista Mandado gets its own button (an icon) on your phone, like your other apps.",
+        helpInstallNote:"Did you get the link in WhatsApp, Instagram or a text message? First open it in Chrome (Android) or Safari (iPhone): tap the three dots ⋮ or the share button and choose “Open in Chrome” or “Open in Safari”.",
+        helpAndTitle:"If you have an Android phone (Samsung, Motorola, Xiaomi…)",
+        helpAnd:["Open the Lista Mandado link in Chrome. Chrome is the round icon with red, yellow, green and blue.", "Tap the three little dots ⋮ in the top right corner of the screen.", "Tap “Add to Home screen” or “Install app”.", "Tap “Install” (or “Add”) to say yes.", "Go to your phone's home screen. You will see the Lista Mandado icon. From now on, always open the app from that icon."],
+        helpIosTitle:"If you have an iPhone",
+        helpIos:["Open the Lista Mandado link in Safari. Safari is the blue icon that looks like a compass.", "Tap the Share button at the bottom of the screen. It looks like a square with an arrow pointing up.", "A list opens. Slide it up with your finger and tap “Add to Home Screen”.", "Tap “Add” in the top right corner.", "Go to your home screen and find the Lista Mandado icon. Always open the app from that icon. Your list is saved there."],
+        helpMoreTitle:"4. If the microphone doesn't work",
+        helpMore:["The first time you tap the microphone, the phone asks for permission. Tap “Allow”.", "Still not working? You can always type instead. It works just as well.", "Or tap the white box and use the small microphone on your keyboard.", "Android: open your phone's Settings → Apps → Chrome → Permissions → Microphone → Allow.", "iPhone: open Settings → Safari → Microphone → Allow."],
         copy:"Copy list", copied:"Copied. Paste it in a message.",
         undo:"Undo", undid:"Item removed",
         firstMic:"First time: tap the mic, then tap Allow on the popup. Don’t tap Block.",
@@ -551,16 +568,23 @@
         editHint:"Esta es la lista reutilizable. Habla o escribe para agregar. Desliza para quitar.",
         rename:"Renombrar", back:"Volver al viaje", itemsOf:n=>n===1?"1 artículo guardado":n+" artículos guardados",
         named:"Lista sin nombre", chooseTitle:"Elige idioma", chooseSub:"Este teléfono recordará tu elección.",
-        help:"Ayuda", helpTitle:"Para que funcione", helpClose:"Listo",
-        helpIntro:"Abre este enlace en Chrome (Android) o Safari (iPhone). No lo abras desde Archivos, Gmail o WhatsApp.",
-        helpAndTitle:"Android",
-        helpAnd:["Abre esta página en Chrome.","Toca el micrófono y toca Permitir.","Si dice not allowed: toca el candado junto a la dirección → Permisos → Micrófono → Permitir.","O: Ajustes → Aplicaciones → Chrome → Permisos → Micrófono → Permitir."],
-        helpIosTitle:"iPhone",
-        helpIos:["Abre esta página en Safari.","Toca el micrófono y toca Permitir.","Si dice not allowed: toca aA (o los puntos) en la barra → Ajustes del sitio → Micrófono → Permitir.","O: Ajustes → Safari → Micrófono, y permite este sitio.","Instálala primero (Compartir → Agregar a inicio) y ábrela siempre desde el ícono de la pantalla de inicio. La app instalada guarda su propia lista, aparte de Safari, y el iPhone no la borra.","Si el micrófono de la app no responde, toca la caja para agregar y usa el micrófono del teclado. Di varios artículos a la vez: “leche, huevos y pan”."],
-        helpMoreTitle:"Si la voz sigue fallando",
-        helpMore:["Escribe el artículo. Eso también funciona.","Cierra el navegador y abre el mismo enlace. La lista se queda en este teléfono."],
-        helpHomeTitle:"Agregar a inicio",
-        helpHome:["Android: menú de Chrome (⋮) → Agregar a pantalla de inicio.","iPhone: Safari → Compartir → Agregar a pantalla de inicio."],
+        help:"Ayuda", helpTitle:"Cómo usar Lista Mandado", helpClose:"Listo",
+        helpIntro:"Léelo una vez, solo toma unos minutos. Puedes volver cuando quieras tocando Ayuda.",
+        helpHowTitle:"1. Haz tu lista",
+        helpHow:["Toca la caja blanca de abajo, donde dice “Agrega”.", "Escribe lo que necesitas, por ejemplo: leche. Luego toca el botón rojo +.", "O toca el botón rojo del micrófono y di lo que necesitas, como: “leche, huevos y pan”.", "La app pone cada cosa en su sección: frutas y verduras, panadería, carnes, etcétera.", "En la tienda, cuando pongas algo en tu carrito, deslízalo con el dedo hacia la izquierda o la derecha. Se marca con una palomita.", "¿Te equivocaste? Toca la ✕ junto al artículo para quitarlo."],
+        helpOrderTitle:"2. Pon las secciones en el orden de tu tienda",
+        helpOrderIntro:"Solo lo haces una vez para cada tienda. Después tu lista sigue los pasillos de la tienda.",
+        helpOrder:["Arriba en la pantalla busca la palabra “Tienda”. Toca la caja de al lado y elige tu tienda.", "Toca el botón “Editar tienda”, justo al lado.", "Se abre una lista de secciones. Junto a cada sección hay dos flechas.", "Toca ↑ para subir una sección. Toca ↓ para bajarla.", "Pon primero la sección que encuentras primero al entrar a tu tienda. Por ejemplo, si el pan está junto a la entrada, sube Panadería hasta arriba.", "Cuando el orden esté bien, toca el botón rojo “Guardar” abajo.", "¡Listo! Cada vez que compres en esa tienda, tu lista mostrará las secciones en ese orden."],
+        helpOrderTip:"¿Tu tienda no aparece? Toca la caja de la tienda y elige “+ Agregar tienda…”. Escribe el nombre, ordena las secciones con las flechas y toca Guardar.",
+        helpInstallTitle:"3. Pon la app en tu teléfono",
+        helpInstallIntro:"Hazlo una vez. Así Lista Mandado tendrá su propio botón (un ícono) en tu teléfono, como tus otras apps.",
+        helpInstallNote:"¿Te llegó el enlace por WhatsApp, Instagram o mensaje? Primero ábrelo en Chrome (Android) o Safari (iPhone): toca los tres puntitos ⋮ o el botón de compartir y elige “Abrir en Chrome” o “Abrir en Safari”.",
+        helpAndTitle:"Si tienes un teléfono Android (Samsung, Motorola, Xiaomi…)",
+        helpAnd:["Abre el enlace de Lista Mandado en Chrome. Chrome es el ícono redondo de colores rojo, amarillo, verde y azul.", "Toca los tres puntitos ⋮ en la esquina de arriba a la derecha.", "Toca “Agregar a la pantalla principal” o “Instalar aplicación”.", "Toca “Instalar” (o “Agregar”) para decir que sí.", "Ve a la pantalla de inicio de tu teléfono. Ahí verás el ícono de Lista Mandado. De ahora en adelante, ábrela siempre desde ese ícono."],
+        helpIosTitle:"Si tienes un iPhone",
+        helpIos:["Abre el enlace de Lista Mandado en Safari. Safari es el ícono azul que parece una brújula.", "Toca el botón Compartir abajo en la pantalla. Parece un cuadrito con una flecha hacia arriba.", "Se abre una lista. Súbela con el dedo y toca “Agregar a inicio”.", "Toca “Agregar” en la esquina de arriba a la derecha.", "Ve a tu pantalla de inicio y busca el ícono de Lista Mandado. Ábrela siempre desde ese ícono. Ahí se guarda tu lista."],
+        helpMoreTitle:"4. Si el micrófono no funciona",
+        helpMore:["La primera vez que tocas el micrófono, el teléfono pide permiso. Toca “Permitir”.", "¿Sigue sin funcionar? Siempre puedes escribir. Funciona igual de bien.", "O toca la caja blanca y usa el micrófono pequeño de tu teclado.", "En Android: abre Ajustes del teléfono → Aplicaciones → Chrome → Permisos → Micrófono → Permitir.", "En iPhone: abre Ajustes → Safari → Micrófono → Permitir."],
         copy:"Copiar lista", copied:"Copiada. Pégala en un mensaje.",
         undo:"Deshacer", undid:"Artículo quitado",
         firstMic:"La primera vez: toca el micrófono y luego Permitir. No toques Bloquear.",
@@ -905,10 +929,10 @@
       $("helpBtn").textContent=c.help;
       $("helpTitle").textContent=c.helpTitle;
       $("helpIntro").textContent=c.helpIntro;
+      ["helpHowTitle","helpOrderTitle","helpOrderIntro","helpOrderTip","helpInstallTitle","helpInstallIntro","helpInstallNote"].forEach(id=>{ $(id).textContent=c[id]; });
       $("helpAndTitle").textContent=c.helpAndTitle;
       $("helpIosTitle").textContent=c.helpIosTitle;
       $("helpMoreTitle").textContent=c.helpMoreTitle;
-      $("helpHomeTitle").textContent=c.helpHomeTitle;
       $("helpClose").textContent=c.helpClose;
       $("moveTitle").textContent=c.moveTitle; $("moveText").textContent=c.moveText; $("moveBtn").textContent=c.moveBtn;
       $("moveBox").classList.toggle("hidden", !(isIOS && !isInstalled));
@@ -937,7 +961,7 @@
       $("spendTitle").textContent=c.spendTitle;
       $("ideaBtn").classList.toggle("hidden", !trip.some(i=>!i.checked));
       const fillOl = (id, items) => { const ol=$(id); ol.innerHTML=""; items.forEach(s=>{ const li=document.createElement("li"); li.textContent=s; ol.appendChild(li); }); };
-      fillOl("helpAnd", c.helpAnd); fillOl("helpIos", c.helpIos); fillOl("helpMore", c.helpMore); fillOl("helpHome", c.helpHome);
+      fillOl("helpHow", c.helpHow); fillOl("helpOrder", c.helpOrder); fillOl("helpAnd", c.helpAnd); fillOl("helpIos", c.helpIos); fillOl("helpMore", c.helpMore);
     }
     function showView(next){ view=next; ["shop","lists","edit","pantry"].forEach(v=>$(v+"View").classList.toggle("hidden", next!==v)); applyCopy(); render(); }
     function bindSwipe(row, onRemove){

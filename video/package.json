@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts ZigzagEN out/lista-mandado-zigzag-en.mp4"
+    "render": "remotion render src/index.ts TalkEN out/lista-mandado-talk-en.mp4"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.539",

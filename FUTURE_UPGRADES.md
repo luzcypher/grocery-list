@@ -154,6 +154,14 @@ luzcypher.github.io/grocery-list/apps/plan/, for the Instagram bio, flyers and Q
 - After switching, regenerate the QR code and flyer, and update the quick replies (docs/quick-replies.md).
 - Keep the old github.io links working; GitHub redirects them to the new address.
 
+## Instagram auto-reply for "LISTA" / "LIST" and "APP"
+Anyone who DMs or comments a keyword gets the right link automatically, even at night.
+- LISTA / LIST → the free app link and install steps (same text as the saved replies in docs/instagram/saved-replies.md).
+- APP → the app planner link.
+- Needs: an Instagram Professional account connected to a Facebook Page, and either Meta's own automated
+  responses (Meta Business Suite → Inbox → Automations) or a tool such as ManyChat (free tier available).
+- Keep a human follow-up: the auto-reply sends the link, Frank answers questions.
+
 ## Built from the suggestions list (for reference)
 WhatsApp sharing, quantities and notes (also by voice: "dos kilos de tortillas"), spending tracker
 (price per checked item, trip and quincena totals, last price remembered), deal-day reminders per store,

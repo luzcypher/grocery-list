@@ -147,6 +147,13 @@ Next to "Copy my list", a WhatsApp button sends the code to yourself (or to a ne
 - Opening the message and copying the code, then pasting it in the add box, moves the list.
 - Pairs with the copy-code idea above; can be built any time without a server.
 
+## Short web address for the business pages
+A short, easy-to-say address such as listamandado.app/plan (or a personal one for Frank) instead of
+luzcypher.github.io/grocery-list/apps/plan/, for the Instagram bio, flyers and QR codes.
+- Needs: buying a domain (about $15–40 USD a year) and pointing it at GitHub Pages (custom domain setting).
+- After switching, regenerate the QR code and flyer, and update the quick replies (docs/quick-replies.md).
+- Keep the old github.io links working; GitHub redirects them to the new address.
+
 ## Built from the suggestions list (for reference)
 WhatsApp sharing, quantities and notes (also by voice: "dos kilos de tortillas"), spending tracker
 (price per checked item, trip and quincena totals, last price remembered), deal-day reminders per store,

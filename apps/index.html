@@ -127,6 +127,8 @@
     .num span { font-weight:800; font-variant-numeric:tabular-nums; user-select:all; }
     .num small { display:block; opacity:.75; font-weight:700; font-size:.8rem; }
     .num .wa-btn { padding:10px 14px; }
+    .num-btns { display:flex; gap:8px; flex-wrap:wrap; }
+    #smsUs { background:#FFFFFF; color:#1F4E8C; }
     @media (prefers-color-scheme: dark) { section.contact { background:#1E2A44; } }
 
     .about { display:grid; grid-template-columns:150px minmax(0,1fr); gap:26px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:24px; padding:26px; margin-bottom:56px; }
@@ -293,7 +295,7 @@
       </div>
       <div class="numbers">
         <div class="num"><div><small data-i18n="cMx">México</small><span>+52 984 129 3842</span></div><a class="wa-btn" id="waMx" target="_blank" rel="noopener">🇲🇽 WhatsApp</a></div>
-        <div class="num"><div><small data-i18n="cUs">Estados Unidos</small><span>+1 913 990 1671</span></div><a class="wa-btn" id="waUs" target="_blank" rel="noopener">🇺🇸 WhatsApp</a></div>
+        <div class="num"><div><small data-i18n="cUs">Estados Unidos</small><span>+1 913 990 1671</span></div><span class="num-btns"><a class="wa-btn" id="smsUs">📱 <span data-i18n="cText2">SMS</span></a><a class="wa-btn" id="waUs" target="_blank" rel="noopener">🇺🇸 WhatsApp</a></span></div>
       </div>
     </section>
 
@@ -302,18 +304,19 @@
 
 <script>
   const WA = { mx:"https://wa.me/529841293842", us:"https://wa.me/19139901671" };
+  const SMS_US = "sms:+19139901671";
   const T = {
     en: {
       eyebrow:"Apps for businesses", h1a:"An app for your business,", h1b:"without the hassle.",
       ctaPlan:"Plan your app",
       aboutTitle:"Hi, I'm Frank Tocco",
       aboutText:"I made Lista Mandado to make grocery shopping easier, in Spanish and English. Now I build simple apps for businesses in Mexico and the United States. Answer a few quick questions and I'll send you a mini plan for your app.",
-      lede:"I'm Frank Tocco. I made Lista Mandado, a free app for grocery shopping in aisle order. I can make one like it for your customers: WhatsApp orders, appointments, loyalty cards and more. No app store download needed: it opens from a link and installs on the phone.",
-      ctaWa:"Message me on WhatsApp", ctaTry:"Try Lista Mandado",
+      lede:"I'm Frank Tocco. I made Lista Mandado, a free app for grocery shopping in aisle order. I can make one like it for your customers: phone orders, appointments, loyalty cards and more. No app store download needed: it opens from a link and installs on the phone.",
+      ctaWa:"Text me", ctaTry:"Try Lista Mandado",
       proofAlt:"Lista Mandado: a grocery list sorted into store sections", proofCap:"real, free and in use. Spanish and English, voice, Mexican stores.",
       ideasEyebrow:"Ideas", ideasTitle:"What could your app do?", ideasText:"Four examples to help you picture yours. Each one is adapted to your business, your menu and your colors.",
-      m1sub:"Build your order", m1a:"Al pastor", m1b:"Suadero", m1c:"Large horchata", m1cta:"Send order by WhatsApp",
-      i1who:"Taquería · Home-style kitchen", i1title:"Orders straight to your WhatsApp", i1text:"Customers pick from your menu and the order reaches you already written out and added up. No delivery-app fees.",
+      m1sub:"Build your order", m1a:"Al pastor", m1b:"Suadero", m1c:"Large horchata", m1cta:"Send my order",
+      i1who:"Taquería · Home-style kitchen", i1title:"Orders straight to your phone", i1text:"Customers pick from your menu and the order reaches you by text or WhatsApp, already written out and added up. No delivery-app fees.",
       m2sub:"Send your list, pick it up", m2a:"Milk 2 l", m2b:"Eggs 1 kg", m2c:"Sliced bread", m2d:"Soda 3 l", m2ready:"✓ Your order will be ready at 6:30", m2cta:"Send my list",
       i2who:"Corner store · Grocery", i2title:"The customer's list, ready for pickup", i2text:"Customers send their list from home, you fill it and let them know when it's ready. Shorter lines, more sales.",
       m3sub:"Book your appointment", m3a:"Haircut", m3b:"Color", m3c:"Nails", m3d:"Styling", d1:"Mon", d2:"Tue", d3:"Wed", d4:"Thu", d5:"Fri",
@@ -323,11 +326,11 @@
       i4who:"Café · Bakery · Restaurant", i4title:"A loyalty card on the phone", i4text:"No more paper cards that get lost. Customers collect stamps, see your promotions and come back more often.",
       want:"I want one like this",
       howEyebrow:"How we work", howTitle:"From idea to your app",
-      s1t:"We talk on WhatsApp", s1p:"You tell me about your business and what you want your customers to do with the app.",
+      s1t:"We talk by text or WhatsApp", s1p:"You tell me about your business and what you want your customers to do with the app.",
       s2t:"I show you an example", s2p:"I send you a prototype with your name and colors so you can try it on your phone.",
       s3t:"Your app, ready to share", s3p:"We publish it with a link for your social media, your WhatsApp and a QR code for your counter.",
-      cTitle:"Shall we talk about your app?", cText:"Send me a WhatsApp with your business name and what you'd like your app to do. I'll reply with ideas and an example.",
-      cMx:"Mexico", cUs:"United States",
+      cTitle:"Shall we talk about your app?", cText:"Send me a text or WhatsApp with your business name and what you'd like your app to do. I'll reply with ideas and an example.",
+      cMx:"Mexico", cUs:"United States", cText2:"Text",
       foot:"The examples above are ideas to help you picture your app; the business names are made up.",
       msg:{ general:"Hi! I saw Lista Mandado and I'm interested in an app for my business.",
             i1:"Hi! I'm interested in an ordering app for my restaurant (like the taquería example).",
@@ -354,9 +357,13 @@
     document.querySelectorAll("[data-i18n]").forEach(el => { if (c[el.dataset.i18n] != null) el.textContent = c[el.dataset.i18n]; });
     document.querySelectorAll("[data-i18n-alt]").forEach(el => { if (c[el.dataset.i18nAlt] != null) el.alt = c[el.dataset.i18nAlt]; });
     document.querySelectorAll("[data-set-lang]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.setLang === lang)));
-    // Spanish → Mexico number, English → US number; both numbers are listed in the contact box.
-    const main = lang === "en" ? WA.us : WA.mx;
-    document.querySelectorAll(".js-wa").forEach(a => { a.href = main + "?text=" + encodeURIComponent(c.msg[a.dataset.msg]); });
+    // Spanish → WhatsApp to the Mexico number; English → a text message to the US number (most Americans text, not WhatsApp).
+    document.querySelectorAll(".js-wa").forEach(a => {
+      const m = encodeURIComponent(c.msg[a.dataset.msg]);
+      if (lang === "en") { a.href = SMS_US + "?&body=" + m; a.removeAttribute("target"); }
+      else { a.href = WA.mx + "?text=" + m; a.target = "_blank"; }
+    });
+    document.getElementById("smsUs").href = SMS_US + "?&body=" + encodeURIComponent(c.msg.general);
     document.getElementById("waMx").href = WA.mx + "?text=" + encodeURIComponent(c.msg.general);
     document.getElementById("waUs").href = WA.us + "?text=" + encodeURIComponent(c.msg.general);
     try { localStorage.setItem("apps-lang", lang); } catch (e) {}

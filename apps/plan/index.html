@@ -82,6 +82,7 @@
     .send p { font-weight:900; }
     .send .btns { display:flex; gap:10px; flex-wrap:wrap; }
     .wa { flex:1 1 200px; text-align:center; background:var(--wa); color:#FFFFFF; text-decoration:none; font-weight:900; border-radius:14px; padding:13px 14px; }
+    .wa.sms { background:var(--head); color:var(--bg); }
     .copy { border:1.5px solid var(--line); background:var(--bg); color:var(--ink); font:inherit; font-weight:800; border-radius:14px; padding:11px 14px; cursor:pointer; align-self:flex-start; }
     .copied { color:var(--green); font-weight:800; font-size:.9rem; min-height:1.2em; }
     footer { color:var(--muted); font-size:.85rem; text-align:center; margin-top:30px; }
@@ -169,6 +170,7 @@
 
 <script>
   const WA = { mx:"https://wa.me/529841293842", us:"https://wa.me/19139901671" };
+  const SMS_US = "sms:+19139901671"; // English speakers in the US usually text instead of WhatsApp
   const OPTS = {
     type: { food:["Restaurante o comida","Restaurant or food"], store:["Tienda o abarrotes","Store or grocery"], beauty:["Estética o barbería","Salon or barbershop"],
             cafe:["Café o panadería","Café or bakery"], services:["Servicios (taller, consultorio, clases)","Services (repair, clinic, classes)"], other:["Otro","Other"] },
@@ -230,7 +232,7 @@
       steps:"The steps", stepItems:[ "We talk for 15 minutes on WhatsApp about this plan.", "I send you a prototype with your name and colors to try on your phone.",
         "We adjust whatever you want.", "We publish it with a link for your social media and a QR code for your counter." ],
       timing:w=>w==="asap"?"You want to start as soon as possible: I'll confirm timing and price when we talk.":w==="soon"?"You'd like it in 1 to 2 months: I'll confirm timing and price when we talk.":"You're exploring: we'll talk with no commitment and I'll give you timing and price for your case.",
-      sendTitle:"Send me your plan on WhatsApp", mx:"🇲🇽 WhatsApp Mexico", us:"🇺🇸 WhatsApp US", copy:"Copy my plan", copied:"Copied. Paste it into a message to Frank.",
+      sendTitle:"Send me your plan by text or WhatsApp", mx:"🇲🇽 WhatsApp Mexico", us:"🇺🇸 WhatsApp US", sms:"📱 Text it (US)", copy:"Copy my plan", copied:"Copied. Paste it into a message to Frank.",
       need:"Pick at least what you want your customers to do (question 3).",
       msgHead:"Hi Frank, here's my app plan:", mName:"Business", mCity:"City", mType:"Type", mFeat:"I want customers to be able to", mNow:"Today they reach me by", mLangs:"Languages",
       mBrand:"Logo and colors", mSize:"Customers per week", mWhen:"When", mNotes:"Notes", docTitle:"Plan your app"
@@ -293,6 +295,7 @@
       <div class="send">
         <p>${c.sendTitle}</p>
         <div class="btns">
+          ${lang === "en" ? `<a class="wa sms" href="${SMS_US}?&body=${text}">${c.sms}</a>` : ""}
           <a class="wa" href="${WA.mx}?text=${text}" target="_blank" rel="noopener">${c.mx}</a>
           <a class="wa" href="${WA.us}?text=${text}" target="_blank" rel="noopener">${c.us}</a>
         </div>

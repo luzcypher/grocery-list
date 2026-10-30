@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F7F6F2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#10141C" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Contesta unas preguntas rápidas y arma el mini plan de la app para tu negocio. Por Frank Tocco.">
+  <link rel="icon" type="image/svg+xml" href="../../icons/icon.svg">
+  <link rel="icon" type="image/png" href="../../icons/favicon.png">
+  <link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+  <title>Plan de tu app</title>
+  <style>
+    @font-face { font-family:"Nunito"; src:url("../../fonts/nunito.woff2") format("woff2"); font-weight:200 1000; font-display:swap; }
+    @font-face { font-family:"Bricolage Grotesque"; src:url("../../fonts/bricolage-800.woff2") format("woff2"); font-weight:800; font-display:swap; }
+    /* Same mercado palette as Lista Mandado; one narrow column, like a form on a phone. */
+    :root {
+      --bg:#F7F6F2; --card:#FFFFFF; --soft:#F2EFE6; --ink:#1D2330; --muted:#5E6470; --line:#E2DFD6;
+      --accent:#C4372B; --on-accent:#FFFFFF; --head:#1F4E8C; --gold:#B7791F; --green:#3F7A1F; --wa:#1F8F4E;
+      --chip-on:#1F4E8C; --on-chip:#FFFFFF;
+      color-scheme:light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:#10141C; --card:#1A202B; --soft:#222A36; --ink:#ECEFF4; --muted:#A3ABB8; --line:#2A3240;
+        --accent:#E8574A; --on-accent:#10141C; --head:#8DB4F0; --gold:#F2B632; --green:#7BC25A; --wa:#25A55F;
+        --chip-on:#8DB4F0; --on-chip:#10141C;
+        color-scheme:dark;
+      }
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
+    .picado { display:flex; height:10px; } .picado span { flex:1; }
+    .wrap { max-width:680px; margin:0 auto; padding-inline:18px; padding-block:14px 60px; }
+    h1, h2 { font-family:"Bricolage Grotesque","Nunito",sans-serif; font-weight:800; letter-spacing:-.4px; text-wrap:balance; color:var(--head); }
+    a { color:var(--head); }
+    a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, label:focus-within { outline:3px solid var(--head); outline-offset:2px; }
+
+    .top { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-block:6px 18px; }
+    .back { text-decoration:none; font-weight:800; font-size:.95rem; }
+    .lang { display:flex; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:3px; }
+    .lang button { border:0; background:transparent; color:var(--ink); font:inherit; font-weight:800; font-size:.85rem; border-radius:999px; padding:6px 12px; cursor:pointer; }
+    .lang button[aria-pressed="true"] { background:var(--accent); color:var(--on-accent); }
+
+    .intro { display:grid; grid-template-columns:96px minmax(0,1fr); gap:18px; align-items:center; margin-bottom:22px; }
+    .intro img { width:96px; height:96px; border-radius:50%; object-fit:cover; border:3px solid var(--card); box-shadow:0 8px 22px -12px rgba(0,0,0,.5); }
+    .intro h1 { font-size:clamp(1.7rem, 5.5vw, 2.3rem); line-height:1.05; margin-bottom:6px; }
+    .intro p { color:var(--muted); }
+
+    form { display:flex; flex-direction:column; gap:14px; }
+    fieldset { border:1px solid var(--line); background:var(--card); border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:10px; min-width:0; }
+    legend { float:left; width:100%; font-weight:900; font-size:1.02rem; display:flex; gap:10px; align-items:baseline; margin-bottom:2px; }
+    legend .n { flex:none; width:26px; height:26px; border-radius:50%; background:var(--accent); color:var(--on-accent); font-size:.85rem; display:inline-flex; align-items:center; justify-content:center; transform:translateY(5px); }
+    .hintq { color:var(--muted); font-size:.88rem; margin-top:-4px; clear:both; }
+    .chips { display:flex; flex-wrap:wrap; gap:8px; clear:both; }
+    .chips label { position:relative; cursor:pointer; }
+    .chips input { position:absolute; opacity:0; inset:0; cursor:pointer; }
+    .chips span { display:inline-block; border:1.5px solid var(--line); background:var(--bg); border-radius:999px; padding:8px 13px; font-weight:800; font-size:.93rem; }
+    .chips input:checked + span { background:var(--chip-on); border-color:var(--chip-on); color:var(--on-chip); }
+    .chips input:focus-visible + span { outline:3px solid var(--accent); outline-offset:2px; }
+    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; clear:both; }
+    .field { display:flex; flex-direction:column; gap:4px; font-weight:800; font-size:.9rem; }
+    .field input, textarea { font:inherit; font-weight:600; color:var(--ink); background:var(--bg); border:1.5px solid var(--line); border-radius:12px; padding:11px 12px; width:100%; }
+    textarea { min-height:84px; resize:vertical; clear:both; }
+
+    .go { border:0; background:var(--accent); color:var(--on-accent); font:inherit; font-weight:900; font-size:1.05rem; border-radius:16px; padding:15px; cursor:pointer; }
+    .need { color:var(--accent); font-weight:800; font-size:.92rem; min-height:1.2em; }
+
+    #plan { margin-top:26px; background:var(--card); border:2px solid var(--head); border-radius:22px; padding:22px 20px; scroll-margin-top:16px; }
+    #plan h2 { font-size:clamp(1.5rem, 5vw, 2rem); line-height:1.08; margin-bottom:4px; }
+    #plan .sub { color:var(--muted); margin-bottom:14px; }
+    #plan h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:1.3px; color:var(--gold); margin:18px 0 8px; }
+    #plan ul { list-style:none; display:flex; flex-direction:column; gap:8px; }
+    #plan li { display:grid; grid-template-columns:22px minmax(0,1fr); gap:8px; }
+    #plan li::before { content:"✓"; color:var(--green); font-weight:900; }
+    #plan ul.later li::before { content:"+"; color:var(--muted); }
+    #plan ol { padding-left:0; list-style:none; counter-reset:s; display:flex; flex-direction:column; gap:8px; }
+    #plan ol li::before { counter-increment:s; content:counter(s); width:22px; height:22px; border-radius:50%; background:var(--soft); color:var(--ink); font-size:.8rem; display:flex; align-items:center; justify-content:center; font-weight:900; }
+    #plan b { font-weight:900; }
+    .note { background:var(--soft); border-radius:14px; padding:12px 14px; color:var(--muted); font-size:.92rem; margin-top:16px; }
+    .send { display:flex; flex-direction:column; gap:10px; margin-top:18px; }
+    .send p { font-weight:900; }
+    .send .btns { display:flex; gap:10px; flex-wrap:wrap; }
+    .wa { flex:1 1 200px; text-align:center; background:var(--wa); color:#FFFFFF; text-decoration:none; font-weight:900; border-radius:14px; padding:13px 14px; }
+    .copy { border:1.5px solid var(--line); background:var(--bg); color:var(--ink); font:inherit; font-weight:800; border-radius:14px; padding:11px 14px; cursor:pointer; align-self:flex-start; }
+    .copied { color:var(--green); font-weight:800; font-size:.9rem; min-height:1.2em; }
+    footer { color:var(--muted); font-size:.85rem; text-align:center; margin-top:30px; }
+    @media (max-width:440px) { .row2 { grid-template-columns:1fr; } .intro { grid-template-columns:72px minmax(0,1fr); } .intro img { width:72px; height:72px; } }
+  </style>
+</head>
+<body>
+  <div class="picado" aria-hidden="true"><span style="background:#C4372B"></span><span style="background:#E2A23B"></span><span style="background:#3F7A1F"></span><span style="background:#1F4E8C"></span><span style="background:#D9578C"></span><span style="background:#C4372B"></span><span style="background:#E2A23B"></span><span style="background:#3F7A1F"></span></div>
+  <div class="wrap">
+    <div class="top">
+      <a class="back" href="../" data-i18n="back">← Ver ideas de apps</a>
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button type="button" data-set-lang="es" aria-pressed="true">Español</button>
+        <button type="button" data-set-lang="en" aria-pressed="false">English</button>
+      </div>
+    </div>
+
+    <div class="intro">
+      <img src="../frank.jpg" alt="Frank Tocco">
+      <div>
+        <h1 data-i18n="title">Arma el plan de tu app</h1>
+        <p data-i18n="intro">Hola, soy Frank Tocco. Contesta estas preguntas rápidas (unos 2 minutos) y te armo un mini plan de tu app. Luego me lo mandas por WhatsApp y platicamos.</p>
+      </div>
+    </div>
+
+    <form id="f" novalidate>
+      <fieldset>
+        <legend><span class="n">1</span><span data-i18n="q1">Tu negocio</span></legend>
+        <div class="row2">
+          <label class="field"><span data-i18n="q1name">Nombre del negocio</span><input id="bizName" name="bizName" autocomplete="organization" placeholder="Tacos Don Beto"></label>
+          <label class="field"><span data-i18n="q1city">Ciudad</span><input id="city" name="city" autocomplete="address-level2" placeholder="Playa del Carmen"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">2</span><span data-i18n="q2">¿Qué tipo de negocio es?</span></legend>
+        <div class="chips" data-q="type" data-single></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">3</span><span data-i18n="q3">¿Qué quieres que tus clientes hagan con la app?</span></legend>
+        <p class="hintq" data-i18n="pickAll">Elige todas las que quieras.</p>
+        <div class="chips" data-q="feat"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">4</span><span data-i18n="q4">¿Cómo te llegan hoy los pedidos o citas?</span></legend>
+        <p class="hintq" data-i18n="pickAll">Elige todas las que quieras.</p>
+        <div class="chips" data-q="now"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">5</span><span data-i18n="q5">¿En qué idiomas?</span></legend>
+        <div class="chips" data-q="langs" data-single></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">6</span><span data-i18n="q6">¿Ya tienes logo y colores?</span></legend>
+        <div class="chips" data-q="brand" data-single></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">7</span><span data-i18n="q7">¿Cuántos clientes atiendes por semana?</span></legend>
+        <div class="chips" data-q="size" data-single></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">8</span><span data-i18n="q8">¿Para cuándo la quieres?</span></legend>
+        <div class="chips" data-q="when" data-single></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">9</span><span data-i18n="q9">¿Algo más que deba saber?</span></legend>
+        <textarea id="notes" name="notes" data-i18n-ph="q9ph" placeholder="Por ejemplo: quiero que mis clientes vean el menú del día."></textarea>
+      </fieldset>
+
+      <p class="need" id="need" aria-live="polite"></p>
+      <button class="go" type="submit" data-i18n="go">Ver mi mini plan</button>
+    </form>
+
+    <section id="plan" hidden aria-live="polite"></section>
+
+    <footer data-i18n="foot">Tus respuestas se quedan en tu teléfono hasta que tú decides mandarlas por WhatsApp.</footer>
+  </div>
+
+<script>
+  const WA = { mx:"https://wa.me/529841293842", us:"https://wa.me/19139901671" };
+  const OPTS = {
+    type: { food:["Restaurante o comida","Restaurant or food"], store:["Tienda o abarrotes","Store or grocery"], beauty:["Estética o barbería","Salon or barbershop"],
+            cafe:["Café o panadería","Café or bakery"], services:["Servicios (taller, consultorio, clases)","Services (repair, clinic, classes)"], other:["Otro","Other"] },
+    feat: { order:["Hacer pedidos","Place orders"], book:["Apartar citas","Book appointments"], menu:["Ver menú o catálogo con precios","See a menu or catalog with prices"],
+            list:["Mandar su lista para recoger","Send a list for pickup"], loyalty:["Juntar sellos o puntos","Collect stamps or points"],
+            promos:["Ver promociones","See promotions"], info:["Ver ubicación y horario","See location and hours"] },
+    now:  { wa:["WhatsApp","WhatsApp"], phone:["Teléfono","Phone calls"], person:["En persona","In person"], social:["Redes sociales","Social media"], delivery:["Apps de reparto","Delivery apps"] },
+    langs:{ es:["Español","Spanish"], en:["Inglés","English"], both:["Los dos","Both"] },
+    brand:{ yes:["Sí","Yes"], some:["Más o menos","Sort of"], no:["No, ayúdame","No, help me"] },
+    size: { s:["Menos de 50","Under 50"], m:["50 a 200","50 to 200"], l:["200 a 500","200 to 500"], xl:["Más de 500","Over 500"] },
+    when: { asap:["Lo antes posible","As soon as possible"], soon:["En 1 a 2 meses","In 1 to 2 months"], explore:["Solo estoy explorando","Just exploring"] }
+  };
+  // What each feature becomes in version 1, and what it can grow into later (needs a server or the app stores).
+  const FEAT = {
+    order:  { v1:["<b>Pedidos:</b> tus clientes eligen del menú y el pedido te llega por WhatsApp ya escrito y sumado.","<b>Orders:</b> customers pick from your menu and the order reaches your WhatsApp already written out and added up."],
+              later:["Pagos en línea con tarjeta","Online card payments"] },
+    book:   { v1:["<b>Citas:</b> tus clientes ven tus horarios y te mandan su cita por WhatsApp para que la confirmes.","<b>Appointments:</b> customers see your hours and send their booking to your WhatsApp for you to confirm."],
+              later:["Agenda en línea que se aparta sola, con recordatorios automáticos","An online calendar that books itself, with automatic reminders"] },
+    menu:   { v1:["<b>Menú o catálogo:</b> tus productos o servicios con fotos y precios, fáciles de actualizar.","<b>Menu or catalog:</b> your products or services with photos and prices, easy to update."] },
+    list:   { v1:["<b>Lista para recoger:</b> el cliente arma su lista y te la manda; tú le avisas cuando está lista.","<b>Pickup list:</b> customers build their list and send it to you; you let them know when it's ready."] },
+    loyalty:{ v1:["<b>Tarjeta de sellos:</b> el cliente junta sellos en su teléfono y tú los marcas con tu código.","<b>Stamp card:</b> customers collect stamps on their phone and you add them with your code."],
+              later:["Puntos guardados en una cuenta, para que no se pierdan si cambian de teléfono","Points saved in an account so they aren't lost with a new phone"] },
+    promos: { v1:["<b>Promociones:</b> tus ofertas de la semana en la app, como “Martes 2×1”.","<b>Promotions:</b> your weekly deals in the app, like “2-for-1 Tuesdays”."],
+              later:["Avisos al teléfono cuando hay promoción nueva","Phone notifications when there's a new deal"] },
+    info:   { v1:["<b>Ubicación y horario:</b> botón para abrir el mapa y tus horas de servicio.","<b>Location and hours:</b> a button that opens the map, plus your opening hours."] }
+  };
+  const T = {
+    es: {
+      planTitle:n=>n?`Mini plan: la app de ${n}`:"Tu mini plan", planSub:"Esto es lo que podríamos hacer primero. Lo ajustamos juntos.",
+      v1:"Lo que hará tu app (primera versión)", how:"Cómo la usarán tus clientes",
+      howTxt:l=>`Se abre con un link y un código QR, y se instala en el teléfono como cualquier app. Funciona en iPhone y Android, sin descargar nada de las tiendas de apps. ${l}`,
+      langTxt:{ es:"En español.", en:"En inglés.", both:"En español e inglés, con un botón para cambiar." },
+      later:"Para después, si lo necesitas", laterNote:"Esto necesita un servidor o publicar en las tiendas de apps, así que va en una segunda etapa.",
+      ready:"Qué tener listo", readyItems:b=>[ b==="yes"?"Tu logo y tus colores.":b==="some"?"Lo que tengas de logo y colores; lo terminamos juntos.":"Nada de logo: te propongo colores y un logo sencillo.",
+        "Tu lista de productos o servicios con precios.", "Fotos de tus productos o de tu local (las del teléfono sirven).", "Tu horario, tu dirección y el WhatsApp del negocio." ],
+      steps:"Los pasos", stepItems:[ "Platicamos 15 minutos por WhatsApp sobre este plan.", "Te mando un prototipo con tu nombre y tus colores para que lo pruebes en tu teléfono.",
+        "Ajustamos lo que quieras.", "La publicamos con un link para tus redes y un código QR para tu mostrador." ],
+      timing:w=>w==="asap"?"Quieres empezar lo antes posible: te confirmo tiempos y precio cuando platiquemos.":w==="soon"?"Quieres tenerla en 1 a 2 meses: te confirmo tiempos y precio cuando platiquemos.":"Estás explorando: platicamos sin compromiso y te digo tiempos y precio para tu caso.",
+      sendTitle:"Mándame tu plan por WhatsApp", mx:"🇲🇽 WhatsApp México", us:"🇺🇸 WhatsApp US", copy:"Copiar mi plan", copied:"Copiado. Pégalo en un mensaje para Frank.",
+      need:"Elige al menos qué quieres que hagan tus clientes (pregunta 3).",
+      msgHead:"Hola Frank, este es el plan de mi app:", mName:"Negocio", mCity:"Ciudad", mType:"Tipo", mFeat:"Quiero que mis clientes puedan", mNow:"Hoy me llegan por", mLangs:"Idiomas",
+      mBrand:"Logo y colores", mSize:"Clientes por semana", mWhen:"Para cuándo", mNotes:"Notas", docTitle:"Plan de tu app"
+    },
+    en: {
+      back:"← See app ideas", title:"Plan your app",
+      intro:"Hi, I'm Frank Tocco. Answer these quick questions (about 2 minutes) and I'll put together a mini plan for your app. Then send it to me on WhatsApp and we'll talk.",
+      q1:"Your business", q1name:"Business name", q1city:"City", q2:"What kind of business is it?", q3:"What do you want your customers to do with the app?",
+      pickAll:"Pick as many as you like.", q4:"How do orders or appointments reach you today?", q5:"Which languages?", q6:"Do you already have a logo and colors?",
+      q7:"How many customers do you serve per week?", q8:"When would you like it?", q9:"Anything else I should know?",
+      q9ph:"For example: I want customers to see today's menu.", go:"See my mini plan",
+      foot:"Your answers stay on your phone until you choose to send them by WhatsApp.",
+      planTitle:n=>n?`Mini plan: the ${n} app`:"Your mini plan", planSub:"Here's what we could build first. We'll adjust it together.",
+      v1:"What your app will do (first version)", how:"How your customers will use it",
+      howTxt:l=>`It opens from a link and a QR code and installs on the phone like any app. It works on iPhone and Android, with no app store download. ${l}`,
+      langTxt:{ es:"In Spanish.", en:"In English.", both:"In Spanish and English, with a button to switch." },
+      later:"Later, if you need it", laterNote:"These need a server or an app store release, so they come in a second stage.",
+      ready:"What to have ready", readyItems:b=>[ b==="yes"?"Your logo and colors.":b==="some"?"Whatever logo and colors you have; we'll finish them together.":"No logo needed: I'll suggest colors and a simple logo.",
+        "Your list of products or services with prices.", "Photos of your products or your place (phone photos are fine).", "Your hours, address and business WhatsApp number." ],
+      steps:"The steps", stepItems:[ "We talk for 15 minutes on WhatsApp about this plan.", "I send you a prototype with your name and colors to try on your phone.",
+        "We adjust whatever you want.", "We publish it with a link for your social media and a QR code for your counter." ],
+      timing:w=>w==="asap"?"You want to start as soon as possible: I'll confirm timing and price when we talk.":w==="soon"?"You'd like it in 1 to 2 months: I'll confirm timing and price when we talk.":"You're exploring: we'll talk with no commitment and I'll give you timing and price for your case.",
+      sendTitle:"Send me your plan on WhatsApp", mx:"🇲🇽 WhatsApp Mexico", us:"🇺🇸 WhatsApp US", copy:"Copy my plan", copied:"Copied. Paste it into a message to Frank.",
+      need:"Pick at least what you want your customers to do (question 3).",
+      msgHead:"Hi Frank, here's my app plan:", mName:"Business", mCity:"City", mType:"Type", mFeat:"I want customers to be able to", mNow:"Today they reach me by", mLangs:"Languages",
+      mBrand:"Logo and colors", mSize:"Customers per week", mWhen:"When", mNotes:"Notes", docTitle:"Plan your app"
+    }
+  };
+  // Spanish page text is in the HTML; keep a copy so switching back restores it.
+  document.querySelectorAll("[data-i18n]").forEach(el => { T.es[el.dataset.i18n] ??= el.textContent; });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => { T.es[el.dataset.i18nPh] ??= el.placeholder; });
+
+  let lang = "es";
+  const $ = id => document.getElementById(id);
+  const esc = s => s.replace(/[&<>"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ch]));
+
+  // Build the answer chips once; labels change with the language.
+  document.querySelectorAll(".chips[data-q]").forEach(box => {
+    const q = box.dataset.q, single = box.hasAttribute("data-single");
+    Object.keys(OPTS[q]).forEach(k => {
+      box.insertAdjacentHTML("beforeend", `<label><input type="${single ? "radio" : "checkbox"}" name="${q}" value="${k}"><span data-opt="${q}.${k}"></span></label>`);
+    });
+  });
+  const pick = q => [...document.querySelectorAll(`input[name="${q}"]:checked`)].map(i => i.value);
+  const label = (q, k) => OPTS[q][k][lang === "en" ? 1 : 0];
+
+  function answers() {
+    return { bizName:$("bizName").value.trim(), city:$("city").value.trim(), type:pick("type")[0], feat:pick("feat"), now:pick("now"),
+             langs:pick("langs")[0], brand:pick("brand")[0], size:pick("size")[0], when:pick("when")[0], notes:$("notes").value.trim() };
+  }
+
+  function planText(a) {
+    const c = T[lang], L = [c.msgHead, ""];
+    if (a.bizName) L.push(`${c.mName}: ${a.bizName}`);
+    if (a.city) L.push(`${c.mCity}: ${a.city}`);
+    if (a.type) L.push(`${c.mType}: ${label("type", a.type)}`);
+    if (a.feat.length) L.push(`${c.mFeat}: ${a.feat.map(k => label("feat", k)).join(", ")}`);
+    if (a.now.length) L.push(`${c.mNow}: ${a.now.map(k => label("now", k)).join(", ")}`);
+    if (a.langs) L.push(`${c.mLangs}: ${label("langs", a.langs)}`);
+    if (a.brand) L.push(`${c.mBrand}: ${label("brand", a.brand)}`);
+    if (a.size) L.push(`${c.mSize}: ${label("size", a.size)}`);
+    if (a.when) L.push(`${c.mWhen}: ${label("when", a.when)}`);
+    if (a.notes) L.push(`${c.mNotes}: ${a.notes}`);
+    return L.join("\n");
+  }
+
+  function showPlan(scroll) {
+    const a = answers(), c = T[lang], i = lang === "en" ? 1 : 0;
+    if (!a.feat.length) { $("need").textContent = c.need; $("plan").hidden = true; return; }
+    $("need").textContent = "";
+    const v1 = a.feat.map(k => `<li><span>${FEAT[k].v1[i]}</span></li>`).join("");
+    const later = a.feat.filter(k => FEAT[k].later).map(k => `<li><span>${FEAT[k].later[i]}</span></li>`).join("");
+    const text = encodeURIComponent(planText(a));
+    $("plan").innerHTML = `
+      <h2>${esc(c.planTitle(a.bizName))}</h2>
+      <p class="sub">${c.planSub}</p>
+      <h3>${c.v1}</h3><ul>${v1}</ul>
+      <h3>${c.how}</h3><p>${c.howTxt(c.langTxt[a.langs || "both"])}</p>
+      ${later ? `<h3>${c.later}</h3><ul class="later">${later}</ul><p class="note">${c.laterNote}</p>` : ""}
+      <h3>${c.ready}</h3><ul>${c.readyItems(a.brand).map(t => `<li><span>${t}</span></li>`).join("")}</ul>
+      <h3>${c.steps}</h3><ol>${c.stepItems.map(t => `<li><span>${t}</span></li>`).join("")}</ol>
+      <p class="note">${c.timing(a.when || "explore")}</p>
+      <div class="send">
+        <p>${c.sendTitle}</p>
+        <div class="btns">
+          <a class="wa" href="${WA.mx}?text=${text}" target="_blank" rel="noopener">${c.mx}</a>
+          <a class="wa" href="${WA.us}?text=${text}" target="_blank" rel="noopener">${c.us}</a>
+        </div>
+        <button type="button" class="copy" id="copyPlan">${c.copy}</button>
+        <p class="copied" id="copied" aria-live="polite"></p>
+      </div>`;
+    $("plan").hidden = false;
+    $("copyPlan").onclick = async () => {
+      const t = planText(answers());
+      try { await navigator.clipboard.writeText(t); $("copied").textContent = T[lang].copied; }
+      catch (e) { $("copied").textContent = t; }
+    };
+    if (scroll) $("plan").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+
+  function setLang(next) {
+    lang = next; const c = T[lang];
+    document.documentElement.lang = lang; document.title = c.docTitle;
+    document.querySelectorAll("[data-i18n]").forEach(el => { if (c[el.dataset.i18n] != null) el.textContent = c[el.dataset.i18n]; });
+    document.querySelectorAll("[data-i18n-ph]").forEach(el => { if (c[el.dataset.i18nPh] != null) el.placeholder = c[el.dataset.i18nPh]; });
+    document.querySelectorAll("[data-opt]").forEach(el => { const [q, k] = el.dataset.opt.split("."); el.textContent = label(q, k); });
+    document.querySelectorAll("[data-set-lang]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.setLang === lang)));
+    if (!$("plan").hidden) showPlan(false);
+    try { localStorage.setItem("apps-lang", lang); } catch (e) {}
+  }
+
+  // Keep a draft on this phone so a closed tab doesn't lose the answers.
+  const DRAFT = "app-plan-draft";
+  function saveDraft() { try { localStorage.setItem(DRAFT, JSON.stringify(answers())); } catch (e) {} }
+  function loadDraft() {
+    let a; try { a = JSON.parse(localStorage.getItem(DRAFT)); } catch (e) {}
+    if (!a) return;
+    $("bizName").value = a.bizName || ""; $("city").value = a.city || ""; $("notes").value = a.notes || "";
+    ["type","feat","now","langs","brand","size","when"].forEach(q => [].concat(a[q] || []).forEach(v => {
+      const el = document.querySelector(`input[name="${q}"][value="${v}"]`); if (el) el.checked = true;
+    }));
+  }
+  $("f").addEventListener("input", () => { saveDraft(); if (!$("plan").hidden) showPlan(false); });
+  $("f").addEventListener("submit", e => { e.preventDefault(); saveDraft(); showPlan(true); });
+  document.querySelectorAll("[data-set-lang]").forEach(b => b.addEventListener("click", () => setLang(b.dataset.setLang)));
+
+  loadDraft();
+  let start = "es";
+  try { start = localStorage.getItem("apps-lang") || (navigator.language || "es").slice(0, 2); } catch (e) {}
+  setLang(start === "en" ? "en" : "es");
+</script>
+</body>
+</html>

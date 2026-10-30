@@ -18,7 +18,8 @@ Mensajes perdidos, pedidos mal anotados, citas que se cruzan… Una app sencilla
 3️⃣ Citas sin llamadas
 4️⃣ Tarjeta de lealtad en el teléfono
 
-¿Cuál le queda a tu negocio? Arma el plan de tu app en 2 minutos: link en mi bio 🔗
+¿Cuál le queda a tu negocio? Comenta APP y te mando ideas por DM 💬
+Sígueme para más ideas para tu negocio. Arma el plan de tu app en 2 minutos: link en mi bio 🔗
 
 #NegociosLocales #EmprendedoresMexicanos #PymesMexico #AppsParaNegocios #PlayaDelCarmen #RivieraMaya #HechoEnMexico
 
@@ -34,7 +35,8 @@ Missed messages, mixed-up orders, double-booked appointments… A simple app kee
 3️⃣ Appointments without phone calls (nail salons, barbershops)
 4️⃣ A loyalty card on the phone (coffee shops, bakeries)
 
-Which one fits your business? Plan your app in 2 minutes: link in bio 🔗
+Which one fits your business? Comment APP and I'll DM you ideas 💬
+Follow for more small-business ideas. Plan your app in 2 minutes: link in bio 🔗
 
 #SmallBusiness #SmallBusinessOwner #ShopLocal #LocalBusiness #FoodTruck #CoffeeShop #NailSalon
 (Add your city, e.g. #KansasCity #KCSmallBusiness if you're targeting the 913 area.)

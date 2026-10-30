@@ -16,3 +16,7 @@ When the owner suggests an idea, feature, or change:
 - English and Spanish (Mexico) everywhere; every new label needs both.
 - Bump the cache version in `sw.js` with every change so installed phones pick up the update.
 - Ideas for later live in `FUTURE_UPGRADES.md`.
+- Instagram posts (2026 format): 1080 × 1440 px. Keep text, faces and key content out of the no-go zones:
+  50 px on the left and right, 180 px at the top and bottom (background can run into them).
+- Owner: Frank Tocco. Business WhatsApp: Mexico +52 984 129 3842, US +1 913 990 1671.
+  The app ideas page is `apps/`; the app planner page is `apps/plan/`.

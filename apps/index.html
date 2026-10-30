@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#F7F6F2" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#10141C" media="(prefers-color-scheme: dark)">
-  <meta name="description" content="Apps sencillas para negocios en México: pedidos por WhatsApp, citas, tarjetas de lealtad. Hecho por el creador de Lista Mandado.">
+  <meta name="description" content="Apps sencillas para negocios en México y Estados Unidos: pedidos por WhatsApp, citas, tarjetas de lealtad. Por Frank Tocco, creador de Lista Mandado.">
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
   <link rel="icon" type="image/png" href="../icons/favicon.png">
   <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
@@ -129,6 +129,11 @@
     .num .wa-btn { padding:10px 14px; }
     @media (prefers-color-scheme: dark) { section.contact { background:#1E2A44; } }
 
+    .about { display:grid; grid-template-columns:150px minmax(0,1fr); gap:26px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:24px; padding:26px; margin-bottom:56px; }
+    .about img { width:150px; height:150px; border-radius:50%; object-fit:cover; }
+    .about h2 { font-size:clamp(1.5rem, 3.2vw, 2rem); color:var(--head); line-height:1.1; margin-bottom:8px; }
+    .about p { color:var(--muted); font-size:1.02rem; max-width:36em; margin-bottom:14px; }
+    .plan-btn { display:inline-flex; align-items:center; gap:8px; background:var(--accent); color:var(--on-accent); text-decoration:none; font-weight:900; border-radius:14px; padding:13px 18px; }
     footer { padding-block:10px 40px; color:var(--muted); font-size:.88rem; text-align:center; }
 
     @media (max-width: 860px) {
@@ -141,6 +146,8 @@
       .idea { grid-template-columns:1fr; justify-items:center; text-align:center; }
       .idea .wa-btn { justify-content:center; }
       section.contact { padding:24px 18px; border-radius:22px; }
+      .about { grid-template-columns:1fr; justify-items:center; text-align:center; padding:22px 18px; }
+      .about img { width:120px; height:120px; }
       .proof .phone { width:240px; }
     }
   </style>
@@ -161,8 +168,9 @@
       <div>
         <div class="eyebrow" data-i18n="eyebrow">Apps para negocios</div>
         <h1><span data-i18n="h1a">Una app para tu negocio,</span> <em data-i18n="h1b">sin complicarte.</em></h1>
-        <p class="lede" data-i18n="lede">Hice Lista Mandado, una app gratis para hacer el súper en orden de pasillo. Puedo hacer una así para tus clientes: pedidos por WhatsApp, citas, tarjetas de lealtad y más. Sin descargar nada de las tiendas de apps: se abre con un link y se instala en el teléfono.</p>
+        <p class="lede" data-i18n="lede">Soy Frank Tocco. Hice Lista Mandado, una app gratis para hacer el súper en orden de pasillo. Puedo hacer una así para tus clientes: pedidos por WhatsApp, citas, tarjetas de lealtad y más. Sin descargar nada de las tiendas de apps: se abre con un link y se instala en el teléfono.</p>
         <div class="cta-row">
+          <a class="plan-btn" href="plan/">📝 <span data-i18n="ctaPlan">Arma el plan de tu app</span></a>
           <a class="wa-btn js-wa" data-msg="general" target="_blank" rel="noopener">💬 <span data-i18n="ctaWa">Escríbeme por WhatsApp</span></a>
           <a class="ghost-btn" href="../" target="_blank" rel="noopener">🛒 <span data-i18n="ctaTry">Probar Lista Mandado</span></a>
         </div>
@@ -269,6 +277,15 @@
       </ol>
     </section>
 
+    <section class="about">
+      <img src="frank.jpg" alt="Frank Tocco">
+      <div>
+        <h2 data-i18n="aboutTitle">Hola, soy Frank Tocco</h2>
+        <p data-i18n="aboutText">Hice Lista Mandado para hacer el súper más fácil, en español y en inglés. Ahora hago apps sencillas para negocios en México y Estados Unidos. Contesta unas preguntas rápidas y te mando un mini plan de tu app.</p>
+        <a class="plan-btn" href="plan/">📝 <span data-i18n="ctaPlan">Arma el plan de tu app</span></a>
+      </div>
+    </section>
+
     <section class="contact" id="contacto">
       <div>
         <h2 data-i18n="cTitle">¿Platicamos de tu app?</h2>
@@ -288,7 +305,10 @@
   const T = {
     en: {
       eyebrow:"Apps for businesses", h1a:"An app for your business,", h1b:"without the hassle.",
-      lede:"I made Lista Mandado, a free app for grocery shopping in aisle order. I can make one like it for your customers: WhatsApp orders, appointments, loyalty cards and more. No app store download needed: it opens from a link and installs on the phone.",
+      ctaPlan:"Plan your app",
+      aboutTitle:"Hi, I'm Frank Tocco",
+      aboutText:"I made Lista Mandado to make grocery shopping easier, in Spanish and English. Now I build simple apps for businesses in Mexico and the United States. Answer a few quick questions and I'll send you a mini plan for your app.",
+      lede:"I'm Frank Tocco. I made Lista Mandado, a free app for grocery shopping in aisle order. I can make one like it for your customers: WhatsApp orders, appointments, loyalty cards and more. No app store download needed: it opens from a link and installs on the phone.",
       ctaWa:"Message me on WhatsApp", ctaTry:"Try Lista Mandado",
       proofAlt:"Lista Mandado: a grocery list sorted into store sections", proofCap:"real, free and in use. Spanish and English, voice, Mexican stores.",
       ideasEyebrow:"Ideas", ideasTitle:"What could your app do?", ideasText:"Four examples to help you picture yours. Each one is adapted to your business, your menu and your colors.",

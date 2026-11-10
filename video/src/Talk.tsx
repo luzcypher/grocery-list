@@ -10,15 +10,16 @@ const C = { bg1: "#121827", bg2: "#0B0F18", ink: "#F3F1EA", muted: "#A9B0BE", re
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const ease = Easing.bezier(0.22, 1, 0.36, 1);
 
-const SECTIONS = [
+export const SECTIONS = [
   { label: "Produce", emoji: "🍎", color: "#7BC25A", item: "apples" },
   { label: "Bakery", emoji: "🥖", color: "#F2B632", item: "bread" },
   { label: "Meat", emoji: "🥩", color: "#E8574A", item: "chicken" },
   { label: "Dairy", emoji: "🥛", color: "#8DB4F0", item: "milk" },
 ];
+const ES = { labels: ["Frutas", "Panadería", "Carnes", "Lácteos"], items: ["manzanas", "pan", "pollo", "leche"] };
 const SPOKEN = "milk, apples, bread and chicken";
 const SPOKEN_ORDER = [3, 0, 1, 2]; // milk, apples, bread, chicken
-const STORE_ORDER = [1, 0, 3, 2]; // at this store: Bakery, Produce, Dairy, Meat (aisles 1–4)
+export const STORE_ORDER = [1, 0, 3, 2]; // at this store: Bakery, Produce, Dairy, Meat (aisles 1–4)
 const CARD_H = 118, CARD_GAP = 14;
 
 // Big numbered caption at the top of the safe area.
@@ -36,7 +37,7 @@ const Caption: React.FC<{ n?: string; lines: { t: string; hot?: boolean }[]; at?
 };
 
 // The app inside a phone. `filled[i]` shows section i's item; `pos[i]` is the card's slot (can be fractional while moving).
-const AppPhone: React.FC<{ filled: number[]; pos: number[]; store: string; aisles: number; mic: number; bubble: string; flash: number[] }> = ({ filled, pos, store, aisles, mic, bubble, flash }) => (
+export const AppPhone: React.FC<{ filled: number[]; pos: number[]; store: string; aisles: number; mic: number; bubble: string; flash: number[]; es?: boolean }> = ({ filled, pos, store, aisles, mic, bubble, flash, es = false }) => (
   <div style={{ width: 460, height: 960, borderRadius: 74, background: "#050608", padding: 15, boxSizing: "border-box", boxShadow: "0 0 0 3px #3A3F48, 0 0 0 6px #8A8F99, 0 60px 90px -30px rgba(0,0,0,.85), 0 20px 60px -20px rgba(196,55,43,.5)" }}>
     <div style={{ width: "100%", height: "100%", borderRadius: 60, background: C.screen, overflow: "hidden", position: "relative", padding: "74px 24px 24px", boxSizing: "border-box", fontFamily: "Nunito" }}>
       <div style={{ position: "absolute", top: 15, left: "50%", transform: "translateX(-50%)", width: 124, height: 36, borderRadius: 20, background: "#000" }} />
@@ -44,7 +45,7 @@ const AppPhone: React.FC<{ filled: number[]; pos: number[]; store: string; aisle
         <img src={staticFile("icon.svg")} style={{ width: 46, height: 46, borderRadius: 11 }} /> Lista Mandado
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 18, fontWeight: 800, fontSize: 24, color: C.muted }}>
-        Store
+        {es ? "Tienda" : "Store"}
         <div style={{ flex: 1, height: 58, borderRadius: 16, border: `2px solid ${store === "Walmart" ? C.green : C.line}`, background: C.card, color: C.ink, fontSize: 28, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 18px", transition: "none" }}>
           {store} <span style={{ color: C.muted, fontSize: 22 }}>▾</span>
         </div>
@@ -53,21 +54,21 @@ const AppPhone: React.FC<{ filled: number[]; pos: number[]; store: string; aisle
         {SECTIONS.map((s, i) => (
           <div key={s.label} style={{ position: "absolute", left: 0, right: 0, top: pos[i] * (CARD_H + CARD_GAP), transform: `translateX(${Math.sin(Math.PI * (pos[i] % 1 || 0)) * (STORE_ORDER.indexOf(i) < i ? -26 : 26)}px)`, zIndex: STORE_ORDER.indexOf(i) < i ? 2 : 1, height: CARD_H, boxSizing: "border-box", background: C.card, border: `2px solid ${flash[i] > 0 ? s.color : C.line}`, borderRadius: 22, padding: "14px 18px", boxShadow: flash[i] > 0 ? `0 0 ${30 * flash[i]}px ${s.color}66` : "none" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, color: C.blue, fontWeight: 900, fontSize: 25 }}>
-              <span style={{ width: 9, height: 26, borderRadius: 4, background: s.color }} /> {s.emoji} {s.label}
+              <span style={{ width: 9, height: 26, borderRadius: 4, background: s.color }} /> {s.emoji} {es ? ES.labels[i] : s.label}
               <span style={{ marginLeft: "auto", fontSize: 20, fontWeight: 900, color: "#10141C", background: C.gold, borderRadius: 999, padding: "3px 12px", opacity: aisles, transform: `scale(${0.6 + 0.4 * aisles})` }}>
-                Aisle {Math.round(pos[i]) + 1}
+                {es ? "Pasillo" : "Aisle"} {Math.round(pos[i]) + 1}
               </span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 10, opacity: filled[i], transform: `translateY(${(1 - filled[i]) * -40}px)` }}>
               <span style={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid #4A5466" }} />
-              <span style={{ color: C.ink, fontWeight: 800, fontSize: 32 }}>{s.item}</span>
+              <span style={{ color: C.ink, fontWeight: 800, fontSize: 32 }}>{es ? ES.items[i] : s.item}</span>
             </div>
           </div>
         ))}
       </div>
       {/* add bar with the microphone */}
       <div style={{ position: "absolute", left: 24, right: 24, bottom: 28, display: "flex", gap: 12, alignItems: "center" }}>
-        <div style={{ flex: 1, height: 70, borderRadius: 22, border: `2px solid ${C.line}`, background: C.card, color: C.muted, fontSize: 26, fontWeight: 700, display: "flex", alignItems: "center", padding: "0 18px" }}>Add: 2 kg tortillas</div>
+        <div style={{ flex: 1, height: 70, borderRadius: 22, border: `2px solid ${C.line}`, background: C.card, color: C.muted, fontSize: 26, fontWeight: 700, display: "flex", alignItems: "center", padding: "0 18px" }}>{es ? "Agrega: tortillas" : "Add: 2 kg tortillas"}</div>
         <div style={{ position: "relative", width: 78, height: 78 }}>
           {[0, 1].map((k) => {
             const r = ((mic * 2 + k * 0.5) % 1);
